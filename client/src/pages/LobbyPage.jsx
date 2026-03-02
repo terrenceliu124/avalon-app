@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useGame } from '../context/GameContext';
+import { PAGE_BACKGROUNDS } from '../assets';
+import PlayerAvatar from '../components/PlayerAvatar';
 
 const OPTIONAL_ROLES = ['Percival', 'Morgana', 'Mordred', 'Oberon'];
 
@@ -38,8 +40,12 @@ export default function LobbyPage() {
     }
   }
 
+  const bgStyle = PAGE_BACKGROUNDS.lobby
+    ? { backgroundImage: `url(${PAGE_BACKGROUNDS.lobby})` }
+    : undefined;
+
   return (
-    <div className="page">
+    <div className="page" style={bgStyle}>
       <div className="card">
         <h2>Lobby</h2>
         <p style={{ marginBottom: 4, fontSize: '0.9rem', color: '#888' }}>Room Code</p>
@@ -58,6 +64,7 @@ export default function LobbyPage() {
         <ul className="player-list" data-testid="player-list">
           {room.players.map(p => (
             <li key={p.id || p.name}>
+              <PlayerAvatar name={p.name} />
               <span>{p.name}</span>
               <div style={{ display: 'flex', gap: 6 }}>
                 {p.isHost && <span className="badge" style={{ background: '#2a2a1a', color: '#e2b96f' }}>Host</span>}

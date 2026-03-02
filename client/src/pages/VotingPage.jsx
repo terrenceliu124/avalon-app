@@ -1,6 +1,7 @@
 import React from 'react';
 import { useGame } from '../context/GameContext';
 import MissionTrack from '../components/MissionTrack';
+import { PAGE_BACKGROUNDS } from '../assets';
 
 export default function VotingPage() {
   const { socket, state } = useGame();
@@ -17,8 +18,12 @@ export default function VotingPage() {
     socket.emit('submit_vote', { roomCode, vote: approve });
   }
 
+  const bgStyle = PAGE_BACKGROUNDS.voting
+    ? { backgroundImage: `url(${PAGE_BACKGROUNDS.voting})` }
+    : undefined;
+
   return (
-    <div className="page">
+    <div className="page" style={bgStyle}>
       <div className="card">
         <MissionTrack results={room.missionResults} current={room.currentMission} playerCount={room.players.length} />
       </div>

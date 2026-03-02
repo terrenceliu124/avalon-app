@@ -120,3 +120,15 @@ Bots are fake player objects (`{ id: 'bot-N', name: 'Bot N', isBot: true }`). Th
 - **Role info comes from `state.player`:** Components read the current player's role/team from `state.player` (populated by `role_assigned`), not from `state.room.players`.
 - **Bots are filtered from selection UIs:** Use `room.players.filter(p => !p.isBot)` when rendering player lists that require human interaction (e.g., team selection).
 - **Role reveal at game_over:** `GameOverPage` reads from `room.revealedPlayers` (populated by server at all game_over transitions), not from `room.players`.
+
+## Visual Assets Workflow
+
+Drop image files into `client/public/assets/` — Vite serves them at `/assets/filename.jpg` with no import needed.
+
+**`client/src/assets.js`** is the single config file to edit each session:
+- `PAGE_BACKGROUNDS` — map of phase name → URL string or `null` (9 slots: `home`, `lobby`, `roleReveal`, `night`, `teamProposal`, `voting`, `quest`, `assassination`, `gameOver`)
+- `AVATARS` — array of URL strings; assign avatars deterministically by player name hash via `getAvatar(name)`
+
+When all values are `null`/empty the app looks identical to no-asset state. Setting a slot activates it for that phase only.
+
+**`PlayerAvatar` component** (`client/src/components/PlayerAvatar.jsx`) returns `null` when `AVATARS` is empty — no layout change until avatars are added. Player lists in `LobbyPage`, `TeamProposalPage`, `AssassinationPage`, and `GameOverPage` already include `<PlayerAvatar name={p.name} />`.

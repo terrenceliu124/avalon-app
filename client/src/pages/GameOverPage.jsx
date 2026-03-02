@@ -1,6 +1,8 @@
 import React from 'react';
 import { useGame } from '../context/GameContext';
 import MissionTrack from '../components/MissionTrack';
+import { PAGE_BACKGROUNDS } from '../assets';
+import PlayerAvatar from '../components/PlayerAvatar';
 
 export default function GameOverPage() {
   const { dispatch, state } = useGame();
@@ -8,8 +10,12 @@ export default function GameOverPage() {
 
   const isGoodWin = room.winner === 'good';
 
+  const bgStyle = PAGE_BACKGROUNDS.gameOver
+    ? { backgroundImage: `url(${PAGE_BACKGROUNDS.gameOver})` }
+    : undefined;
+
   return (
-    <div className="page">
+    <div className="page" style={bgStyle}>
       <div className="card">
         <MissionTrack results={room.missionResults} current={room.currentMission} playerCount={room.players.length} />
       </div>
@@ -33,6 +39,7 @@ export default function GameOverPage() {
         <ul className="player-list">
           {(room.revealedPlayers || room.players).map(p => (
             <li key={p.name}>
+              <PlayerAvatar name={p.name} />
               <span>{p.name}</span>
               <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                 <span className={`badge badge-${p.team || 'good'}`}>{p.role || '?'}</span>

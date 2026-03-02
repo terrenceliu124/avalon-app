@@ -1,6 +1,7 @@
 import React from 'react';
 import { useGame } from '../context/GameContext';
 import MissionTrack from '../components/MissionTrack';
+import { PAGE_BACKGROUNDS } from '../assets';
 
 export default function NightPage() {
   const { socket, state } = useGame();
@@ -11,8 +12,12 @@ export default function NightPage() {
 
   const sees = nightVision?.sees || [];
 
+  const bgStyle = PAGE_BACKGROUNDS.night
+    ? { backgroundImage: `url(${PAGE_BACKGROUNDS.night})` }
+    : undefined;
+
   return (
-    <div className="page">
+    <div className="page" style={bgStyle}>
       <div className="card">
         <MissionTrack results={room.missionResults} current={room.currentMission} playerCount={room.players.length} />
       </div>

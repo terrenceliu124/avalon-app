@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useGame } from '../context/GameContext';
+import { PAGE_BACKGROUNDS } from '../assets';
 
 export default function HomePage() {
   const { socket, state, dispatch } = useGame();
@@ -31,8 +32,12 @@ export default function HomePage() {
     socket.emit('join_room', { playerName: playerName.trim(), roomCode: roomCode.trim().toUpperCase() });
   }
 
+  const bgStyle = PAGE_BACKGROUNDS.home
+    ? { backgroundImage: `url(${PAGE_BACKGROUNDS.home})` }
+    : undefined;
+
   return (
-    <div className="page" style={{ justifyContent: 'center' }}>
+    <div className="page" style={{ justifyContent: 'center', ...bgStyle }}>
       <div className="card">
         <h1 style={{ textAlign: 'center', marginBottom: 4 }}>Avalon</h1>
         <p style={{ textAlign: 'center', marginBottom: 24, color: '#888' }}>The Resistance</p>

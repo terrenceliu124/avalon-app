@@ -1,6 +1,7 @@
 import React from 'react';
 import { useGame } from '../context/GameContext';
 import MissionTrack from '../components/MissionTrack';
+import { PAGE_BACKGROUNDS } from '../assets';
 
 const ROLE_DESCRIPTIONS = {
   Merlin: 'You know all Evil players except Mordred. Guide Good to victory without revealing yourself.',
@@ -25,8 +26,12 @@ export default function RoleRevealPage() {
   const team = player?.team || 'unknown';
   const desc = ROLE_DESCRIPTIONS[role] || 'Your role information will appear here.';
 
+  const bgStyle = PAGE_BACKGROUNDS.roleReveal
+    ? { backgroundImage: `url(${PAGE_BACKGROUNDS.roleReveal})` }
+    : undefined;
+
   return (
-    <div className="page">
+    <div className="page" style={bgStyle}>
       <div className="card">
         <MissionTrack results={room.missionResults} current={room.currentMission} playerCount={room.players.length} />
       </div>

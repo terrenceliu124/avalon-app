@@ -1,6 +1,7 @@
 import React from 'react';
 import { useGame } from '../context/GameContext';
 import MissionTrack from '../components/MissionTrack';
+import { PAGE_BACKGROUNDS } from '../assets';
 
 export default function QuestPage() {
   const { socket, state } = useGame();
@@ -20,8 +21,12 @@ export default function QuestPage() {
     socket.emit('submit_quest_card', { roomCode, card });
   }
 
+  const bgStyle = PAGE_BACKGROUNDS.quest
+    ? { backgroundImage: `url(${PAGE_BACKGROUNDS.quest})` }
+    : undefined;
+
   return (
-    <div className="page">
+    <div className="page" style={bgStyle}>
       <div className="card">
         <MissionTrack results={room.missionResults} current={room.currentMission} playerCount={room.players.length} />
       </div>

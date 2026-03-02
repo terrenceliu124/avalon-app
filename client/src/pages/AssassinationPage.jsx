@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useGame } from '../context/GameContext';
 import MissionTrack from '../components/MissionTrack';
+import { PAGE_BACKGROUNDS } from '../assets';
+import PlayerAvatar from '../components/PlayerAvatar';
 
 export default function AssassinationPage() {
   const { socket, state } = useGame();
@@ -23,8 +25,12 @@ export default function AssassinationPage() {
     socket.emit('assassinate', { roomCode, targetName: target });
   }
 
+  const bgStyle = PAGE_BACKGROUNDS.assassination
+    ? { backgroundImage: `url(${PAGE_BACKGROUNDS.assassination})` }
+    : undefined;
+
   return (
-    <div className="page">
+    <div className="page" style={bgStyle}>
       <div className="card">
         <MissionTrack results={room.missionResults} current={room.currentMission} playerCount={room.players.length} />
       </div>
@@ -47,6 +53,7 @@ export default function AssassinationPage() {
                   style={{ cursor: 'pointer' }}
                 >
                   <input type="radio" readOnly checked={target === p.name} />
+                  <PlayerAvatar name={p.name} />
                   <span>{p.name}</span>
                 </li>
               ))}

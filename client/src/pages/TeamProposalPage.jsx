@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useGame } from '../context/GameContext';
 import MissionTrack from '../components/MissionTrack';
+import { PAGE_BACKGROUNDS } from '../assets';
+import PlayerAvatar from '../components/PlayerAvatar';
 
 const TEAM_SIZES = {
   5:  [2, 3, 2, 3, 3],
@@ -38,8 +40,12 @@ export default function TeamProposalPage() {
     ? `${room.rejectionCount}/5 rejections used`
     : null;
 
+  const bgStyle = PAGE_BACKGROUNDS.teamProposal
+    ? { backgroundImage: `url(${PAGE_BACKGROUNDS.teamProposal})` }
+    : undefined;
+
   return (
-    <div className="page">
+    <div className="page" style={bgStyle}>
       <div className="card">
         <MissionTrack results={room.missionResults} current={room.currentMission} playerCount={room.players.length} />
         <p style={{ fontSize: '0.85rem', color: '#888' }}>
@@ -65,6 +71,7 @@ export default function TeamProposalPage() {
                     readOnly
                     checked={selected.includes(p.name)}
                   />
+                  <PlayerAvatar name={p.name} />
                   <span>{p.name}</span>
                 </li>
               ))}

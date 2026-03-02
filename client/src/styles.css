@@ -16,6 +16,10 @@ body {
   flex-direction: column;
   align-items: center;
   padding: 24px 16px 48px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
 }
 
 .card {
@@ -150,6 +154,13 @@ label { display: block; font-size: 0.9rem; color: #a0a0b8; margin-bottom: 14px; 
   background: #e2b96f;
   border-radius: 4px;
   transition: width 0.3s;
+}
+
+/* ---- Player avatar ---- */
+.player-avatar {
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
 }
 
 /* ---- Player list ---- */
