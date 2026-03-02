@@ -2,7 +2,7 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const cors = require('cors');
-const { createRoom, joinRoom, getRoom, leaveRoom } = require('./gameManager');
+const { createRoom, joinRoom, getRoom, leaveRoom, makeBot } = require('./gameManager');
 const { assignRoles, computeNightVision, getTeamSize, requiresTwoFails, checkWin, advanceLeader } = require('./gameLogic');
 
 const app = express();
@@ -92,7 +92,7 @@ io.on('connection', (socket) => {
     let botN = room.players.filter(p => p.isBot).length;
     while (room.players.length < 5) {
       botN += 1;
-      room.players.push({ id: `bot-${botN}`, name: `Bot ${botN}`, isBot: true, isHost: false });
+      room.players.push(makeBot(botN));
     }
 
     io.to(roomCode).emit('room_updated', { room });

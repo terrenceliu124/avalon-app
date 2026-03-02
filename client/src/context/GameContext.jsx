@@ -42,7 +42,7 @@ function reducer(state, action) {
     case 'QUEST_RESULT':
       return { ...state, questResult: { fails: action.fails, questFailed: action.questFailed } };
     case 'RESET':
-      sessionStorage.removeItem('avalon_player');
+      localStorage.removeItem('avalon_player');
       return initialState;
     default:
       return state;
@@ -56,7 +56,7 @@ export function GameProvider({ children }) {
 
   useEffect(() => {
     function handleConnect() {
-      const saved = sessionStorage.getItem('avalon_player');
+      const saved = localStorage.getItem('avalon_player');
       if (saved) {
         try {
           const { playerName, roomCode } = JSON.parse(saved);
@@ -64,7 +64,7 @@ export function GameProvider({ children }) {
             socket.emit('rejoin_room', { roomCode, playerName });
           }
         } catch {
-          sessionStorage.removeItem('avalon_player');
+          localStorage.removeItem('avalon_player');
         }
       }
     }
@@ -74,22 +74,22 @@ export function GameProvider({ children }) {
     socket.on('connect', handleConnect);
 
     socket.on('room_created', ({ code, player, room }) => {
-      sessionStorage.setItem('avalon_player', JSON.stringify({ playerName: player.name, roomCode: code }));
+      localStorage.setItem('avalon_player', JSON.stringify({ playerName: player.name, roomCode: code }));
       dispatch({ type: 'ROOM_JOINED', code, player, room });
     });
 
     socket.on('room_joined', ({ code, player, room }) => {
-      sessionStorage.setItem('avalon_player', JSON.stringify({ playerName: player.name, roomCode: code }));
+      localStorage.setItem('avalon_player', JSON.stringify({ playerName: player.name, roomCode: code }));
       dispatch({ type: 'ROOM_JOINED', code, player, room });
     });
 
     socket.on('rejoined', ({ room, player }) => {
-      sessionStorage.setItem('avalon_player', JSON.stringify({ playerName: player.name, roomCode: room.code }));
+      localStorage.setItem('avalon_player', JSON.stringify({ playerName: player.name, roomCode: room.code }));
       dispatch({ type: 'ROOM_JOINED', code: room.code, player, room });
     });
 
     socket.on('rejoin_failed', () => {
-      sessionStorage.removeItem('avalon_player');
+      localStorage.removeItem('avalon_player');
     });
 
     socket.on('room_updated', ({ room }) => {

@@ -3,6 +3,16 @@ const { v4: uuidv4 } = require('uuid');
 // rooms: Map<roomCode, roomState>
 const rooms = new Map();
 
+// --- Player factories ---
+
+function makePlayer(socketId, name, isHost) {
+  return { id: socketId, name, isHost, isBot: false };
+}
+
+function makeBot(n) {
+  return { id: `bot-${n}`, name: `Bot ${n}`, isHost: false, isBot: true };
+}
+
 function generateRoomCode() {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   let code;
@@ -14,7 +24,7 @@ function generateRoomCode() {
 
 function createRoom(hostName, socketId) {
   const code = generateRoomCode();
-  const player = { id: socketId, name: hostName, isHost: true, isBot: false };
+  const player = makePlayer(socketId, hostName, true);
   rooms.set(code, {
     code,
     players: [player],
@@ -40,7 +50,7 @@ function joinRoom(roomCode, playerName, socketId) {
   if (room.players.some(p => p.name === playerName)) return { error: 'Name already taken' };
   if (room.players.length >= 10) return { error: 'Room is full' };
 
-  const player = { id: socketId, name: playerName, isHost: false, isBot: false };
+  const player = makePlayer(socketId, playerName, false);
   room.players.push(player);
   return { room, player };
 }
@@ -76,4 +86,4 @@ function getRooms() {
   return rooms;
 }
 
-module.exports = { createRoom, joinRoom, getRoom, leaveRoom, getRooms, generateRoomCode };
+module.exports = { createRoom, joinRoom, getRoom, leaveRoom, getRooms, generateRoomCode, makePlayer, makeBot };
