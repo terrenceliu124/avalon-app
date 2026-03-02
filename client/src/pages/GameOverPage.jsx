@@ -1,7 +1,7 @@
 import React from 'react';
 import { useGame } from '../context/GameContext';
 import MissionTrack from '../components/MissionTrack';
-import { PAGE_BACKGROUNDS } from '../assets';
+import { PAGE_BACKGROUND } from '../assets';
 import PlayerAvatar from '../components/PlayerAvatar';
 
 export default function GameOverPage() {
@@ -10,9 +10,7 @@ export default function GameOverPage() {
 
   const isGoodWin = room.winner === 'good';
 
-  const bgStyle = PAGE_BACKGROUNDS.gameOver
-    ? { backgroundImage: `url(${PAGE_BACKGROUNDS.gameOver})` }
-    : undefined;
+  const bgStyle = PAGE_BACKGROUND ? { backgroundImage: `url(${PAGE_BACKGROUND})` } : undefined;
 
   return (
     <div className="page" style={bgStyle}>

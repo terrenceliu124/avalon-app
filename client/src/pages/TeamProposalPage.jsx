@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useGame } from '../context/GameContext';
 import MissionTrack from '../components/MissionTrack';
 import PlayerCard from '../components/PlayerCard';
-import { PAGE_BACKGROUNDS } from '../assets';
+import { PAGE_BACKGROUND } from '../assets';
 
 const TEAM_SIZES = {
   5:  [2, 3, 2, 3, 3],
@@ -40,9 +40,7 @@ export default function TeamProposalPage() {
     ? `${room.rejectionCount}/5 rejections used`
     : null;
 
-  const bgStyle = PAGE_BACKGROUNDS.teamProposal
-    ? { backgroundImage: `url(${PAGE_BACKGROUNDS.teamProposal})` }
-    : undefined;
+  const bgStyle = PAGE_BACKGROUND ? { backgroundImage: `url(${PAGE_BACKGROUND})` } : undefined;
 
   return (
     <div className="page" style={bgStyle}>

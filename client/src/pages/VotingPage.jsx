@@ -1,7 +1,7 @@
 import React from 'react';
 import { useGame } from '../context/GameContext';
 import MissionTrack from '../components/MissionTrack';
-import { PAGE_BACKGROUNDS } from '../assets';
+import { PAGE_BACKGROUND } from '../assets';
 
 export default function VotingPage() {
   const { socket, state } = useGame();
@@ -18,9 +18,7 @@ export default function VotingPage() {
     socket.emit('submit_vote', { roomCode, vote: approve });
   }
 
-  const bgStyle = PAGE_BACKGROUNDS.voting
-    ? { backgroundImage: `url(${PAGE_BACKGROUNDS.voting})` }
-    : undefined;
+  const bgStyle = PAGE_BACKGROUND ? { backgroundImage: `url(${PAGE_BACKGROUND})` } : undefined;
 
   return (
     <div className="page" style={bgStyle}>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useGame } from '../context/GameContext';
-import { PAGE_BACKGROUNDS } from '../assets';
+import { PAGE_BACKGROUND } from '../assets';
 import PlayerAvatar from '../components/PlayerAvatar';
 
 const OPTIONAL_ROLES = ['Percival', 'Morgana', 'Mordred', 'Oberon'];
@@ -44,9 +44,7 @@ export default function LobbyPage() {
     }
   }
 
-  const bgStyle = PAGE_BACKGROUNDS.lobby
-    ? { backgroundImage: `url(${PAGE_BACKGROUNDS.lobby})` }
-    : undefined;
+  const bgStyle = PAGE_BACKGROUND ? { backgroundImage: `url(${PAGE_BACKGROUND})` } : undefined;
 
   return (
     <div className="page" style={bgStyle}>

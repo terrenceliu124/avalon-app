@@ -7,7 +7,12 @@
       "Bash(/opt/homebrew/bin/node:*)",
       "Bash(/opt/homebrew/bin/npm install:*)",
       "Bash(/opt/homebrew/bin/npm list:*)",
-      "Bash(/opt/homebrew/bin/npm test:*)"
+      "Bash(/opt/homebrew/bin/npm test:*)",
+      "Skill(commit-commands:commit)",
+      "Bash(gh auth:*)",
+      "Bash(gh repo:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ]
   }
 }

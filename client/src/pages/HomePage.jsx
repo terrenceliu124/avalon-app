@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useGame } from '../context/GameContext';
-import { PAGE_BACKGROUNDS } from '../assets';
+import { PAGE_BACKGROUND } from '../assets';
 
 const EMOJIS = ['🦁', '🐯', '🦊', '🐺', '🐻', '🐼', '🦄', '🐲', '🦅', '🦉', '🧙', '🧝', '🧛', '⚔️', '🛡️', '🎭'];
 
@@ -32,9 +32,7 @@ export default function HomePage() {
 
   // Show reconnecting screen while attempting rejoin
   if (state.reconnecting) {
-    const bgStyle = PAGE_BACKGROUNDS.home
-      ? { backgroundImage: `url(${PAGE_BACKGROUNDS.home})` }
-      : undefined;
+    const bgStyle = PAGE_BACKGROUND ? { backgroundImage: `url(${PAGE_BACKGROUND})` } : undefined;
     return (
       <div className="page" style={{ justifyContent: 'center', ...bgStyle }}>
         <div className="card reconnecting-card">
@@ -64,9 +62,7 @@ export default function HomePage() {
     dispatch({ type: 'SET_DEV_MODE', value: !state.devMode });
   }
 
-  const bgStyle = PAGE_BACKGROUNDS.home
-    ? { backgroundImage: `url(${PAGE_BACKGROUNDS.home})` }
-    : undefined;
+  const bgStyle = PAGE_BACKGROUND ? { backgroundImage: `url(${PAGE_BACKGROUND})` } : undefined;
 
   return (
     <div className="page" style={{ justifyContent: 'center', ...bgStyle }}>

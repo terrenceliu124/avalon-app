@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useGame } from '../context/GameContext';
 import MissionTrack from '../components/MissionTrack';
 import PlayerCard from '../components/PlayerCard';
-import { PAGE_BACKGROUNDS } from '../assets';
+import { PAGE_BACKGROUND } from '../assets';
 
 export default function AssassinationPage() {
   const { socket, state } = useGame();
@@ -25,9 +25,7 @@ export default function AssassinationPage() {
     socket.emit('assassinate', { roomCode, targetName: target });
   }
 
-  const bgStyle = PAGE_BACKGROUNDS.assassination
-    ? { backgroundImage: `url(${PAGE_BACKGROUNDS.assassination})` }
-    : undefined;
+  const bgStyle = PAGE_BACKGROUND ? { backgroundImage: `url(${PAGE_BACKGROUND})` } : undefined;
 
   return (
     <div className="page" style={bgStyle}>
