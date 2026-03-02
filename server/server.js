@@ -43,6 +43,24 @@ io.on('connection', (socket) => {
       return socket.emit('error', { message: 'Player name is required' });
     }
     const code = (roomCode || '').toUpperCase().trim();
+    const room = getRoom(code);
+
+    // If game is in progress, only allow re-entry for existing players
+    if (room && room.phase !== 'lobby') {
+      const existingPlayer = room.players.find(p => p.name === playerName.trim());
+      if (!existingPlayer) return socket.emit('error', { message: 'Game already in progress' });
+      const oldId = existingPlayer.id;
+      existingPlayer.id = socket.id;
+      if (room.host === oldId) room.host = socket.id;
+      socket.join(code);
+      socket.emit('rejoined', { room, player: existingPlayer });
+      if (existingPlayer.role) {
+        const nightVision = computeNightVision(existingPlayer, room.players);
+        socket.emit('role_assigned', { player: existingPlayer, nightVision });
+      }
+      return;
+    }
+
     const result = joinRoom(code, playerName.trim(), socket.id, avatar || null);
     if (result.error) {
       return socket.emit('error', { message: result.error });

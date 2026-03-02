@@ -5,9 +5,13 @@ function safeLSGet(key) {
   try { return localStorage.getItem(key); } catch { return null; }
 }
 
+function safeSsGet(key) {
+  try { return sessionStorage.getItem(key); } catch { return null; }
+}
+
 function hasSavedSession() {
   try {
-    const saved = JSON.parse(safeLSGet('avalon_player') || 'null');
+    const saved = JSON.parse(safeSsGet('avalon_player') || 'null');
     return !!(saved && saved.playerName && saved.roomCode);
   } catch { return false; }
 }
@@ -63,7 +67,7 @@ function reducer(state, action) {
     case 'SET_ALL_ROOMS':
       return { ...state, allRooms: action.rooms };
     case 'RESET':
-      localStorage.removeItem('avalon_player');
+      sessionStorage.removeItem('avalon_player');
       return { ...initialState, devMode: state.devMode, reconnecting: false };
     default:
       return state;
@@ -77,7 +81,7 @@ export function GameProvider({ children }) {
 
   useEffect(() => {
     function handleConnect() {
-      const saved = localStorage.getItem('avalon_player');
+      const saved = sessionStorage.getItem('avalon_player');
       if (saved) {
         try {
           const { playerName, roomCode } = JSON.parse(saved);
@@ -86,7 +90,7 @@ export function GameProvider({ children }) {
             socket.emit('rejoin_room', { roomCode, playerName });
           }
         } catch {
-          localStorage.removeItem('avalon_player');
+          sessionStorage.removeItem('avalon_player');
           dispatch({ type: 'SET_RECONNECTING', value: false });
         }
       }
@@ -97,22 +101,22 @@ export function GameProvider({ children }) {
     socket.on('connect', handleConnect);
 
     socket.on('room_created', ({ code, player, room }) => {
-      localStorage.setItem('avalon_player', JSON.stringify({ playerName: player.name, roomCode: code, avatar: player.avatar }));
+      sessionStorage.setItem('avalon_player', JSON.stringify({ playerName: player.name, roomCode: code, avatar: player.avatar }));
       dispatch({ type: 'ROOM_JOINED', code, player, room });
     });
 
     socket.on('room_joined', ({ code, player, room }) => {
-      localStorage.setItem('avalon_player', JSON.stringify({ playerName: player.name, roomCode: code, avatar: player.avatar }));
+      sessionStorage.setItem('avalon_player', JSON.stringify({ playerName: player.name, roomCode: code, avatar: player.avatar }));
       dispatch({ type: 'ROOM_JOINED', code, player, room });
     });
 
     socket.on('rejoined', ({ room, player }) => {
-      localStorage.setItem('avalon_player', JSON.stringify({ playerName: player.name, roomCode: room.code, avatar: player.avatar }));
+      sessionStorage.setItem('avalon_player', JSON.stringify({ playerName: player.name, roomCode: room.code, avatar: player.avatar }));
       dispatch({ type: 'ROOM_JOINED', code: room.code, player, room });
     });
 
     socket.on('rejoin_failed', () => {
-      localStorage.removeItem('avalon_player');
+      sessionStorage.removeItem('avalon_player');
       dispatch({ type: 'SET_RECONNECTING', value: false });
     });
 

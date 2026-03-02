@@ -14,7 +14,7 @@ import DevPanel from './components/DevPanel';
 
 export default function App() {
   const { state } = useGame();
-  const { room, devMode } = state;
+  const { room } = state;
 
   let page;
   if (!room) {
@@ -37,7 +37,7 @@ export default function App() {
     <>
       {page}
       <InfoPanel />
-      {devMode && <DevPanel />}
+      <DevPanel />
     </>
   );
 }

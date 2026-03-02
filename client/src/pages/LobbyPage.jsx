@@ -78,7 +78,7 @@ export default function LobbyPage() {
           ))}
         </ul>
 
-        {isHost && room.players.length < 5 && (
+        {isHost && devMode && room.players.length < 5 && (
           <button className="btn btn-ghost" onClick={handleAddBots} data-testid="add-bots-btn">
             Add Bots (fill to 5)
           </button>

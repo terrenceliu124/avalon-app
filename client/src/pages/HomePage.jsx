@@ -14,10 +14,10 @@ export default function HomePage() {
   const [mode, setMode] = useState(urlRoomCode ? 'join' : 'create'); // 'create' | 'join'
   const [pending, setPending] = useState(false);
 
-  // Pre-fill from localStorage
+  // Pre-fill from sessionStorage
   useEffect(() => {
     try {
-      const saved = JSON.parse(localStorage.getItem('avalon_player') || 'null');
+      const saved = JSON.parse(sessionStorage.getItem('avalon_player') || 'null');
       if (saved) {
         if (saved.playerName) setPlayerName(saved.playerName);
         if (saved.avatar) setAvatar(saved.avatar);
