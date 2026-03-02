@@ -2,7 +2,7 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const cors = require('cors');
-const { createRoom, joinRoom, getRoom, leaveRoom, makeBot, getRooms } = require('./gameManager');
+const { createRoom, joinRoom, getRoom, leaveRoom, makeBot, getRooms, findPlayerRoom } = require('./gameManager');
 const { assignRoles, computeNightVision, getTeamSize, requiresTwoFails, checkWin, advanceLeader } = require('./gameLogic');
 
 const app = express();
@@ -47,8 +47,9 @@ io.on('connection', (socket) => {
 
     // If game is in progress, only allow re-entry for existing players
     if (room && room.phase !== 'lobby') {
-      const existingPlayer = room.players.find(p => p.name === playerName.trim());
-      if (!existingPlayer) return socket.emit('error', { message: 'Game already in progress' });
+      const trimmedName = playerName.trim();
+      const existingPlayer = room.players.find(p => p.name === trimmedName);
+      if (!existingPlayer) return socket.emit('error', { message: 'Player not found' });
       const oldId = existingPlayer.id;
       existingPlayer.id = socket.id;
       if (room.host === oldId) room.host = socket.id;
@@ -290,9 +291,16 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', () => {
     console.log('Client disconnected:', socket.id);
-    const result = leaveRoom(socket.id);
-    if (result && !result.deleted) {
-      io.to(result.code).emit('room_updated', { room: result.room });
+    const found = findPlayerRoom(socket.id);
+    if (found && found.room.phase !== 'lobby') {
+      // Game in progress — keep player so they can rejoin; just notify the room
+      console.log(`[disconnect] ${socket.id} in in-progress room ${found.code} — keeping player for rejoin`);
+      io.to(found.code).emit('room_updated', { room: found.room });
+    } else {
+      const result = leaveRoom(socket.id);
+      if (result && !result.deleted) {
+        io.to(result.code).emit('room_updated', { room: result.room });
+      }
     }
   });
 });

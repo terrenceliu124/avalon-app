@@ -89,4 +89,13 @@ function getRooms() {
   return rooms;
 }
 
-module.exports = { createRoom, joinRoom, getRoom, leaveRoom, getRooms, generateRoomCode, makePlayer, makeBot };
+function findPlayerRoom(socketId) {
+  for (const [code, room] of rooms.entries()) {
+    if (room.players.some(p => p.id === socketId)) {
+      return { code, room };
+    }
+  }
+  return null;
+}
+
+module.exports = { createRoom, joinRoom, getRoom, leaveRoom, getRooms, generateRoomCode, makePlayer, makeBot, findPlayerRoom };
