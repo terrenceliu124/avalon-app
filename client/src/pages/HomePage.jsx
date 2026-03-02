@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useGame } from '../context/GameContext';
 
 export default function HomePage() {
@@ -8,17 +8,25 @@ export default function HomePage() {
   const [playerName, setPlayerName] = useState('');
   const [roomCode, setRoomCode] = useState(urlRoomCode.toUpperCase());
   const [mode, setMode] = useState(urlRoomCode ? 'join' : 'create'); // 'create' | 'join'
+  const [pending, setPending] = useState(false);
+
+  // Reset pending if server returns an error
+  useEffect(() => {
+    if (state.error) setPending(false);
+  }, [state.error]);
 
   function handleCreate(e) {
     e.preventDefault();
-    if (!playerName.trim()) return;
+    if (!playerName.trim() || pending) return;
+    setPending(true);
     dispatch({ type: 'CLEAR_ERROR' });
     socket.emit('create_room', { playerName: playerName.trim() });
   }
 
   function handleJoin(e) {
     e.preventDefault();
-    if (!playerName.trim() || !roomCode.trim()) return;
+    if (!playerName.trim() || !roomCode.trim() || pending) return;
+    setPending(true);
     dispatch({ type: 'CLEAR_ERROR' });
     socket.emit('join_room', { playerName: playerName.trim(), roomCode: roomCode.trim().toUpperCase() });
   }
@@ -72,7 +80,7 @@ export default function HomePage() {
               />
             </label>
           )}
-          <button className="btn btn-primary" type="submit" style={{ marginTop: 20 }}>
+          <button className="btn btn-primary" type="submit" style={{ marginTop: 20 }} disabled={pending}>
             {mode === 'create' ? 'Create Room' : 'Join Room'}
           </button>
         </form>

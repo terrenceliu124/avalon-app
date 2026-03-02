@@ -40,7 +40,17 @@ Communication is exclusively via **Socket.io events** (no REST except `/health`)
 Room state shape (set in `gameManager.createRoom`):
 ```js
 { code, players, phase, host, selectedRoles, missionResults, rejectionCount,
-  currentMission, leaderIndex, proposedTeam, votes, questCards }
+  currentMission, leaderIndex, proposedTeam, votes, questCards, history,
+  revealedPlayers? }   // revealedPlayers added at game_over only
+```
+
+**Player shape:**
+```js
+// Human players:
+{ id, name, isHost, isBot: false, role?, team? }
+// Bot players:
+{ id, name, isHost: false, isBot: true, role?, team? }
+// (role and team only present after assignRoles is called)
 ```
 
 **Game phase flow:**
@@ -55,7 +65,7 @@ Phase transitions are driven by socket events from the host. After every transit
 
 **Persistence:** On connect, `GameContext` reads `sessionStorage` key `avalon_player` (`{ playerName, roomCode }`) and emits `rejoin_room` to recover from page refreshes.
 
-**Transient state:** `voteResult` and `questResult` in context are cleared on every `ROOM_UPDATED` dispatch, so overlays disappear automatically when the next phase starts.
+**Transient state:** `voteResult`, `questResult`, `voteProgress`, and `questProgress` in context are cleared on every `ROOM_UPDATED` dispatch, so overlays and progress counters disappear automatically when the next phase starts.
 
 ### Socket Event Protocol
 
@@ -109,3 +119,4 @@ Bots are fake player objects (`{ id: 'bot-N', name: 'Bot N', isBot: true }`). Th
 - **Single CSS file:** All styles live in `client/src/styles.css`. Use the existing utility classes — `.page`, `.card`, `.btn`, `.btn-primary`, `.btn-ghost`, `.btn-approve`, `.btn-reject`, `.btn-danger`, `.btn-row`, `.overlay`, `.overlay-card`, `.badge`, `.badge-good`, `.badge-evil`, `.badge-bot`, `.waiting`, `.player-list`, `.check-row`, `.sees-list`, `.error-msg`, `.progress-bar`. Do not introduce CSS modules or styled-components.
 - **Role info comes from `state.player`:** Components read the current player's role/team from `state.player` (populated by `role_assigned`), not from `state.room.players`.
 - **Bots are filtered from selection UIs:** Use `room.players.filter(p => !p.isBot)` when rendering player lists that require human interaction (e.g., team selection).
+- **Role reveal at game_over:** `GameOverPage` reads from `room.revealedPlayers` (populated by server at all game_over transitions), not from `room.players`.

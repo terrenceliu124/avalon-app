@@ -157,6 +157,10 @@ io.on('connection', (socket) => {
     const required = getTeamSize(room.players.length, room.currentMission);
     if (team.length !== required) return socket.emit('error', { message: `Team must have exactly ${required} players` });
 
+    const playerNames = room.players.map(p => p.name);
+    if (team.some(name => !playerNames.includes(name)))
+      return socket.emit('error', { message: 'Team contains unknown players' });
+
     room.proposedTeam = team;
     room.phase = 'voting';
     room.votes = {};
@@ -173,6 +177,9 @@ io.on('connection', (socket) => {
     if (!room) return socket.emit('error', { message: 'Room not found' });
     if (room.phase !== 'voting') return socket.emit('error', { message: 'Not in voting phase' });
 
+    if (typeof vote !== 'boolean')
+      return socket.emit('error', { message: 'Vote must be true or false' });
+
     const player = room.players.find(p => p.id === socket.id);
     if (!player) return socket.emit('error', { message: 'Player not found' });
     if (room.votes[player.name] !== undefined) return socket.emit('error', { message: 'Already voted' });
@@ -188,6 +195,9 @@ io.on('connection', (socket) => {
     const room = getRoom(roomCode);
     if (!room) return socket.emit('error', { message: 'Room not found' });
     if (room.phase !== 'quest') return socket.emit('error', { message: 'Not in quest phase' });
+
+    if (card !== 'success' && card !== 'fail')
+      return socket.emit('error', { message: 'Card must be success or fail' });
 
     const player = room.players.find(p => p.id === socket.id);
     if (!player) return socket.emit('error', { message: 'Player not found' });
@@ -222,6 +232,9 @@ io.on('connection', (socket) => {
     room.phase = 'game_over';
     room.assassinationTarget = targetName;
     room.gameOverReason = merlinKilled ? 'Merlin assassinated' : 'Wrong target — Good wins';
+    room.revealedPlayers = room.players.map(p => ({
+      name: p.name, role: p.role, team: p.team, isBot: p.isBot || false,
+    }));
 
     io.to(roomCode).emit('room_updated', { room });
   });
@@ -285,6 +298,9 @@ function _resolveVotes(room, roomCode) {
         room.phase = 'game_over';
         room.winner = 'evil';
         room.gameOverReason = '5 team rejections';
+        room.revealedPlayers = room.players.map(p => ({
+          name: p.name, role: p.role, team: p.team, isBot: p.isBot || false,
+        }));
       } else {
         advanceToHumanLeader(room);
         room.phase = 'team_proposal';
@@ -346,6 +362,9 @@ function _resolveQuest(room, roomCode) {
       room.phase = 'game_over';
       room.winner = 'evil';
       room.gameOverReason = '3 mission failures';
+      room.revealedPlayers = room.players.map(p => ({
+        name: p.name, role: p.role, team: p.team, isBot: p.isBot || false,
+      }));
     } else {
       advanceToHumanLeader(room);
       room.phase = 'team_proposal';

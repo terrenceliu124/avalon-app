@@ -20,6 +20,7 @@ export default function TeamProposalPage() {
   const required = (TEAM_SIZES[room.players.length] || TEAM_SIZES[5])[room.currentMission - 1] || 2;
 
   const [selected, setSelected] = useState([]);
+  const [submitted, setSubmitted] = useState(false);
 
   function togglePlayer(name) {
     setSelected(prev =>
@@ -28,7 +29,8 @@ export default function TeamProposalPage() {
   }
 
   function handleSubmit() {
-    if (selected.length !== required) return;
+    if (selected.length !== required || submitted) return;
+    setSubmitted(true);
     socket.emit('propose_team', { roomCode, team: selected });
   }
 
@@ -69,10 +71,10 @@ export default function TeamProposalPage() {
             </ul>
             <button
               className="btn btn-primary"
-              disabled={selected.length !== required}
+              disabled={selected.length !== required || submitted}
               onClick={handleSubmit}
             >
-              Propose Team ({selected.length}/{required})
+              {submitted ? 'Proposing…' : `Propose Team (${selected.length}/${required})`}
             </button>
           </>
         ) : (

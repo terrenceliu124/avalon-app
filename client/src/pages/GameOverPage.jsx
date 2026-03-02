@@ -31,7 +31,7 @@ export default function GameOverPage() {
       <div className="card">
         <h3>Role Reveal</h3>
         <ul className="player-list">
-          {room.players.map(p => (
+          {(room.revealedPlayers || room.players).map(p => (
             <li key={p.name}>
               <span>{p.name}</span>
               <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>

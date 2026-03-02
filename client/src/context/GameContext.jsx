@@ -21,9 +21,11 @@ function reducer(state, action) {
       return {
         ...state,
         room: action.room,
-        // Clear transient result fields when phase advances
+        // Clear transient fields when phase advances
         voteResult: null,
         questResult: null,
+        voteProgress: null,
+        questProgress: null,
       };
     case 'ROLE_ASSIGNED':
       return { ...state, player: action.player, nightVision: action.nightVision };

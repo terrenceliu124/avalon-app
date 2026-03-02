@@ -14,7 +14,7 @@ function generateRoomCode() {
 
 function createRoom(hostName, socketId) {
   const code = generateRoomCode();
-  const player = { id: socketId, name: hostName, isHost: true };
+  const player = { id: socketId, name: hostName, isHost: true, isBot: false };
   rooms.set(code, {
     code,
     players: [player],
@@ -40,7 +40,7 @@ function joinRoom(roomCode, playerName, socketId) {
   if (room.players.some(p => p.name === playerName)) return { error: 'Name already taken' };
   if (room.players.length >= 10) return { error: 'Room is full' };
 
-  const player = { id: socketId, name: playerName, isHost: false };
+  const player = { id: socketId, name: playerName, isHost: false, isBot: false };
   room.players.push(player);
   return { room, player };
 }
