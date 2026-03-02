@@ -2,14 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useGame } from '../context/GameContext';
 import { PAGE_BACKGROUND } from '../assets';
 
-const EMOJIS = ['🦁', '🐯', '🦊', '🐺', '🐻', '🐼', '🦄', '🐲', '🦅', '🦉', '🧙', '🧝', '🧛', '⚔️', '🛡️', '🎭'];
-
 export default function HomePage() {
   const { socket, state, dispatch } = useGame();
   const params = new URLSearchParams(window.location.search);
   const urlRoomCode = params.get('room') || '';
   const [playerName, setPlayerName] = useState('');
-  const [avatar, setAvatar] = useState('🦁');
   const [roomCode, setRoomCode] = useState(urlRoomCode.toUpperCase());
   const [mode, setMode] = useState(urlRoomCode ? 'join' : 'create'); // 'create' | 'join'
   const [pending, setPending] = useState(false);
@@ -20,7 +17,6 @@ export default function HomePage() {
       const saved = JSON.parse(sessionStorage.getItem('avalon_player') || 'null');
       if (saved) {
         if (saved.playerName) setPlayerName(saved.playerName);
-        if (saved.avatar) setAvatar(saved.avatar);
       }
     } catch {}
   }, []);
@@ -47,7 +43,7 @@ export default function HomePage() {
     if (!playerName.trim() || pending) return;
     setPending(true);
     dispatch({ type: 'CLEAR_ERROR' });
-    socket.emit('create_room', { playerName: playerName.trim(), avatar });
+    socket.emit('create_room', { playerName: playerName.trim() });
   }
 
   function handleJoin(e) {
@@ -55,7 +51,7 @@ export default function HomePage() {
     if (!playerName.trim() || !roomCode.trim() || pending) return;
     setPending(true);
     dispatch({ type: 'CLEAR_ERROR' });
-    socket.emit('join_room', { playerName: playerName.trim(), roomCode: roomCode.trim().toUpperCase(), avatar });
+    socket.emit('join_room', { playerName: playerName.trim(), roomCode: roomCode.trim().toUpperCase() });
   }
 
   function toggleDevMode() {
@@ -99,21 +95,6 @@ export default function HomePage() {
               autoComplete="off"
             />
           </label>
-
-          <label style={{ marginBottom: 4 }}>Choose Avatar</label>
-          <div className="emoji-picker">
-            {EMOJIS.map(e => (
-              <button
-                key={e}
-                type="button"
-                className={`emoji-btn${avatar === e ? ' selected' : ''}`}
-                onClick={() => setAvatar(e)}
-                aria-label={e}
-              >
-                {e}
-              </button>
-            ))}
-          </div>
 
           {mode === 'join' && (
             <label>

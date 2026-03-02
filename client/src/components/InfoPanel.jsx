@@ -202,7 +202,7 @@ export default function InfoPanel() {
         onClick={() => setOpen(true)}
         aria-label="Game info"
       >
-        ℹ
+        i
       </button>
 
       {open && (
