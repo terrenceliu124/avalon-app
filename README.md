@@ -1,6 +1,61 @@
+```
+        ⚔️  THE REALM OF AVALON  ⚔️
+    ╔══════════════════════════════════╗
+    ║   /\      /\   /\      /\       ║
+    ║  /  \    /  \ /  \    /  \      ║
+    ║ / /\ \  / /\ / /\ \  / /\ \     ║
+    ║ \/  \/ \/  \/ /  \/ \/  \/      ║
+    ╚══════════════════════════════════╝
+```
+
 # Avalon App
 
+*"Let the servants of Arthur prove their worth — for among you walks the shadow of Mordred."*
+
 A real-time, in-person assistant for the **Avalon** board game. Players join from their phones; the app handles role assignment, team proposals, voting, quests, and assassination — so you can focus on deduction and social deduction instead of card shuffling.
+
+---
+
+⚔️ ─────────────────────────────────── ⚔️
+
+## Screenshots
+
+> *Images will appear once added to `docs/screenshots/`.*
+
+<table>
+<tr>
+  <td align="center">
+    <img src="docs/screenshots/01-home.png" alt="Home — join or create a room" width="280" /><br/>
+    <sub><b>Home</b> — Join or create a room</sub>
+  </td>
+  <td align="center">
+    <img src="docs/screenshots/02-lobby.png" alt="Lobby — player list and role configuration" width="280" /><br/>
+    <sub><b>Lobby</b> — Player list &amp; role config</sub>
+  </td>
+</tr>
+<tr>
+  <td align="center">
+    <img src="docs/screenshots/03-role-reveal.png" alt="Role reveal — private role card" width="280" /><br/>
+    <sub><b>Role Reveal</b> — Private role card</sub>
+  </td>
+  <td align="center">
+    <img src="docs/screenshots/04-night.png" alt="Night ceremony — host view with audio sequencer" width="280" /><br/>
+    <sub><b>Night Ceremony</b> — Host audio sequencer</sub>
+  </td>
+</tr>
+<tr>
+  <td align="center">
+    <img src="docs/screenshots/05-team-proposal.png" alt="Team proposal — leader selects players" width="280" /><br/>
+    <sub><b>Team Proposal</b> — Leader selects players</sub>
+  </td>
+  <td align="center">
+    <img src="docs/screenshots/06-voting.png" alt="Voting — approve or reject the proposed team" width="280" /><br/>
+    <sub><b>Voting</b> — Approve or reject the team</sub>
+  </td>
+</tr>
+</table>
+
+⚔️ ─────────────────────────────────── ⚔️
 
 ## Features
 
@@ -15,6 +70,8 @@ A real-time, in-person assistant for the **Avalon** board game. Players join fro
 - **Night ceremony voice-over** — host-driven audio sequencer guides the night phase step-by-step; non-host players see only a waiting screen
 - **Host transfer** — host can hand off host duties to any human player mid-game
 
+⚔️ ─────────────────────────────────── ⚔️
+
 ## Tech Stack
 
 | Layer | Technology |
@@ -23,6 +80,8 @@ A real-time, in-person assistant for the **Avalon** board game. Players join fro
 | Client | React · Vite |
 | State | In-memory (server) · React Context + useReducer (client) |
 | Tests | Jest (server) · Vitest + Testing Library (client) |
+
+⚔️ ─────────────────────────────────── ⚔️
 
 ## Quick Start
 
@@ -49,6 +108,8 @@ npm run dev             # Runs on http://localhost:5173
 
 Open `http://localhost:5173` on each player's device (all must be on the same network, or the server must be publicly accessible).
 
+⚔️ ─────────────────────────────────── ⚔️
+
 ## Project Structure
 
 ```
@@ -72,26 +133,44 @@ avalon-app/
         └── ...                        # Background images, role cards, avatars
 ```
 
+⚔️ ─────────────────────────────────── ⚔️
+
 ## Game Phases
 
 ```
-lobby → role_reveal → night → team_proposal ↔ voting → quest → (loop)
-                                                                    ↓
-                                                             assassination → game_over
+lobby          — host configures roles and waits for players to join
+  ↓
+role_reveal    — each player privately views their assigned role
+  ↓
+night          — host guides the night ceremony; evil players learn each other
+  ↓
+team_proposal  — the current leader nominates a quest team
+  ↕
+voting         — all players approve or reject the proposed team
+  ↓  (if approved)
+quest          — team members secretly play success or fail cards
+  ↓  (loop back to team_proposal until 3 wins or 3 fails, or 5 rejections)
+assassination  — evil team attempts to identify and eliminate Merlin
+  ↓
+game_over      — winner revealed; all roles exposed
 ```
+
+⚔️ ─────────────────────────────────── ⚔️
 
 ## Supported Roles
 
 | Role | Team | Always included |
 |------|------|----------------|
-| Loyal Servant of Arthur | Good | (fills remaining slots) |
-| Merlin | Good | Yes |
-| Percival | Good | Optional |
-| Minion of Mordred | Evil | (fills remaining slots) |
-| Assassin | Evil | Yes |
-| Morgana | Evil | Optional |
-| Mordred | Evil | Optional |
-| Oberon | Evil | Optional |
+| 🔵 Loyal Servant of Arthur | Good | (fills remaining slots) |
+| 🔮 Merlin | Good | Yes |
+| 🛡️ Percival | Good | Optional |
+| 🔴 Minion of Mordred | Evil | (fills remaining slots) |
+| ⚔️ Assassin | Evil | Yes |
+| 🦊 Morgana | Evil | Optional |
+| 💀 Mordred | Evil | Optional |
+| 👁️ Oberon | Evil | Optional |
+
+⚔️ ─────────────────────────────────── ⚔️
 
 ## Running Tests
 
@@ -103,6 +182,8 @@ cd server && npm test
 cd client && npm test
 ```
 
+⚔️ ─────────────────────────────────── ⚔️
+
 ## Visual Assets (Optional)
 
 Drop image files into `client/public/assets/` and edit `client/src/assets.js` to map them to phases and player avatars. When all values are `null` the app looks identical to the default state — assets are purely additive.
@@ -113,6 +194,8 @@ Drop image files into `client/public/assets/` and edit `client/src/assets.js` to
 | `AVATARS` | Avatar URL pool; assigned to players deterministically by name hash |
 | `ROLE_CARDS` | Role card illustrations keyed by role name (supports arrays for per-player variants) |
 | `NIGHT_CEREMONY_CONFIG` | Audio pacing for the night ceremony sequencer |
+
+⚔️ ─────────────────────────────────── ⚔️
 
 ## Night Ceremony
 
@@ -132,9 +215,13 @@ export const NIGHT_CEREMONY_CONFIG = {
 
 Non-host players see only a "Eyes closed" waiting screen during the night phase. Night Vision info in the Info Panel is hidden until `team_proposal`.
 
+⚔️ ─────────────────────────────────── ⚔️
+
 ## Host Transfer
 
 The host can pass host duties to any human (non-bot) player at any phase: tap **i** → **Room** tab → **Make Host** next to a player. The server updates `room.host` and broadcasts `room_updated` immediately.
+
+⚔️ ─────────────────────────────────── ⚔️
 
 ## Socket Event Reference
 

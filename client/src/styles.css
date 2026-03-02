@@ -463,8 +463,9 @@ label { display: block; font-size: 0.9rem; color: #a0a0b8; margin-bottom: 14px; 
   padding: 14px 10px; border-radius: 10px;
   border: 2px solid #2a2a4a; background: #0f0f20;
   cursor: pointer; width: 100%; gap: 4px; font-family: inherit;
-  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s, opacity 0s;
   position: relative; overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
 }
 .player-card::before {
   content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
