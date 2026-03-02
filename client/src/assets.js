@@ -18,7 +18,7 @@ export function getAvatar(name) {
 // back: card back image (null = use CSS-styled back)
 // Arrays indicate multiple variants; getRoleCard picks one deterministically by player name.
 export const ROLE_CARDS = {
-  back:         null,
+  back:         '/assets/backgrounds/card_back.png',
   Merlin:       '/assets/role/merlin.png',
   Percival:     '/assets/role/percival.png',
   LoyalServant: ['/assets/role/loyal_servant.png', '/assets/role/loyal_servant_2.png'],

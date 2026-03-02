@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useGame } from '../context/GameContext';
 import MissionTrack from '../components/MissionTrack';
-import { PAGE_BACKGROUND, getRoleCard } from '../assets';
+import { PAGE_BACKGROUND, getRoleCard, ROLE_CARDS } from '../assets';
 
 const ROLE_DESCRIPTIONS = {
   Merlin: 'You know all Evil players except Mordred. Guide Good to victory without revealing yourself.',
@@ -28,7 +28,7 @@ export default function RoleRevealPage() {
   const desc = ROLE_DESCRIPTIONS[role] || 'Your role information will appear here.';
 
   const cardImg = getRoleCard(role, player?.name);
-  const backImg = null; // '/assets/role/card_back.png' when available
+  const backImg = ROLE_CARDS.back;
 
   const bgStyle = PAGE_BACKGROUND ? { backgroundImage: `url(${PAGE_BACKGROUND})` } : undefined;
 
