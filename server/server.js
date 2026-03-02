@@ -1,5 +1,6 @@
 const express = require('express');
 const http = require('http');
+const path = require('path');
 const { Server } = require('socket.io');
 const cors = require('cors');
 const { createRoom, joinRoom, getRoom, leaveRoom, makeBot, getRooms, findPlayerRoom } = require('./gameManager');
@@ -446,6 +447,13 @@ function _resolveQuest(room, roomCode) {
     });
     setTimeout(() => io.to(roomCode).emit('room_updated', { room }), 2000);
   }
+}
+
+// Serve React build in production
+if (process.env.NODE_ENV === 'production') {
+  const clientDist = path.join(__dirname, '../client/dist');
+  app.use(express.static(clientDist));
+  app.get('*', (_req, res) => res.sendFile(path.join(clientDist, 'index.html')));
 }
 
 const PORT = process.env.PORT || 3001;
