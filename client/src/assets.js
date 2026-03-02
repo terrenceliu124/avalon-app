@@ -1,5 +1,5 @@
 // Single background shared across all pages (swap this one path to retheme the whole app)
-export const PAGE_BACKGROUND = '/assets/backgrounds/04c0843e119df1ba5b48cf7ee0d43da7.jpg';
+export const PAGE_BACKGROUND = '/assets/backgrounds/background.png';
 // Set to null to use solid-color fallback:
 // export const PAGE_BACKGROUND = null;
 
@@ -25,15 +25,15 @@ export const NIGHT_CEREMONY_CONFIG = {
 // back: card back image (null = use CSS-styled back)
 // Arrays indicate multiple variants; getRoleCard picks one deterministically by player name.
 export const ROLE_CARDS = {
-  back:         '/assets/backgrounds/card_back.png',
-  Merlin:       '/assets/role/merlin.png',
-  Percival:     '/assets/role/percival.png',
-  LoyalServant: ['/assets/role/loyal_servant.png', '/assets/role/loyal_servant_2.png'],
-  Assassin:     '/assets/role/assasin.png',
-  Morgana:      '/assets/role/morgana.png',
-  Mordred:      '/assets/role/mordred.png',
-  Oberon:       '/assets/role/oberon.png',
-  Minion:       ['/assets/role/minion.png', '/assets/role/minion_2.png'],
+  back:         '/assets/role/BACK_OF_CARD.png',
+  Merlin:       null,
+  Percival:     '/assets/role/PERCIVAL.png',
+  LoyalServant: ['/assets/role/LOYAL_SERVANT1.png', '/assets/role/LOYAL_SERVANT2.png'],
+  Assassin:     '/assets/role/ASSASSIN.png',
+  Morgana:      '/assets/role/MORGANA.png',
+  Mordred:      '/assets/role/MORDRED.png',
+  Oberon:       '/assets/role/OBERON.png',
+  Minion:       ['/assets/role/MINION1.png', '/assets/role/MINION2.png'],
 };
 
 // Returns the role card URL for a given role and player name.

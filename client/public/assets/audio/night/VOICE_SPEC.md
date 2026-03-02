@@ -22,8 +22,11 @@
 | `01-close-eyes.mp3` | "Everyone, close your eyes and put out your fists." |
 | `02-minions-open-std.mp3` | "Minions of Mordred, open your eyes and look around. Know your allies." |
 | `02-minions-open-excl-oberon.mp3` | "Minions of Mordred — excluding Oberon — open your eyes and look around. Know your allies." |
+| `02b-minions-close.mp3` | "Minions of Mordred, close your eyes." |
 | `03-minions-thumbs-std.mp3` | "Minions of Mordred, raise your thumbs so Merlin can see you." |
 | `03-minions-thumbs-excl-oberon.mp3` | "Minions of Mordred — excluding Oberon — raise your thumbs so Merlin can see you." |
+| `03-minions-thumbs-excl-mordred.mp3` | "Minions of Mordred — excluding Mordred — raise your thumbs so Merlin can see you." |
+| `03-minions-thumbs-excl-mordred-oberon.mp3` | "Minions of Mordred — excluding Mordred and Oberon — raise your thumbs so Merlin can see you." |
 | `04-merlin-open.mp3` | "Merlin, open your eyes. The raised thumbs belong to Evil." |
 | `05-merlin-close.mp3` | "Merlin, close your eyes. Minions, lower your thumbs." |
 | `06-percival-thumbs-no-morgana.mp3` | "Merlin, raise your thumb." |
@@ -36,7 +39,9 @@
 ---
 
 ## Notes
-- Files `02`, `03` each have two variants (`std` vs `excl-oberon`). The app picks the right one based on whether Oberon is in the selected roles.
+- File `02` has two variants (`std` vs `excl-oberon`). The app picks the right one based on whether Oberon is in the selected roles.
+- File `02b` always plays after `02` (minions close eyes before raising thumbs for Merlin).
+- File `03` has four variants based on which of Mordred/Oberon are selected: `std`, `excl-oberon`, `excl-mordred`, `excl-mordred-oberon`. Mordred is excluded because Merlin already knows who Mordred is.
 - Files `06`, `08` each have two variants (`no-morgana` vs `with-morgana`). Only used when Percival is in the selected roles.
 - File `01` always plays first; `09` always plays last.
 - Missing files are handled gracefully — the step advances after a timeout — so you can generate files incrementally.

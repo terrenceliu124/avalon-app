@@ -9,8 +9,14 @@ function buildCeremonySteps(selectedRoles) {
   const hasOberon = selectedRoles.includes('Oberon');
   const hasPercival = selectedRoles.includes('Percival');
   const hasMorgana = selectedRoles.includes('Morgana');
+  const hasMordred = selectedRoles.includes('Mordred');
 
-  const minionKey = hasOberon ? 'excl-oberon' : 'std';
+  const openKey = hasOberon ? 'excl-oberon' : 'std';
+  const thumbsKey =
+    hasMordred && hasOberon ? 'excl-mordred-oberon' :
+    hasMordred              ? 'excl-mordred' :
+    hasOberon               ? 'excl-oberon' :
+                              'std';
   const percivalKey = hasMorgana ? 'with-morgana' : 'no-morgana';
 
   const steps = [
@@ -22,13 +28,21 @@ function buildCeremonySteps(selectedRoles) {
       text: hasOberon
         ? 'Ask Minions of Mordred (excluding Oberon) to open their eyes and look around to know their allies.'
         : 'Ask Minions of Mordred to open their eyes and look around to know their allies.',
-      audioSrc: `/assets/audio/night/02-minions-open-${minionKey}.mp3`,
+      audioSrc: `/assets/audio/night/02-minions-open-${openKey}.mp3`,
     },
     {
-      text: hasOberon
+      text: 'Ask Minions of Mordred to close their eyes.',
+      audioSrc: '/assets/audio/night/02b-minions-close.mp3',
+    },
+    {
+      text: hasMordred && hasOberon
+        ? 'Ask Minions of Mordred (excluding Mordred and Oberon) to raise their thumbs so Merlin can see them.'
+        : hasMordred
+        ? 'Ask Minions of Mordred (excluding Mordred) to raise their thumbs so Merlin can see them.'
+        : hasOberon
         ? 'Ask Minions of Mordred (excluding Oberon) to raise their thumbs so Merlin can see them.'
         : 'Ask Minions of Mordred to raise their thumbs so Merlin can see them.',
-      audioSrc: `/assets/audio/night/03-minions-thumbs-${minionKey}.mp3`,
+      audioSrc: `/assets/audio/night/03-minions-thumbs-${thumbsKey}.mp3`,
     },
     {
       text: 'Ask Merlin to open their eyes. The raised thumbs are Evil.',

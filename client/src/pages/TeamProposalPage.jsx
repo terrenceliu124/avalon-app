@@ -69,6 +69,7 @@ export default function TeamProposalPage() {
                   selected={selected.includes(p.name)}
                   onClick={() => togglePlayer(p.name)}
                   disabled={!selected.includes(p.name) && selected.length >= required}
+                  hideAvatar
                 />
               ))}
             </div>
