@@ -26,7 +26,7 @@ export const NIGHT_CEREMONY_CONFIG = {
 // Arrays indicate multiple variants; getRoleCard picks one deterministically by player name.
 export const ROLE_CARDS = {
   back:         '/assets/role/BACK_OF_CARD.png',
-  Merlin:       null,
+  Merlin:       '/assets/role/MERLIN.png',
   Percival:     '/assets/role/PERCIVAL.png',
   LoyalServant: ['/assets/role/LOYAL_SERVANT1.png', '/assets/role/LOYAL_SERVANT2.png'],
   Assassin:     '/assets/role/ASSASSIN.png',
