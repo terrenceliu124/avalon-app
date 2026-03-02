@@ -231,7 +231,7 @@ label { display: block; font-size: 0.9rem; color: #a0a0b8; margin-bottom: 14px; 
 .flip-card-inner {
   position: relative;
   width: 100%;
-  padding-bottom: 140%; /* ~5:7 portrait aspect ratio */
+  padding-bottom: 150%; /* exact 2:3 portrait to match 1024×1536 assets */
   transform-style: preserve-3d;
   transition: transform 0.55s ease;
 }
@@ -250,6 +250,7 @@ label { display: block; font-size: 0.9rem; color: #a0a0b8; margin-bottom: 14px; 
   height: 100%;
   object-fit: cover;
   display: block;
+  transform: scale(1.04);
 }
 .flip-card-face--front { /* Role image face, starts hidden (back of rotation) */
   transform: rotateY(180deg);

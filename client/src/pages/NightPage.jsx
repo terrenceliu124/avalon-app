@@ -100,17 +100,21 @@ function HostNightView({ socket, room, roomCode, bgStyle }) {
 
   const [playState, setPlayState] = useState('idle'); // 'idle' | 'playing' | 'done'
   const [stepIndex, setStepIndex] = useState(0);
-  const seqRef = useRef({ audio: null, timeout: null, cancelled: false });
+  const seqRef = useRef({ timeout: null, cancelled: false });
+  const audioRef = useRef(null);
 
   function stopSequencer() {
     seqRef.current.cancelled = true;
-    if (seqRef.current.audio) { seqRef.current.audio.pause(); seqRef.current.audio = null; }
+    if (audioRef.current) { audioRef.current.pause(); audioRef.current.src = ''; }
     if (seqRef.current.timeout) { clearTimeout(seqRef.current.timeout); seqRef.current.timeout = null; }
   }
 
   function startSequencer() {
     stopSequencer();
-    seqRef.current = { audio: null, timeout: null, cancelled: false };
+    // Create the Audio element here — directly inside the user gesture handler — so iOS
+    // Safari grants autoplay permission for all subsequent .play() calls on this element.
+    audioRef.current = new Audio();
+    seqRef.current = { timeout: null, cancelled: false };
     setPlayState('playing');
     setStepIndex(0);
 
@@ -123,11 +127,14 @@ function HostNightView({ socket, room, roomCode, bgStyle }) {
 
       const playRepeat = (r) => {
         if (seqRef.current.cancelled) return;
-        const audio = new Audio(step.audioSrc);
-        seqRef.current.audio = audio;
+        const audio = audioRef.current;
 
+        // Guard: call onDone at most once per playRepeat invocation (prevents double-advance
+        // when both onerror and play().catch() fire for a missing file).
+        let handled = false;
         const onDone = () => {
-          if (seqRef.current.cancelled) return;
+          if (seqRef.current.cancelled || handled) return;
+          handled = true;
           if (r < STEP_REPEAT_COUNT - 1) {
             seqRef.current.timeout = setTimeout(() => playRepeat(r + 1), 500);
           } else {
@@ -139,6 +146,8 @@ function HostNightView({ socket, room, roomCode, bgStyle }) {
         audio.onerror = () => {
           seqRef.current.timeout = setTimeout(onDone, FALLBACK_STEP_DURATION_MS);
         };
+        // Reuse the single Audio element by swapping src — keeps iOS autoplay unlock intact.
+        audio.src = step.audioSrc;
         audio.play().catch(() => {
           seqRef.current.timeout = setTimeout(onDone, FALLBACK_STEP_DURATION_MS);
         });
