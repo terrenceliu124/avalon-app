@@ -38,7 +38,7 @@ export default function RoleRevealPage() {
         <MissionTrack results={room.missionResults} current={room.currentMission} playerCount={room.players.length} />
       </div>
       <div className="card role-card">
-        <span className={`badge badge-${team}`}>{team === 'good' ? 'Good' : 'Evil'}</span>
+        {revealed && <span className={`badge badge-${team}`}>{team === 'good' ? 'Good' : 'Evil'}</span>}
 
         {cardImg ? (
           <div className="flip-card-wrap" onClick={() => setRevealed(true)}>
@@ -55,10 +55,12 @@ export default function RoleRevealPage() {
             {!revealed && <p className="flip-card-tap-hint">Tap to reveal</p>}
           </div>
         ) : (
-          <div className="role-name">{role}</div>
+          revealed
+            ? <div className="role-name">{role}</div>
+            : <div className="flip-card-tap-hint" style={{ cursor: 'pointer', marginTop: 32 }} onClick={() => setRevealed(true)}>Tap to reveal</div>
         )}
 
-        <p className="role-desc">{desc}</p>
+        {revealed && <p className="role-desc">{desc}</p>}
       </div>
       {isHost && (
         <div className="card" style={{ maxWidth: 480 }}>
