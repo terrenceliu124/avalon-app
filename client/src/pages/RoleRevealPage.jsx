@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useGame } from '../context/GameContext';
 import MissionTrack from '../components/MissionTrack';
-import { PAGE_BACKGROUNDS } from '../assets';
+import { PAGE_BACKGROUND, getRoleCard } from '../assets';
 
 const ROLE_DESCRIPTIONS = {
   Merlin: 'You know all Evil players except Mordred. Guide Good to victory without revealing yourself.',
@@ -17,6 +17,7 @@ const ROLE_DESCRIPTIONS = {
 export default function RoleRevealPage() {
   const { socket, state } = useGame();
   const { room, player, roomCode } = state;
+  const [revealed, setRevealed] = useState(false);
 
   const myPlayer = room.players.find(p => p.name === player?.name);
   const isHost = myPlayer?.isHost;
@@ -26,9 +27,10 @@ export default function RoleRevealPage() {
   const team = player?.team || 'unknown';
   const desc = ROLE_DESCRIPTIONS[role] || 'Your role information will appear here.';
 
-  const bgStyle = PAGE_BACKGROUNDS.roleReveal
-    ? { backgroundImage: `url(${PAGE_BACKGROUNDS.roleReveal})` }
-    : undefined;
+  const cardImg = getRoleCard(role, player?.name);
+  const backImg = null; // '/assets/role/card_back.png' when available
+
+  const bgStyle = PAGE_BACKGROUND ? { backgroundImage: `url(${PAGE_BACKGROUND})` } : undefined;
 
   return (
     <div className="page" style={bgStyle}>
@@ -37,7 +39,25 @@ export default function RoleRevealPage() {
       </div>
       <div className="card role-card">
         <span className={`badge badge-${team}`}>{team === 'good' ? 'Good' : 'Evil'}</span>
-        <div className="role-name">{role}</div>
+
+        {cardImg ? (
+          <div className="flip-card-wrap" onClick={() => setRevealed(true)}>
+            <div className={`flip-card-inner${revealed ? ' revealed' : ''}`}>
+              <div className="flip-card-face flip-card-face--back">
+                {backImg
+                  ? <img src={backImg} alt="card back" />
+                  : <div className="flip-card-back-design" />}
+              </div>
+              <div className="flip-card-face flip-card-face--front">
+                <img src={cardImg} alt={role} />
+              </div>
+            </div>
+            {!revealed && <p className="flip-card-tap-hint">Tap to reveal</p>}
+          </div>
+        ) : (
+          <div className="role-name">{role}</div>
+        )}
+
         <p className="role-desc">{desc}</p>
       </div>
       {isHost && (

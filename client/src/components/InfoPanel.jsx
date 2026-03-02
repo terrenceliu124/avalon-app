@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useGame } from '../context/GameContext';
 import MissionTrack from './MissionTrack';
+import { getRoleCard } from '../assets';
 
 const ROLE_DESCRIPTIONS = {
   Merlin: 'You know all Evil players except Mordred. Guide Good to victory without revealing yourself.',
@@ -70,12 +71,16 @@ function RoleTab({ player, nightVision }) {
   const desc = ROLE_DESCRIPTIONS[role] || '';
   const tip = ROLE_TIPS[role] || '';
   const sees = nightVision?.sees || [];
+  const cardImg = getRoleCard(role, player?.name);
 
   return (
     <div className="info-tab-content">
       <div style={{ textAlign: 'center', marginBottom: 16 }}>
         <span className={`badge badge-${team}`}>{team === 'good' ? 'Good' : 'Evil'}</span>
-        <div className="role-name" style={{ fontSize: '1.6rem', margin: '12px 0 6px' }}>{role}</div>
+        {cardImg
+          ? <img src={cardImg} alt={role} className="role-card-img-sm" />
+          : <div className="role-name" style={{ fontSize: '1.6rem', margin: '12px 0 6px' }}>{role}</div>
+        }
         <p className="role-desc" style={{ fontSize: '0.9rem' }}>{desc}</p>
       </div>
       {sees.length > 0 && (
