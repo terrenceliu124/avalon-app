@@ -5,6 +5,13 @@ import PlayerAvatar from '../components/PlayerAvatar';
 
 const OPTIONAL_ROLES = ['Percival', 'Morgana', 'Mordred', 'Oberon'];
 
+const ROLE_INFO = {
+  Percival: { team: 'good', desc: 'Sees Merlin' },
+  Morgana:  { team: 'evil', desc: 'Appears as Merlin' },
+  Mordred:  { team: 'evil', desc: 'Hidden from Merlin' },
+  Oberon:   { team: 'evil', desc: 'Hidden from evil team' },
+};
+
 export default function LobbyPage() {
   const { socket, state } = useGame();
   const { room, player, roomCode, devMode } = state;
@@ -91,18 +98,28 @@ export default function LobbyPage() {
       {isHost && (
         <div className="card">
           <h3>Optional Roles</h3>
-          <ul className="player-list" style={{ marginBottom: 12 }}>
-            {OPTIONAL_ROLES.map(role => (
-              <li key={role} className="check-row" onClick={() => handleRoleToggle(role)} style={{ cursor: 'pointer' }}>
-                <input
-                  type="checkbox"
-                  readOnly
-                  checked={(room.selectedRoles || []).includes(role)}
-                />
-                <span>{role}</span>
-              </li>
-            ))}
-          </ul>
+          <div className="role-toggle-list">
+            {OPTIONAL_ROLES.map(role => {
+              const isSelected = (room.selectedRoles || []).includes(role);
+              const info = ROLE_INFO[role];
+              return (
+                <div
+                  key={role}
+                  className={`role-toggle${isSelected ? ' selected' : ''}`}
+                  onClick={() => handleRoleToggle(role)}
+                  role="checkbox"
+                  aria-checked={isSelected}
+                >
+                  <span className="role-toggle-check">{isSelected ? '✓' : ''}</span>
+                  <span className="role-toggle-label">{role}</span>
+                  <span className="role-toggle-meta">{info.desc}</span>
+                  <span className={`badge ${info.team === 'good' ? 'badge-good' : 'badge-evil'}`}>
+                    {info.team === 'good' ? 'Good' : 'Evil'}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
           <button
             className="btn btn-primary"
             onClick={handleStart}

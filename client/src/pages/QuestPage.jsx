@@ -50,9 +50,9 @@ export default function QuestPage() {
             <p className="waiting">Card submitted. Waiting for teammates...</p>
           ) : (
             <div className="btn-row">
-              <button className="btn btn-approve" onClick={() => handleCard('success')}>Success</button>
+              <button className="btn btn-approve" onClick={() => handleCard('success')}>✓ Success</button>
               {isEvil && (
-                <button className="btn btn-reject" onClick={() => handleCard('fail')}>Fail</button>
+                <button className="btn btn-reject" onClick={() => handleCard('fail')}>✕ Fail</button>
               )}
             </div>
           )

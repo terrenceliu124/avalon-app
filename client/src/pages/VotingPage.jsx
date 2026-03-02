@@ -46,8 +46,8 @@ export default function VotingPage() {
           <p className="waiting">Vote submitted. Waiting for others...</p>
         ) : (
           <div className="btn-row">
-            <button className="btn btn-approve" onClick={() => handleVote(true)}>Approve</button>
-            <button className="btn btn-reject" onClick={() => handleVote(false)}>Reject</button>
+            <button className="btn btn-approve" onClick={() => handleVote(true)}>✓ Approve</button>
+            <button className="btn btn-reject"  onClick={() => handleVote(false)}>✕ Reject</button>
           </div>
         )}
       </div>
