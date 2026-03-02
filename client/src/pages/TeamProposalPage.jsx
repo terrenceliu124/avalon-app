@@ -1,0 +1,89 @@
+import React, { useState } from 'react';
+import { useGame } from '../context/GameContext';
+import MissionTrack from '../components/MissionTrack';
+
+const TEAM_SIZES = {
+  5:  [2, 3, 2, 3, 3],
+  6:  [2, 3, 4, 3, 4],
+  7:  [2, 3, 3, 4, 4],
+  8:  [3, 4, 4, 5, 5],
+  9:  [3, 4, 4, 5, 5],
+  10: [3, 4, 4, 5, 5],
+};
+
+export default function TeamProposalPage() {
+  const { socket, state } = useGame();
+  const { room, player, roomCode } = state;
+
+  const leader = room.players[room.leaderIndex];
+  const isLeader = leader?.name === player?.name;
+  const required = (TEAM_SIZES[room.players.length] || TEAM_SIZES[5])[room.currentMission - 1] || 2;
+
+  const [selected, setSelected] = useState([]);
+
+  function togglePlayer(name) {
+    setSelected(prev =>
+      prev.includes(name) ? prev.filter(n => n !== name) : [...prev, name]
+    );
+  }
+
+  function handleSubmit() {
+    if (selected.length !== required) return;
+    socket.emit('propose_team', { roomCode, team: selected });
+  }
+
+  const rejectionWarning = room.rejectionCount > 0
+    ? `${room.rejectionCount}/5 rejections used`
+    : null;
+
+  return (
+    <div className="page">
+      <div className="card">
+        <MissionTrack results={room.missionResults} current={room.currentMission} playerCount={room.players.length} />
+        <p style={{ fontSize: '0.85rem', color: '#888' }}>
+          Mission {room.currentMission} — needs {required} players
+          {rejectionWarning && <span style={{ color: '#e05454', marginLeft: 8 }}>{rejectionWarning}</span>}
+        </p>
+      </div>
+
+      <div className="card">
+        <h2>Team Proposal</h2>
+        <p style={{ marginBottom: 12 }}>
+          Leader: <strong style={{ color: '#e2b96f' }}>{leader?.name}</strong>
+        </p>
+
+        {isLeader ? (
+          <>
+            <h3>Select {required} players:</h3>
+            <ul className="player-list" style={{ marginBottom: 0 }}>
+              {room.players.filter(p => !p.isBot).map(p => (
+                <li key={p.name} className="check-row" onClick={() => togglePlayer(p.name)}>
+                  <input
+                    type="checkbox"
+                    readOnly
+                    checked={selected.includes(p.name)}
+                  />
+                  <span>{p.name}</span>
+                </li>
+              ))}
+            </ul>
+            <button
+              className="btn btn-primary"
+              disabled={selected.length !== required}
+              onClick={handleSubmit}
+            >
+              Propose Team ({selected.length}/{required})
+            </button>
+          </>
+        ) : (
+          <>
+            <p className="waiting">Waiting for {leader?.name} to propose a team...</p>
+            {room.proposedTeam?.length > 0 && (
+              <p>Current proposal: <strong>{room.proposedTeam.join(', ')}</strong></p>
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  );
+}

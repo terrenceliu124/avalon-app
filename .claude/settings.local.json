@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(echo:*)",
+      "Bash(brew install:*)",
+      "Bash(/opt/homebrew/bin/node:*)",
+      "Bash(/opt/homebrew/bin/npm install:*)",
+      "Bash(/opt/homebrew/bin/npm list:*)",
+      "Bash(/opt/homebrew/bin/npm test:*)"
+    ]
+  }
+}
