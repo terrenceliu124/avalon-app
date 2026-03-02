@@ -7,7 +7,7 @@ const OPTIONAL_ROLES = ['Percival', 'Morgana', 'Mordred', 'Oberon'];
 
 export default function LobbyPage() {
   const { socket, state } = useGame();
-  const { room, player, roomCode } = state;
+  const { room, player, roomCode, devMode } = state;
 
   const myPlayer = room.players.find(p => p.name === player?.name);
   const isHost = myPlayer?.isHost;
@@ -27,6 +27,10 @@ export default function LobbyPage() {
 
   function handleAddBots() {
     socket.emit('add_bots', { roomCode });
+  }
+
+  function handleAddOneBot() {
+    socket.emit('add_bots', { roomCode, one: true });
   }
 
   function handleShare() {
@@ -64,7 +68,7 @@ export default function LobbyPage() {
         <ul className="player-list" data-testid="player-list">
           {room.players.map(p => (
             <li key={p.id || p.name}>
-              <PlayerAvatar name={p.name} />
+              <PlayerAvatar name={p.name} emoji={p.avatar} />
               <span>{p.name}</span>
               <div style={{ display: 'flex', gap: 6 }}>
                 {p.isHost && <span className="badge" style={{ background: '#2a2a1a', color: '#e2b96f' }}>Host</span>}
@@ -77,6 +81,11 @@ export default function LobbyPage() {
         {isHost && room.players.length < 5 && (
           <button className="btn btn-ghost" onClick={handleAddBots} data-testid="add-bots-btn">
             Add Bots (fill to 5)
+          </button>
+        )}
+        {isHost && devMode && (
+          <button className="btn btn-ghost" onClick={handleAddOneBot} style={{ marginTop: 8 }}>
+            Add 1 Bot
           </button>
         )}
       </div>

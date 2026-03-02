@@ -2,7 +2,7 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const cors = require('cors');
-const { createRoom, joinRoom, getRoom, leaveRoom, makeBot } = require('./gameManager');
+const { createRoom, joinRoom, getRoom, leaveRoom, makeBot, getRooms } = require('./gameManager');
 const { assignRoles, computeNightVision, getTeamSize, requiresTwoFails, checkWin, advanceLeader } = require('./gameLogic');
 
 const app = express();
@@ -29,21 +29,21 @@ io.on('connection', (socket) => {
 
   // --- Room lifecycle ---
 
-  socket.on('create_room', ({ playerName }) => {
+  socket.on('create_room', ({ playerName, avatar }) => {
     if (!playerName || !playerName.trim()) {
       return socket.emit('error', { message: 'Player name is required' });
     }
-    const { code, player } = createRoom(playerName.trim(), socket.id);
+    const { code, player } = createRoom(playerName.trim(), socket.id, avatar || null);
     socket.join(code);
     socket.emit('room_created', { code, player, room: getRoom(code) });
   });
 
-  socket.on('join_room', ({ roomCode, playerName }) => {
+  socket.on('join_room', ({ roomCode, playerName, avatar }) => {
     if (!playerName || !playerName.trim()) {
       return socket.emit('error', { message: 'Player name is required' });
     }
     const code = (roomCode || '').toUpperCase().trim();
-    const result = joinRoom(code, playerName.trim(), socket.id);
+    const result = joinRoom(code, playerName.trim(), socket.id, avatar || null);
     if (result.error) {
       return socket.emit('error', { message: result.error });
     }
@@ -83,19 +83,38 @@ io.on('connection', (socket) => {
     io.to(roomCode).emit('room_updated', { room });
   });
 
-  socket.on('add_bots', ({ roomCode }) => {
+  socket.on('add_bots', ({ roomCode, one }) => {
     const room = getRoom(roomCode);
     if (!room) return socket.emit('error', { message: 'Room not found' });
     if (room.host !== socket.id) return socket.emit('error', { message: 'Only host can add bots' });
     if (room.phase !== 'lobby') return socket.emit('error', { message: 'Cannot add bots after game has started' });
 
     let botN = room.players.filter(p => p.isBot).length;
-    while (room.players.length < 5) {
+    if (one) {
+      if (room.players.length >= 10) return socket.emit('error', { message: 'Room is full' });
       botN += 1;
       room.players.push(makeBot(botN));
+    } else {
+      while (room.players.length < 5) {
+        botN += 1;
+        room.players.push(makeBot(botN));
+      }
     }
 
     io.to(roomCode).emit('room_updated', { room });
+  });
+
+  socket.on('get_all_rooms', () => {
+    const roomSummaries = [];
+    for (const [code, room] of getRooms().entries()) {
+      roomSummaries.push({
+        code,
+        phase: room.phase,
+        playerCount: room.players.length,
+        playerNames: room.players.map(p => p.name),
+      });
+    }
+    socket.emit('all_rooms', { rooms: roomSummaries });
   });
 
   socket.on('start_game', ({ roomCode }) => {
@@ -233,7 +252,7 @@ io.on('connection', (socket) => {
     room.assassinationTarget = targetName;
     room.gameOverReason = merlinKilled ? 'Merlin assassinated' : 'Wrong target — Good wins';
     room.revealedPlayers = room.players.map(p => ({
-      name: p.name, role: p.role, team: p.team, isBot: p.isBot || false,
+      name: p.name, role: p.role, team: p.team, isBot: p.isBot || false, avatar: p.avatar || null,
     }));
 
     io.to(roomCode).emit('room_updated', { room });
@@ -299,7 +318,7 @@ function _resolveVotes(room, roomCode) {
         room.winner = 'evil';
         room.gameOverReason = '5 team rejections';
         room.revealedPlayers = room.players.map(p => ({
-          name: p.name, role: p.role, team: p.team, isBot: p.isBot || false,
+          name: p.name, role: p.role, team: p.team, isBot: p.isBot || false, avatar: p.avatar || null,
         }));
       } else {
         advanceToHumanLeader(room);
@@ -363,7 +382,7 @@ function _resolveQuest(room, roomCode) {
       room.winner = 'evil';
       room.gameOverReason = '3 mission failures';
       room.revealedPlayers = room.players.map(p => ({
-        name: p.name, role: p.role, team: p.team, isBot: p.isBot || false,
+        name: p.name, role: p.role, team: p.team, isBot: p.isBot || false, avatar: p.avatar || null,
       }));
     } else {
       advanceToHumanLeader(room);

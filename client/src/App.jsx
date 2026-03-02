@@ -10,10 +10,11 @@ import QuestPage from './pages/QuestPage';
 import AssassinationPage from './pages/AssassinationPage';
 import GameOverPage from './pages/GameOverPage';
 import InfoPanel from './components/InfoPanel';
+import DevPanel from './components/DevPanel';
 
 export default function App() {
   const { state } = useGame();
-  const { room } = state;
+  const { room, devMode } = state;
 
   let page;
   if (!room) {
@@ -36,6 +37,7 @@ export default function App() {
     <>
       {page}
       <InfoPanel />
+      {devMode && <DevPanel />}
     </>
   );
 }

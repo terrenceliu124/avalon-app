@@ -39,7 +39,7 @@ export default function GameOverPage() {
         <ul className="player-list">
           {(room.revealedPlayers || room.players).map(p => (
             <li key={p.name}>
-              <PlayerAvatar name={p.name} />
+              <PlayerAvatar name={p.name} emoji={p.avatar} />
               <span>{p.name}</span>
               <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                 <span className={`badge badge-${p.team || 'good'}`}>{p.role || '?'}</span>

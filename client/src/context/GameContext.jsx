@@ -1,6 +1,17 @@
 import React, { createContext, useContext, useEffect, useReducer } from 'react';
 import socket from '../socket';
 
+function safeLSGet(key) {
+  try { return localStorage.getItem(key); } catch { return null; }
+}
+
+function hasSavedSession() {
+  try {
+    const saved = JSON.parse(safeLSGet('avalon_player') || 'null');
+    return !!(saved && saved.playerName && saved.roomCode);
+  } catch { return false; }
+}
+
 const initialState = {
   room: null,
   player: null,
@@ -11,12 +22,15 @@ const initialState = {
   questProgress: null,
   voteResult: null,
   questResult: null,
+  devMode: safeLSGet('avalon_dev_mode') === 'true',
+  reconnecting: hasSavedSession(),
+  allRooms: null,
 };
 
 function reducer(state, action) {
   switch (action.type) {
     case 'ROOM_JOINED':
-      return { ...state, room: action.room, player: action.player, roomCode: action.code, error: null };
+      return { ...state, room: action.room, player: action.player, roomCode: action.code, error: null, reconnecting: false };
     case 'ROOM_UPDATED':
       return {
         ...state,
@@ -41,9 +55,16 @@ function reducer(state, action) {
       return { ...state, voteResult: { votes: action.votes, approved: action.approved, room: action.room } };
     case 'QUEST_RESULT':
       return { ...state, questResult: { fails: action.fails, questFailed: action.questFailed } };
+    case 'SET_RECONNECTING':
+      return { ...state, reconnecting: action.value };
+    case 'SET_DEV_MODE':
+      localStorage.setItem('avalon_dev_mode', action.value ? 'true' : 'false');
+      return { ...state, devMode: action.value };
+    case 'SET_ALL_ROOMS':
+      return { ...state, allRooms: action.rooms };
     case 'RESET':
       localStorage.removeItem('avalon_player');
-      return initialState;
+      return { ...initialState, devMode: state.devMode, reconnecting: false };
     default:
       return state;
   }
@@ -61,10 +82,12 @@ export function GameProvider({ children }) {
         try {
           const { playerName, roomCode } = JSON.parse(saved);
           if (playerName && roomCode) {
+            dispatch({ type: 'SET_RECONNECTING', value: true });
             socket.emit('rejoin_room', { roomCode, playerName });
           }
         } catch {
           localStorage.removeItem('avalon_player');
+          dispatch({ type: 'SET_RECONNECTING', value: false });
         }
       }
     }
@@ -74,22 +97,23 @@ export function GameProvider({ children }) {
     socket.on('connect', handleConnect);
 
     socket.on('room_created', ({ code, player, room }) => {
-      localStorage.setItem('avalon_player', JSON.stringify({ playerName: player.name, roomCode: code }));
+      localStorage.setItem('avalon_player', JSON.stringify({ playerName: player.name, roomCode: code, avatar: player.avatar }));
       dispatch({ type: 'ROOM_JOINED', code, player, room });
     });
 
     socket.on('room_joined', ({ code, player, room }) => {
-      localStorage.setItem('avalon_player', JSON.stringify({ playerName: player.name, roomCode: code }));
+      localStorage.setItem('avalon_player', JSON.stringify({ playerName: player.name, roomCode: code, avatar: player.avatar }));
       dispatch({ type: 'ROOM_JOINED', code, player, room });
     });
 
     socket.on('rejoined', ({ room, player }) => {
-      localStorage.setItem('avalon_player', JSON.stringify({ playerName: player.name, roomCode: room.code }));
+      localStorage.setItem('avalon_player', JSON.stringify({ playerName: player.name, roomCode: room.code, avatar: player.avatar }));
       dispatch({ type: 'ROOM_JOINED', code: room.code, player, room });
     });
 
     socket.on('rejoin_failed', () => {
       localStorage.removeItem('avalon_player');
+      dispatch({ type: 'SET_RECONNECTING', value: false });
     });
 
     socket.on('room_updated', ({ room }) => {
@@ -116,6 +140,10 @@ export function GameProvider({ children }) {
       dispatch({ type: 'QUEST_RESULT', fails, questFailed });
     });
 
+    socket.on('all_rooms', ({ rooms }) => {
+      dispatch({ type: 'SET_ALL_ROOMS', rooms });
+    });
+
     socket.on('error', ({ message }) => {
       dispatch({ type: 'SET_ERROR', message });
     });
@@ -132,6 +160,7 @@ export function GameProvider({ children }) {
       socket.off('quest_update');
       socket.off('vote_result');
       socket.off('quest_result');
+      socket.off('all_rooms');
       socket.off('error');
       socket.disconnect();
     };

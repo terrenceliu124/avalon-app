@@ -163,6 +163,7 @@ function RoomTab({ room, roomCode }) {
         <ul className="player-list">
           {room.players.map(p => (
             <li key={p.id || p.name}>
+              {p.avatar && <span className="emoji-avatar">{p.avatar}</span>}
               <span>{p.name}</span>
               <div style={{ display: 'flex', gap: 6 }}>
                 {p.isHost && <span className="badge" style={{ background: '#2a2a1a', color: '#e2b96f' }}>Host</span>}

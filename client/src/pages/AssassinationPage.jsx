@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useGame } from '../context/GameContext';
 import MissionTrack from '../components/MissionTrack';
+import PlayerCard from '../components/PlayerCard';
 import { PAGE_BACKGROUNDS } from '../assets';
-import PlayerAvatar from '../components/PlayerAvatar';
 
 export default function AssassinationPage() {
   const { socket, state } = useGame();
@@ -44,20 +44,16 @@ export default function AssassinationPage() {
         {isAssassin ? (
           <>
             <h3>Choose your target:</h3>
-            <ul className="player-list" style={{ marginBottom: 12 }}>
+            <div className="player-grid" style={{ marginBottom: 12 }}>
               {candidates.map(p => (
-                <li
+                <PlayerCard
                   key={p.name}
-                  className="check-row"
+                  player={p}
+                  selected={target === p.name}
                   onClick={() => setTarget(p.name)}
-                  style={{ cursor: 'pointer' }}
-                >
-                  <input type="radio" readOnly checked={target === p.name} />
-                  <PlayerAvatar name={p.name} />
-                  <span>{p.name}</span>
-                </li>
+                />
               ))}
-            </ul>
+            </div>
             <button
               className="btn btn-danger"
               disabled={!target || submitted}

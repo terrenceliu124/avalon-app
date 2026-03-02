@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useGame } from '../context/GameContext';
 import MissionTrack from '../components/MissionTrack';
+import PlayerCard from '../components/PlayerCard';
 import { PAGE_BACKGROUNDS } from '../assets';
-import PlayerAvatar from '../components/PlayerAvatar';
 
 const TEAM_SIZES = {
   5:  [2, 3, 2, 3, 3],
@@ -15,7 +15,7 @@ const TEAM_SIZES = {
 
 export default function TeamProposalPage() {
   const { socket, state } = useGame();
-  const { room, player, roomCode } = state;
+  const { room, player, roomCode, devMode } = state;
 
   const leader = room.players[room.leaderIndex];
   const isLeader = leader?.name === player?.name;
@@ -63,19 +63,17 @@ export default function TeamProposalPage() {
         {isLeader ? (
           <>
             <h3>Select {required} players:</h3>
-            <ul className="player-list" style={{ marginBottom: 0 }}>
-              {room.players.filter(p => !p.isBot).map(p => (
-                <li key={p.name} className="check-row" onClick={() => togglePlayer(p.name)}>
-                  <input
-                    type="checkbox"
-                    readOnly
-                    checked={selected.includes(p.name)}
-                  />
-                  <PlayerAvatar name={p.name} />
-                  <span>{p.name}</span>
-                </li>
+            <div className="player-grid">
+              {(devMode ? room.players : room.players.filter(p => !p.isBot)).map(p => (
+                <PlayerCard
+                  key={p.name}
+                  player={p}
+                  selected={selected.includes(p.name)}
+                  onClick={() => togglePlayer(p.name)}
+                  disabled={!selected.includes(p.name) && selected.length >= required}
+                />
               ))}
-            </ul>
+            </div>
             <button
               className="btn btn-primary"
               disabled={selected.length !== required || submitted}

@@ -31,7 +31,7 @@ function makeRoom(overrides = {}) {
 }
 
 function renderLobbyPage(room, player) {
-  const state = { room, player, roomCode: room.code, error: null, nightVision: null };
+  const state = { room, player, roomCode: room.code, error: null, nightVision: null, devMode: false };
   return render(
     <GameContext.Provider value={{ state, dispatch: vi.fn(), socket: mockSocket }}>
       <LobbyPage />

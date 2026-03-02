@@ -11,7 +11,7 @@ const mockSocket = { emit: vi.fn() };
 const mockDispatch = vi.fn();
 
 function renderHomePage(stateOverrides = {}) {
-  const state = { room: null, player: null, roomCode: null, error: null, nightVision: null, ...stateOverrides };
+  const state = { room: null, player: null, roomCode: null, error: null, nightVision: null, reconnecting: false, devMode: false, ...stateOverrides };
   return render(
     <GameContext.Provider value={{ state, dispatch: mockDispatch, socket: mockSocket }}>
       <HomePage />
@@ -55,7 +55,7 @@ describe('HomePage', () => {
     renderHomePage();
     fireEvent.change(screen.getByTestId('player-name-input'), { target: { value: 'Alice' } });
     fireEvent.submit(screen.getByTestId('player-name-input').closest('form'));
-    expect(mockSocket.emit).toHaveBeenCalledWith('create_room', { playerName: 'Alice' });
+    expect(mockSocket.emit).toHaveBeenCalledWith('create_room', expect.objectContaining({ playerName: 'Alice' }));
   });
 
   it('does not emit if player name is empty', () => {
@@ -70,7 +70,7 @@ describe('HomePage', () => {
     fireEvent.change(screen.getByTestId('player-name-input'), { target: { value: 'Bob' } });
     fireEvent.change(screen.getByTestId('room-code-input'), { target: { value: 'abcd' } });
     fireEvent.submit(screen.getByTestId('room-code-input').closest('form'));
-    expect(mockSocket.emit).toHaveBeenCalledWith('join_room', { playerName: 'Bob', roomCode: 'ABCD' });
+    expect(mockSocket.emit).toHaveBeenCalledWith('join_room', expect.objectContaining({ playerName: 'Bob', roomCode: 'ABCD' }));
   });
 
   it('displays error message from state', () => {

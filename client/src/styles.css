@@ -332,6 +332,75 @@ label { display: block; font-size: 0.9rem; color: #a0a0b8; margin-bottom: 14px; 
 .badge-approve { background: #1e4d2b; color: #27ae60; padding: 2px 8px; border-radius: 999px; font-size: 0.75rem; font-weight: 700; }
 .badge-reject  { background: #4d1e1e; color: #e05454; padding: 2px 8px; border-radius: 999px; font-size: 0.75rem; font-weight: 700; }
 
+/* ---- Emoji avatar (inline in player lists) ---- */
+.emoji-avatar { font-size: 1.4rem; line-height: 1; flex-shrink: 0; }
+
+/* ---- Emoji picker ---- */
+.emoji-picker {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 6px;
+  margin: 8px 0 16px;
+}
+.emoji-btn {
+  font-size: 1.4rem;
+  padding: 6px 4px;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background: #0f0f20;
+  cursor: pointer;
+  line-height: 1;
+  transition: border-color 0.1s;
+}
+.emoji-btn.selected { border-color: #e2b96f; }
+.emoji-btn:hover:not(.selected) { border-color: #4a4a6a; }
+
+/* ---- Player card grid (team / assassination selection) ---- */
+.player-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 12px 0;
+}
+.player-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 14px 10px;
+  border-radius: 10px;
+  border: 2px solid #2a2a4a;
+  background: #0f0f20;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  width: 100%;
+  gap: 4px;
+  font-family: inherit;
+}
+.player-card.selected {
+  border-color: #e2b96f;
+  background: rgba(226, 185, 111, 0.1);
+}
+.player-card:disabled { opacity: 0.4; cursor: not-allowed; }
+.player-card:hover:not(:disabled):not(.selected) { border-color: #4a4a6a; }
+.player-card .card-avatar { font-size: 2rem; line-height: 1; }
+.player-card-name { font-size: 0.9rem; font-weight: 600; color: #e8e8f0; }
+
+/* ---- Dev mode FAB ---- */
+.dev-fab {
+  position: fixed; top: 16px; left: 16px;
+  padding: 5px 10px; border-radius: 6px;
+  background: transparent; border: 2px solid #e2b96f;
+  color: #e2b96f; font-size: 0.72rem; font-weight: 800;
+  cursor: pointer; z-index: 49;
+  letter-spacing: 0.1em; opacity: 0.6;
+  font-family: inherit;
+}
+.dev-fab:hover { opacity: 1; }
+
+/* ---- Reconnecting card ---- */
+.reconnecting-card { text-align: center; padding: 32px 24px; }
+.reconnecting-card p { color: #888; font-style: italic; font-size: 1.1rem; }
+
 /* ---- Room code tap-to-copy ---- */
 .room-code-display {
   background: #0f0f20; border: 1px solid #2a2a4a; border-radius: 10px;
