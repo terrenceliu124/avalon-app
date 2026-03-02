@@ -12,6 +12,8 @@ A real-time, in-person assistant for the **Avalon** board game. Players join fro
 - **Avatar picker** — choose an emoji avatar that follows you through the game
 - **Dev mode** — host tools for single-bot injection and a live room inspector overlay
 - **Optional visual assets** — plug in background images and avatars via a single config file
+- **Night ceremony voice-over** — host-driven audio sequencer guides the night phase step-by-step; non-host players see only a waiting screen
+- **Host transfer** — host can hand off host duties to any human player mid-game
 
 ## Tech Stack
 
@@ -65,7 +67,9 @@ avalon-app/
     │   ├── styles.css                 # Single global stylesheet (dark theme)
     │   ├── components/                # MissionTrack, PlayerAvatar, PlayerCard, DevPanel
     │   └── pages/                     # One file per game phase
-    └── public/assets/                 # Drop image files here; served at /assets/*
+    └── public/assets/
+        ├── audio/night/               # Night ceremony MP3s (see VOICE_SPEC.md)
+        └── ...                        # Background images, role cards, avatars
 ```
 
 ## Game Phases
@@ -103,6 +107,35 @@ cd client && npm test
 
 Drop image files into `client/public/assets/` and edit `client/src/assets.js` to map them to phases and player avatars. When all values are `null` the app looks identical to the default state — assets are purely additive.
 
+| Export | Purpose |
+|--------|---------|
+| `PAGE_BACKGROUND` | Single background image shared across all pages (`null` for solid color) |
+| `AVATARS` | Avatar URL pool; assigned to players deterministically by name hash |
+| `ROLE_CARDS` | Role card illustrations keyed by role name (supports arrays for per-player variants) |
+| `NIGHT_CEREMONY_CONFIG` | Audio pacing for the night ceremony sequencer |
+
+## Night Ceremony
+
+The host's Night page runs an auto-advancing voice-over ceremony. Steps are built from `room.selectedRoles` — Oberon, Percival, and Morgana each change the script.
+
+**Audio files** go in `client/public/assets/audio/night/`. See [`VOICE_SPEC.md`](client/public/assets/audio/night/VOICE_SPEC.md) for the complete file list, exact filenames, and voice scripts. Missing files are handled gracefully — the sequencer falls back to a timer, so the ceremony works with no audio present.
+
+**Pacing** is configured in `client/src/assets.js`:
+
+```js
+export const NIGHT_CEREMONY_CONFIG = {
+  STEP_REPEAT_COUNT: 1,              // times to repeat each audio clip per step
+  STEP_INTERVAL_MS: 2500,            // pause between steps (ms)
+  FALLBACK_STEP_DURATION_MS: 3000,   // auto-advance wait when audio file is missing
+};
+```
+
+Non-host players see only a "Eyes closed" waiting screen during the night phase. Night Vision info in the Info Panel is hidden until `team_proposal`.
+
+## Host Transfer
+
+The host can pass host duties to any human (non-bot) player at any phase: tap **i** → **Room** tab → **Make Host** next to a player. The server updates `room.host` and broadcasts `room_updated` immediately.
+
 ## Socket Event Reference
 
 ### Client → Server
@@ -120,6 +153,7 @@ Drop image files into `client/public/assets/` and edit `client/src/assets.js` to
 | `submit_quest_card` | `{ roomCode, card }` | Quest team member plays success/fail |
 | `assassinate` | `{ roomCode, targetName }` | Assassin picks Merlin |
 | `force_advance` | `{ roomCode, targetPhase }` | Host escape hatch |
+| `transfer_host` | `{ roomCode, targetPlayerName }` | Transfer host to another player |
 
 ### Server → Client
 

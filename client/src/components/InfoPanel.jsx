@@ -3,6 +3,8 @@ import { useGame } from '../context/GameContext';
 import MissionTrack from './MissionTrack';
 import { getRoleCard } from '../assets';
 
+const NIGHT_VISION_PHASES = ['team_proposal', 'voting', 'quest', 'assassination', 'game_over'];
+
 const ROLE_DESCRIPTIONS = {
   Merlin: 'You know all Evil players except Mordred. Guide Good to victory without revealing yourself.',
   Percival: 'You see two players — one is Merlin, one may be Morgana. Protect the true Merlin.',
@@ -65,7 +67,7 @@ function QuestHistoryCard({ record }) {
   );
 }
 
-function RoleTab({ player, nightVision }) {
+function RoleTab({ player, nightVision, phase }) {
   const role = player?.role || '?';
   const team = player?.team || 'unknown';
   const desc = ROLE_DESCRIPTIONS[role] || '';
@@ -83,7 +85,7 @@ function RoleTab({ player, nightVision }) {
         }
         <p className="role-desc" style={{ fontSize: '0.9rem' }}>{desc}</p>
       </div>
-      {sees.length > 0 && (
+      {sees.length > 0 && NIGHT_VISION_PHASES.includes(phase) && (
         <div className="info-section">
           <h3 style={{ fontSize: '0.85rem', marginBottom: 4 }}>Night Vision</h3>
           <ul className="sees-list">
@@ -121,7 +123,7 @@ function HistoryTab({ history }) {
   );
 }
 
-function RoomTab({ room, roomCode }) {
+function RoomTab({ room, roomCode, isCurrentUserHost, socket }) {
   const [copied, setCopied] = useState(false);
   const [shareCopied, setShareCopied] = useState(false);
   const leader = room.players[room.leaderIndex];
@@ -169,10 +171,19 @@ function RoomTab({ room, roomCode }) {
           {room.players.map(p => (
             <li key={p.id || p.name}>
               {p.avatar && <span className="emoji-avatar">{p.avatar}</span>}
-              <span>{p.name}</span>
-              <div style={{ display: 'flex', gap: 6 }}>
+              <span style={{ flex: 1 }}>{p.name}</span>
+              <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                 {p.isHost && <span className="badge" style={{ background: '#2a2a1a', color: '#e2b96f' }}>Host</span>}
                 {p.isBot && <span className="badge badge-bot">Bot</span>}
+                {isCurrentUserHost && !p.isBot && !p.isHost && (
+                  <button
+                    className="btn btn-ghost"
+                    style={{ minHeight: 'unset', padding: '3px 10px', fontSize: '0.75rem', marginTop: 0, width: 'auto' }}
+                    onClick={() => socket.emit('transfer_host', { roomCode, targetPlayerName: p.name })}
+                  >
+                    Make Host
+                  </button>
+                )}
               </div>
             </li>
           ))}
@@ -187,8 +198,9 @@ function RoomTab({ room, roomCode }) {
 }
 
 export default function InfoPanel() {
-  const { state } = useGame();
+  const { state, socket } = useGame();
   const { room, roomCode, player, nightVision } = state;
+  const isCurrentUserHost = room?.players.find(p => p.name === player?.name)?.isHost ?? false;
   const [open, setOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('role');
 
@@ -222,9 +234,9 @@ export default function InfoPanel() {
               ))}
             </div>
 
-            {activeTab === 'role' && <RoleTab player={player} nightVision={nightVision} />}
+            {activeTab === 'role' && <RoleTab player={player} nightVision={nightVision} phase={room.phase} />}
             {activeTab === 'history' && <HistoryTab history={room.history} />}
-            {activeTab === 'room' && <RoomTab room={room} roomCode={roomCode} />}
+            {activeTab === 'room' && <RoomTab room={room} roomCode={roomCode} isCurrentUserHost={isCurrentUserHost} socket={socket} />}
           </div>
         </div>
       )}

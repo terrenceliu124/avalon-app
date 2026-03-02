@@ -287,6 +287,26 @@ io.on('connection', (socket) => {
     io.to(roomCode).emit('room_updated', { room });
   });
 
+  // --- Transfer host ---
+
+  socket.on('transfer_host', ({ roomCode, targetPlayerName }) => {
+    const room = getRoom(roomCode);
+    if (!room) return socket.emit('error', { message: 'Room not found' });
+    if (room.host !== socket.id) return socket.emit('error', { message: 'Only the host can transfer host' });
+
+    const target = room.players.find(p => p.name === targetPlayerName);
+    if (!target) return socket.emit('error', { message: 'Player not found' });
+    if (target.isBot) return socket.emit('error', { message: 'Cannot transfer host to a bot' });
+    if (target.id === socket.id) return socket.emit('error', { message: 'You are already the host' });
+
+    for (const p of room.players) {
+      p.isHost = (p.name === targetPlayerName);
+    }
+    room.host = target.id;
+
+    io.to(roomCode).emit('room_updated', { room });
+  });
+
   // --- Disconnect ---
 
   socket.on('disconnect', () => {

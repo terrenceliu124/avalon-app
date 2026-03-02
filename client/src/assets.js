@@ -14,6 +14,13 @@ export function getAvatar(name) {
   return AVATARS[hash % AVATARS.length];
 }
 
+// Night ceremony audio pacing — edit these to fine-tune voice-over timing
+export const NIGHT_CEREMONY_CONFIG = {
+  STEP_REPEAT_COUNT: 1,              // times to repeat each step's audio clip
+  STEP_INTERVAL_MS: 2500,            // pause between steps (ms)
+  FALLBACK_STEP_DURATION_MS: 3000,   // step duration when audio file is missing
+};
+
 // Role card illustrations — keys match role names from gameLogic
 // back: card back image (null = use CSS-styled back)
 // Arrays indicate multiple variants; getRoleCard picks one deterministically by player name.

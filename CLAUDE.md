@@ -80,6 +80,7 @@ Client → Server (emitted by pages/components):
 - `submit_quest_card` — `{ card: 'success'|'fail' }`
 - `assassinate` — `{ targetName }`
 - `force_advance` — host escape hatch to jump to any phase
+- `transfer_host` — `{ roomCode, targetPlayerName }` — host transfers host role to another non-bot player
 
 Server → Client (broadcast to room):
 - `room_updated` — authoritative room snapshot; clears transient client state
@@ -126,9 +127,37 @@ Bots are fake player objects (`{ id: 'bot-N', name: 'Bot N', isBot: true }`). Th
 Drop image files into `client/public/assets/` — Vite serves them at `/assets/filename.jpg` with no import needed.
 
 **`client/src/assets.js`** is the single config file to edit each session:
-- `PAGE_BACKGROUNDS` — map of phase name → URL string or `null` (9 slots: `home`, `lobby`, `roleReveal`, `night`, `teamProposal`, `voting`, `quest`, `assassination`, `gameOver`)
+- `PAGE_BACKGROUND` — single URL string or `null`; shared across all pages
 - `AVATARS` — array of URL strings; assign avatars deterministically by player name hash via `getAvatar(name)`
+- `ROLE_CARDS` — map of role name → URL or URL array; `getRoleCard(role, name)` picks deterministically
+- `NIGHT_CEREMONY_CONFIG` — pacing config for the night ceremony audio sequencer (see below)
 
-When all values are `null`/empty the app looks identical to no-asset state. Setting a slot activates it for that phase only.
+When all values are `null`/empty the app looks identical to no-asset state.
 
 **`PlayerAvatar` component** (`client/src/components/PlayerAvatar.jsx`) returns `null` when `AVATARS` is empty — no layout change until avatars are added. Player lists in `LobbyPage`, `TeamProposalPage`, `AssassinationPage`, and `GameOverPage` already include `<PlayerAvatar name={p.name} />`.
+
+## Night Ceremony Audio
+
+The host's Night page runs a step-by-step voice-over ceremony. Steps are built dynamically from `room.selectedRoles` (Oberon, Percival, and Morgana each alter the script).
+
+**Audio files** go in `client/public/assets/audio/night/`. See `client/public/assets/audio/night/VOICE_SPEC.md` for the full file list and voice scripts.
+
+**Pacing** is controlled by `NIGHT_CEREMONY_CONFIG` in `client/src/assets.js`:
+```js
+export const NIGHT_CEREMONY_CONFIG = {
+  STEP_REPEAT_COUNT: 1,              // times to repeat each audio clip per step
+  STEP_INTERVAL_MS: 2500,            // pause between steps (ms)
+  FALLBACK_STEP_DURATION_MS: 3000,   // auto-advance wait when audio file is missing
+};
+```
+Missing audio files are handled gracefully — the sequencer falls back to a timer so the ceremony works with no files present.
+
+**Non-host players** see only a "Eyes closed" waiting screen during the night phase — no role or vision info is shown until `team_proposal`.
+
+## Host Transfer
+
+`transfer_host` socket event (valid in all phases): validates the caller is the current host, target is a non-bot human player, then flips `isHost` on all players, updates `room.host`, and broadcasts `room_updated`. UI is in InfoPanel → Room tab ("Make Host" button, visible to the host only next to each eligible player).
+
+## Night Vision Gating
+
+`InfoPanel` only shows the Night Vision section in the Role tab during post-night phases: `team_proposal`, `voting`, `quest`, `assassination`, `game_over`. It is hidden during `role_reveal` and `night`.
