@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useGame } from '../context/GameContext';
 import MissionTrack from '../components/MissionTrack';
 import { PAGE_BACKGROUND, cardScrollStyle, cardTexturedStyle } from '../assets';
@@ -16,8 +16,11 @@ export default function QuestPage() {
   const pct = teamSize > 0 ? Math.round((cardCount / teamSize) * 100) : 0;
 
   const isEvil = player?.team === 'evil';
+  const [pendingCard, setPendingCard] = useState(null);
 
   function handleCard(card) {
+    if (pendingCard !== null) return;
+    setPendingCard(card);
     socket.emit('submit_quest_card', { roomCode, card });
   }
 
@@ -47,13 +50,25 @@ export default function QuestPage() {
         {isOnTeam ? (
           hasPlayed ? (
             <p className="waiting">Your card is played. Awaiting your companions…</p>
-          ) : (
+          ) : pendingCard !== null ? (
             <div className="btn-row">
-              <button className="btn btn-approve" onClick={() => handleCard('success')}>✓ Success</button>
+              <button className="btn btn-approve" disabled style={{ opacity: pendingCard === 'success' ? 1 : 0.3, boxShadow: pendingCard === 'success' ? '0 0 0 3px #fff' : 'none' }}>✓ Success</button>
               {isEvil && (
-                <button className="btn btn-reject" onClick={() => handleCard('fail')}>✕ Fail</button>
+                <button className="btn btn-reject" disabled style={{ opacity: pendingCard === 'fail' ? 1 : 0.3, boxShadow: pendingCard === 'fail' ? '0 0 0 3px #fff' : 'none' }}>✕ Fail</button>
               )}
             </div>
+          ) : (
+            <>
+              <div className="btn-row">
+                <button className="btn btn-approve" onClick={() => handleCard('success')}>✓ Success</button>
+                {isEvil && (
+                  <button className="btn btn-reject" onClick={() => handleCard('fail')}>✕ Fail</button>
+                )}
+              </div>
+              <p style={{ fontSize: '0.8rem', color: '#888', marginTop: 10, textAlign: 'center' }}>
+                Your card is final once played
+              </p>
+            </>
           )
         ) : (
           <p className="waiting">You were not chosen for this quest. The party acts in the shadows…</p>
@@ -61,8 +76,11 @@ export default function QuestPage() {
       </div>
 
       {questResult && (
-        <div className="overlay">
-          <div className="overlay-card">
+        <div className={`overlay${!questResult.questFailed ? ' overlay--success' : ' overlay--failed'}`}>
+          <div className={`overlay-card${!questResult.questFailed ? ' overlay-card--success' : ' overlay-card--failed'}`}>
+            <div className="overlay-result-glyph" style={{ color: questResult.questFailed ? '#c0392b' : '#27ae60' }}>
+              {questResult.questFailed ? '✕' : '✓'}
+            </div>
             <div
               className="overlay-title"
               style={{ color: questResult.questFailed ? '#c0392b' : '#27ae60' }}

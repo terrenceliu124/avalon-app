@@ -60,6 +60,7 @@ export default function HomePage() {
     <div className="page" style={{ justifyContent: 'center', ...bgStyle }}>
       <div className="card">
         <h1 style={{ textAlign: 'center', marginBottom: 4 }}>Avalon</h1>
+        <div className="home-divider"><span className="home-crest">⚔</span></div>
         <p style={{ textAlign: 'center', marginBottom: 24, color: '#888' }}>The Resistance</p>
 
         {state.error && <div className="error-msg" role="alert">{state.error}</div>}

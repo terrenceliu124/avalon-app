@@ -1,5 +1,4 @@
 import React from 'react';
-import { cardScrollStyle } from '../assets';
 
 const TEAM_SIZES = {
   5:  [2, 3, 2, 3, 3],
@@ -13,7 +12,7 @@ const TEAM_SIZES = {
 export default function MissionTrack({ results = [], current = 1, playerCount = 5 }) {
   const sizes = TEAM_SIZES[playerCount] || TEAM_SIZES[5];
   return (
-    <div className="mission-track">
+    <div className="mission-track" style={{ alignSelf: 'center' }}>
       {sizes.map((size, i) => {
         const missionNum = i + 1;
         const result = results[i];

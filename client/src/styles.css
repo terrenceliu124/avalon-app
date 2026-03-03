@@ -10,13 +10,13 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 button, input, select, textarea { font-family: inherit; }
 
-html { font-size: 20px; }
+html { font-size: 16px; }
 
 body {
   background: #1a1a2e;
   color: #e8e8f0;
   font-family: 'Myfont_avalon', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  font-size: 20px;
+  font-size: 18px;
   min-height: 100dvh;
 }
 
@@ -33,13 +33,28 @@ body {
   background-attachment: fixed;
 }
 
+@keyframes cardEnter {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 .card {
   background: #16213e;
   border-radius: 12px;
   padding: 24px;
   width: 100%;
   max-width: 480px;
+  animation: cardEnter 0.35s ease both;
+  box-shadow: 0 0 0 1px rgba(226,185,111,0.06), 0 4px 24px rgba(0,0,0,0.4);
 }
+
+.card:nth-child(1) { animation-delay: 0.04s; }
+.card:nth-child(2) { animation-delay: 0.10s; }
+.card:nth-child(3) { animation-delay: 0.17s; }
+.card:nth-child(4) { animation-delay: 0.24s; }
+
+/* Role-reveal flip card must not animate (breaks 3D transform) */
+.role-card { animation: none; }
 
 .card + .card { margin-top: 16px; }
 
@@ -131,26 +146,31 @@ label { display: block; font-size: 1rem; color: #a0a0b8; margin-bottom: 14px; }
   display: inline-block;
   padding: 3px 10px;
   border-radius: 999px;
-  font-size: 1rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }
 .badge-good  { background: #1a3a5c; color: #4a90d9; }
 .badge-evil  { background: #3a1a1a; color: #e05454; }
-.badge-bot   { background: #2a2a3a; color: #888; font-size: 1rem; }
+.badge-bot   { background: #2a2a3a; color: #888; }
 
 /* ---- Mission track ---- */
 .mission-track {
   display: flex;
   gap: 8px;
   align-items: center;
+  justify-content: center;
   flex-wrap: wrap;
-  margin-bottom: 16px;
 }
+@keyframes missionPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(226,185,111,0.5); }
+  50%       { box-shadow: 0 0 0 7px rgba(226,185,111,0); }
+}
+
 .mission-dot {
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -161,13 +181,13 @@ label { display: block; font-size: 1rem; color: #a0a0b8; margin-bottom: 14px; }
   color: #888;
   background: #0f0f20;
 }
-.mission-dot.success { background: #1e4d2b; border-color: #27ae60; color: #27ae60; }
-.mission-dot.fail    { background: #4d1e1e; border-color: #c0392b; color: #c0392b; }
-.mission-dot.current { border-color: #e2b96f; color: #e2b96f; }
+.mission-dot.success { background: #1e4d2b; border-color: #27ae60; color: #27ae60; box-shadow: 0 0 10px rgba(39,174,96,0.35); }
+.mission-dot.fail    { background: #4d1e1e; border-color: #c0392b; color: #c0392b; box-shadow: 0 0 10px rgba(192,57,43,0.35); }
+.mission-dot.current { border-color: #e2b96f; color: #e2b96f; animation: missionPulse 1.8s ease-in-out infinite; }
 
 /* ---- Progress bar ---- */
 .progress-bar {
-  height: 8px;
+  height: 10px;
   border-radius: 4px;
   background: #0f0f20;
   overflow: hidden;
@@ -187,6 +207,11 @@ label { display: block; font-size: 1rem; color: #a0a0b8; margin-bottom: 14px; }
   flex-shrink: 0;
 }
 
+@keyframes listItemEnter {
+  from { opacity: 0; transform: translateX(-6px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
 /* ---- Player list ---- */
 .player-list {
   list-style: none;
@@ -199,8 +224,19 @@ label { display: block; font-size: 1rem; color: #a0a0b8; margin-bottom: 14px; }
   padding: 10px 0;
   border-bottom: 1px solid #2a2a4a;
   font-size: 1rem;
+  animation: listItemEnter 0.25s ease both;
 }
 .player-list li:last-child { border-bottom: none; }
+.player-list li:nth-child(1)  { animation-delay: 0.04s; }
+.player-list li:nth-child(2)  { animation-delay: 0.09s; }
+.player-list li:nth-child(3)  { animation-delay: 0.14s; }
+.player-list li:nth-child(4)  { animation-delay: 0.19s; }
+.player-list li:nth-child(5)  { animation-delay: 0.24s; }
+.player-list li:nth-child(6)  { animation-delay: 0.29s; }
+.player-list li:nth-child(7)  { animation-delay: 0.34s; }
+.player-list li:nth-child(8)  { animation-delay: 0.39s; }
+.player-list li:nth-child(9)  { animation-delay: 0.44s; }
+.player-list li:nth-child(10) { animation-delay: 0.49s; }
 
 /* ---- Role card ---- */
 .role-card {
@@ -310,6 +346,18 @@ label { display: block; font-size: 1rem; color: #a0a0b8; margin-bottom: 14px; }
 }
 
 /* ---- Overlay ---- */
+@keyframes overlayFadeIn {
+  from { opacity: 0; } to { opacity: 1; }
+}
+@keyframes overlayCardEnter {
+  from { opacity: 0; transform: scale(0.9); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes slideUpPanel {
+  from { opacity: 0; transform: translateY(100%); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 .overlay {
   position: fixed;
   inset: 0;
@@ -319,6 +367,7 @@ label { display: block; font-size: 1rem; color: #a0a0b8; margin-bottom: 14px; }
   justify-content: center;
   z-index: 50;
   padding: 24px;
+  animation: overlayFadeIn 0.2s ease both;
 }
 .overlay-card {
   background: #16213e;
@@ -327,12 +376,32 @@ label { display: block; font-size: 1rem; color: #a0a0b8; margin-bottom: 14px; }
   width: 100%;
   max-width: 400px;
   text-align: center;
+  animation: overlayCardEnter 0.25s cubic-bezier(0.34,1.3,0.64,1) both;
 }
 .overlay-title {
   font-size: 1.6rem;
   font-weight: 800;
   color: #e2b96f;
   margin-bottom: 12px;
+}
+
+/* Overlay backdrop tint variants */
+.overlay--approved { background: rgba(0, 20, 6, 0.88); }
+.overlay--rejected { background: rgba(20, 0, 0, 0.88); }
+.overlay--success  { background: rgba(0, 20, 6, 0.88); }
+.overlay--failed   { background: rgba(20, 0, 0, 0.88); }
+
+/* Overlay card accent bar */
+.overlay-card--approved { border-top: 3px solid #27ae60; }
+.overlay-card--rejected { border-top: 3px solid #c0392b; }
+.overlay-card--success  { border-top: 3px solid #27ae60; }
+.overlay-card--failed   { border-top: 3px solid #c0392b; }
+
+/* Large result glyph above title */
+.overlay-result-glyph {
+  font-size: 2.5rem;
+  line-height: 1;
+  margin-bottom: 10px;
 }
 
 /* ---- Tab row ---- */
@@ -367,7 +436,7 @@ label { display: block; font-size: 1rem; color: #a0a0b8; margin-bottom: 14px; }
 .role-toggle.selected {
   border-color: #e2b96f;
   background: rgba(226, 185, 111, 0.08);
-  box-shadow: 0 0 0 1px rgba(226, 185, 111, 0.15);
+  box-shadow: 0 0 0 1px rgba(226,185,111,0.2), 0 0 14px rgba(226,185,111,0.07);
 }
 .role-toggle:hover:not(.selected) { border-color: #4a4a6a; }
 .role-toggle-check {
@@ -422,6 +491,7 @@ label { display: block; font-size: 1rem; color: #a0a0b8; margin-bottom: 14px; }
   max-height: 80dvh; overflow-y: auto; text-align: left;
   padding: 24px 20px 32px;
   border-radius: 16px 16px 0 0;
+  animation: slideUpPanel 0.32s cubic-bezier(0.32,0.72,0,1) both;
 }
 .info-close-btn {
   position: absolute; top: 14px; right: 14px;
@@ -491,6 +561,51 @@ label { display: block; font-size: 1rem; color: #a0a0b8; margin-bottom: 14px; }
 /* ---- Reconnecting card ---- */
 .reconnecting-card { text-align: center; padding: 32px 24px; }
 .reconnecting-card p { color: #888; font-style: italic; font-size: 1.1rem; }
+
+/* ---- Assassination atmosphere ---- */
+.page--assassination {
+  position: relative;
+}
+.page--assassination::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: rgba(120, 0, 0, 0.10);
+  pointer-events: none;
+  z-index: 0;
+}
+.page--assassination > .card {
+  border: 1px solid rgba(192, 57, 43, 0.22);
+  position: relative;
+}
+
+/* ---- GameOver winner reveal animation ---- */
+@keyframes winnerReveal {
+  0%   { opacity: 0; transform: scale(0.75) translateY(-8px); }
+  60%  { transform: scale(1.06) translateY(0); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+.winner-reveal {
+  animation: winnerReveal 0.65s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation-delay: 0.2s;
+}
+.game-over-glow-good { box-shadow: 0 0 40px rgba(74, 144, 217, 0.18), 0 0 0 1px rgba(74,144,217,0.12); }
+.game-over-glow-evil { box-shadow: 0 0 40px rgba(224, 84, 84, 0.18),  0 0 0 1px rgba(224,84,84,0.12); }
+
+/* ---- Homepage decorative divider ---- */
+.home-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 4px 0 16px;
+}
+.home-divider::before, .home-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(226,185,111,0.35), transparent);
+}
+.home-crest { color: #e2b96f; font-size: 1.1rem; opacity: 0.65; }
 
 /* ---- Room code tap-to-copy ---- */
 .room-code-display {

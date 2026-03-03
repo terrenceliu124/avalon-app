@@ -28,7 +28,7 @@ export default function AssassinationPage() {
   const bgStyle = PAGE_BACKGROUND ? { backgroundImage: `url(${PAGE_BACKGROUND})` } : undefined;
 
   return (
-    <div className="page" style={bgStyle}>
+    <div className="page page--assassination" style={bgStyle}>
       <div className="card" style={cardTexturedStyle}>
         <MissionTrack results={room.missionResults} current={room.currentMission} playerCount={room.players.length} />
       </div>

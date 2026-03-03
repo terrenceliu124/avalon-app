@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useGame } from '../context/GameContext';
 import MissionTrack from '../components/MissionTrack';
 import { PAGE_BACKGROUND, cardScrollStyle, cardTexturedStyle } from '../assets';
@@ -9,12 +9,15 @@ export default function VotingPage() {
 
   const hasVoted = room.votes && player && room.votes[player.name] !== undefined;
   const team = room.proposedTeam || [];
+  const [pendingVote, setPendingVote] = useState(null);
 
   const totalPlayers = room.players.length;
   const voteCount = voteProgress?.voteCount ?? Object.keys(room.votes || {}).length;
   const pct = totalPlayers > 0 ? Math.round((voteCount / totalPlayers) * 100) : 0;
 
   function handleVote(approve) {
+    if (pendingVote !== null) return;
+    setPendingVote(approve);
     socket.emit('submit_vote', { roomCode, vote: approve });
   }
 
@@ -22,7 +25,7 @@ export default function VotingPage() {
 
   return (
     <div className="page" style={bgStyle}>
-      <div className="card" style={cardTexturedStyle}>
+      <div className="card" style={cardScrollStyle}>
         <MissionTrack results={room.missionResults} current={room.currentMission} playerCount={room.players.length} />
       </div>
 
@@ -44,17 +47,30 @@ export default function VotingPage() {
 
         {hasVoted ? (
           <p className="waiting">Your vote is cast. Awaiting the others…</p>
-        ) : (
+        ) : pendingVote !== null ? (
           <div className="btn-row">
-            <button className="btn btn-approve" onClick={() => handleVote(true)}>✓ Approve</button>
-            <button className="btn btn-reject"  onClick={() => handleVote(false)}>✕ Reject</button>
+            <button className="btn btn-approve" disabled style={{ opacity: pendingVote === true  ? 1 : 0.3, boxShadow: pendingVote === true  ? '0 0 0 3px #fff' : 'none' }}>✓ Approve</button>
+            <button className="btn btn-reject"  disabled style={{ opacity: pendingVote === false ? 1 : 0.3, boxShadow: pendingVote === false ? '0 0 0 3px #fff' : 'none' }}>✕ Reject</button>
           </div>
+        ) : (
+          <>
+            <div className="btn-row">
+              <button className="btn btn-approve" onClick={() => handleVote(true)}>✓ Approve</button>
+              <button className="btn btn-reject"  onClick={() => handleVote(false)}>✕ Reject</button>
+            </div>
+            <p style={{ fontSize: '0.8rem', color: '#888', marginTop: 10, textAlign: 'center' }}>
+              Your vote is final once cast
+            </p>
+          </>
         )}
       </div>
 
       {voteResult && (
-        <div className="overlay">
-          <div className="overlay-card">
+        <div className={`overlay${voteResult.approved ? ' overlay--approved' : ' overlay--rejected'}`}>
+          <div className={`overlay-card${voteResult.approved ? ' overlay-card--approved' : ' overlay-card--rejected'}`}>
+            <div className="overlay-result-glyph" style={{ color: voteResult.approved ? '#27ae60' : '#c0392b' }}>
+              {voteResult.approved ? '⚔' : '✕'}
+            </div>
             <div className="overlay-title" style={{ color: voteResult.approved ? '#27ae60' : '#c0392b' }}>
               {voteResult.approved ? 'The Party Sets Forth!' : 'The Party Is Turned Back!'}
             </div>

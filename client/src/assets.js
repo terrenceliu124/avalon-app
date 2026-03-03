@@ -10,6 +10,10 @@ export const cardScrollStyle = CARD_BG_SCROLL ? {
   backgroundSize: '100% 100%',
   backgroundRepeat: 'no-repeat',
   backgroundColor: 'transparent',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'flex-start',
+  justifyContent: 'center',
 } : {};
 
 export const cardTexturedStyle = CARD_BG_TEXTURED ? {

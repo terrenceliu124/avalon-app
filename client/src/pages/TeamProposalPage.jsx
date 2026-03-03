@@ -44,11 +44,11 @@ export default function TeamProposalPage() {
 
   return (
     <div className="page" style={bgStyle}>
-      <div className="card" style={cardTexturedStyle}>
+      <div className="card" style={{ ...cardScrollStyle, alignItems: 'center', textAlign: 'center' }}>
         <MissionTrack results={room.missionResults} current={room.currentMission} playerCount={room.players.length} />
-        <p style={{ fontSize: '0.85rem', color: '#888' }}>
+        <p style={{ fontSize: '0.85rem', color: '#3a2a0a' }}>
           Mission {room.currentMission} — needs {required} players
-          {rejectionWarning && <span style={{ color: '#e05454', marginLeft: 8 }}>{rejectionWarning}</span>}
+          {rejectionWarning && <span style={{ color: '#8b1a1a', marginLeft: 8 }}>{rejectionWarning}</span>}
         </p>
       </div>
 

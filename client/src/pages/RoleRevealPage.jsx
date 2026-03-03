@@ -34,7 +34,12 @@ export default function RoleRevealPage() {
 
   return (
     <div className="page" style={bgStyle}>
-      <div className="card role-card" style={cardScrollStyle}>
+      <div className="card" style={{ ...cardTexturedStyle, textAlign: 'center' }}>
+        <h2 style={{ marginBottom: 0 }}>Role Reveal</h2>
+        <p style={{ fontSize: '0.9rem', color: '#888', marginTop: 4 }}>Keep your role secret from other players</p>
+      </div>
+
+      <div className="card role-card" style={cardTexturedStyle}>
         {revealed && <span className={`badge badge-${team}`}>{team === 'good' ? 'Good' : 'Evil'}</span>}
 
         {cardImg ? (
