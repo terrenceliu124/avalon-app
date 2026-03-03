@@ -1,4 +1,5 @@
 import React from 'react';
+import { cardScrollStyle } from '../assets';
 
 const TEAM_SIZES = {
   5:  [2, 3, 2, 3, 3],

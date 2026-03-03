@@ -34,10 +34,7 @@ export default function RoleRevealPage() {
 
   return (
     <div className="page" style={bgStyle}>
-      <div className="card" style={cardTexturedStyle}>
-        <MissionTrack results={room.missionResults} current={room.currentMission} playerCount={room.players.length} />
-      </div>
-      <div className="card role-card" style={cardTexturedStyle}>
+      <div className="card role-card" style={cardScrollStyle}>
         {revealed && <span className={`badge badge-${team}`}>{team === 'good' ? 'Good' : 'Evil'}</span>}
 
         {cardImg ? (

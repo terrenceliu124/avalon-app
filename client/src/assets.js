@@ -1,5 +1,23 @@
 // Single background shared across all pages (swap this one path to retheme the whole app)
 export const PAGE_BACKGROUND = '/assets/backgrounds/background.png';
+
+// Card-level backgrounds — first card uses scroll, all others use textured parchment
+export const CARD_BG_SCROLL = '/assets/backgrounds/scroll.png';
+export const CARD_BG_TEXTURED = '/assets/backgrounds/background_textured.png';
+
+export const cardScrollStyle = CARD_BG_SCROLL ? {
+  backgroundImage: `url(${CARD_BG_SCROLL})`,
+  backgroundSize: '100% 100%',
+  backgroundRepeat: 'no-repeat',
+  backgroundColor: 'transparent',
+} : {};
+
+export const cardTexturedStyle = CARD_BG_TEXTURED ? {
+  backgroundImage: `url(${CARD_BG_TEXTURED})`,
+  backgroundSize: 'cover',
+  backgroundPosition: 'center',
+  backgroundRepeat: 'no-repeat',
+} : {};
 // Set to null to use solid-color fallback:
 // export const PAGE_BACKGROUND = null;
 

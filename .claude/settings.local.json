@@ -24,7 +24,8 @@
       "Bash(fly deploy:*)",
       "Bash(fly scale:*)",
       "Bash(curl:*)",
-      "Bash(gh release:*)"
+      "Bash(gh release:*)",
+      "Bash(git checkout:*)"
     ]
   }
 }
