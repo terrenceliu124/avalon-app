@@ -193,7 +193,7 @@ function RoomTab({ room, roomCode, isCurrentUserHost, socket }) {
       </div>
 
       <button className="btn btn-ghost" onClick={handleShare} style={{ marginTop: 8 }}>
-        {shareCopied ? 'Link Copied!' : 'Invite a Knight'}
+        {shareCopied ? 'Link Copied!' : 'Share Room Link'}
       </button>
     </div>
   );

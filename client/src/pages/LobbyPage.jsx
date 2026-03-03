@@ -122,10 +122,10 @@ export default function LobbyPage() {
         </div>
 
         <button className="btn btn-ghost" onClick={handleShare} style={{ marginTop: 0 }}>
-          Invite a Knight
+          Share Room Link
         </button>
 
-        <h3 style={{ marginTop: 16 }}>Knights ({playerCount}/10)</h3>
+        <h3 style={{ marginTop: 16 }}>Players ({playerCount}/10)</h3>
         <ul className="player-list" data-testid="player-list">
           {room.players.map(p => (
             <li key={p.id || p.name}>
@@ -141,8 +141,8 @@ export default function LobbyPage() {
 
         <p style={{ fontSize: '0.9rem', color: needMore > 0 ? '#888' : '#4caf50', margin: '4px 0 8px' }}>
           {needMore > 0
-            ? `Awaiting ${needMore} more knight${needMore !== 1 ? 's' : ''}…`
-            : 'All knights have gathered'}
+            ? `Awaiting ${needMore} more player${needMore !== 1 ? 's' : ''}…`
+            : 'All players have gathered'}
         </p>
 
         {isHost && devMode && playerCount < 5 && (
