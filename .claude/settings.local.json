@@ -16,7 +16,15 @@
       "Bash(npm test:*)",
       "Bash(test:*)",
       "Bash(sips:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "WebFetch(domain:elevenlabs.io)",
+      "Bash(git push:*)",
+      "Bash(fly auth:*)",
+      "Bash(fly apps:*)",
+      "Bash(fly deploy:*)",
+      "Bash(fly scale:*)",
+      "Bash(curl:*)",
+      "Bash(gh release:*)"
     ]
   }
 }

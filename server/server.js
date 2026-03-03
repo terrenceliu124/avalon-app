@@ -438,6 +438,18 @@ function _autoBotQuestCards(room, roomCode) {
   _resolveQuest(room, roomCode);
 }
 
+function _autoBotAssassinate(room) {
+  const goodPlayers = room.players.filter(p => p.team === 'good');
+  const target = goodPlayers[Math.floor(Math.random() * goodPlayers.length)];
+  room.winner = target.role === 'Merlin' ? 'evil' : 'good';
+  room.phase = 'game_over';
+  room.assassinationTarget = target.name;
+  room.gameOverReason = target.role === 'Merlin' ? 'Merlin assassinated' : 'Wrong target — Good wins';
+  room.revealedPlayers = room.players.map(p => ({
+    name: p.name, role: p.role, team: p.team, isBot: p.isBot || false,
+  }));
+}
+
 function _resolveQuest(room, roomCode) {
   if (room.phase !== 'quest') return; // guard against stale calls after phase transition
 
@@ -465,6 +477,10 @@ function _resolveQuest(room, roomCode) {
     if (winResult === 'good') {
       room.phase = 'assassination';
       room.winner = null;
+      const assassin = room.players.find(p => p.role === 'Assassin');
+      if (assassin && assassin.isBot) {
+        _autoBotAssassinate(room);
+      }
     } else if (winResult === 'evil') {
       room.phase = 'game_over';
       room.winner = 'evil';
