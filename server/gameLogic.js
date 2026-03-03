@@ -166,8 +166,59 @@ function advanceLeader(state) {
   state.leaderIndex = (state.leaderIndex + 1) % state.players.length;
 }
 
+/**
+ * Assign roles with partial forced assignments.
+ * forcedRoles: { [playerName]: roleName } — only entries provided are forced; rest are random.
+ * Returns { players } or { error }.
+ */
+function assignRolesWithForced(players, selectedRoles, playerCount, forcedRoles) {
+  const counts = TEAM_COUNTS[playerCount];
+  if (!counts) return { error: `Unsupported player count: ${playerCount}` };
+  const { good: goodCount, evil: evilCount } = counts;
+
+  // Same pool-building as assignRoles
+  const wantedEvilSpecial = (selectedRoles || []).filter(r => EVIL_ROLES.includes(r) && r !== 'Minion');
+  let evilPool = [...wantedEvilSpecial];
+  if (!evilPool.includes('Assassin')) evilPool.unshift('Assassin');
+  while (evilPool.length < evilCount) evilPool.push('Minion');
+  evilPool = evilPool.slice(0, evilCount);
+
+  const wantedGoodSpecial = (selectedRoles || []).filter(r => GOOD_ROLES.includes(r) && r !== 'LoyalServant');
+  let goodPool = wantedGoodSpecial.includes('Merlin') ? [...wantedGoodSpecial] : ['Merlin', ...wantedGoodSpecial];
+  while (goodPool.length < goodCount) goodPool.push('LoyalServant');
+  goodPool = goodPool.slice(0, goodCount);
+
+  let availablePool = [...goodPool, ...evilPool];
+  const result = players.map(p => ({ ...p }));
+
+  // Apply forced roles
+  for (const [name, role] of Object.entries(forcedRoles)) {
+    const player = result.find(p => p.name === name);
+    if (!player) return { error: `Unknown player: ${name}` };
+    const idx = availablePool.indexOf(role);
+    if (idx === -1) return { error: `Role "${role}" is not available in this game setup` };
+    availablePool.splice(idx, 1);
+    player.role = role;
+    player.team = GOOD_ROLES.includes(role) ? 'good' : 'evil';
+  }
+
+  // Random assignment for the rest
+  const remaining = shuffle(availablePool);
+  let ri = 0;
+  for (const player of result) {
+    if (!player.role) {
+      const role = remaining[ri++];
+      player.role = role;
+      player.team = GOOD_ROLES.includes(role) ? 'good' : 'evil';
+    }
+  }
+
+  return { players: result };
+}
+
 module.exports = {
   assignRoles,
+  assignRolesWithForced,
   computeNightVision,
   getTeamSize,
   requiresTwoFails,

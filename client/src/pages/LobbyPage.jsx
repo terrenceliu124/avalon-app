@@ -12,7 +12,6 @@ const ROLE_INFO = {
   Oberon:   { team: 'evil', desc: 'Hidden from evil team' },
 };
 
-const TEAM_COUNTS_MAP = { 5:{good:3,evil:2}, 6:{good:4,evil:2}, 7:{good:4,evil:3}, 8:{good:5,evil:3}, 9:{good:6,evil:3}, 10:{good:6,evil:4} };
 const GOOD_ROLE_SET = new Set(['Merlin','Percival','LoyalServant']);
 const ALL_ROLE_OPTIONS = [
   { value:'Merlin',       label:'Merlin',        team:'good' },
@@ -35,11 +34,7 @@ export default function LobbyPage() {
   const [forcedRoles, setForcedRoles] = useState({});
 
   const showRoleAssign = isHost && devMode;
-  const expectedCounts = TEAM_COUNTS_MAP[room.players.length] || { good: 3, evil: 2 };
-  const allAssigned = room.players.every(p => forcedRoles[p.name]);
-  const assignedGood = room.players.filter(p => GOOD_ROLE_SET.has(forcedRoles[p.name])).length;
-  const assignedEvil = room.players.filter(p => forcedRoles[p.name] && !GOOD_ROLE_SET.has(forcedRoles[p.name])).length;
-  const rolesValid = allAssigned && assignedGood === expectedCounts.good && assignedEvil === expectedCounts.evil;
+  const forcedCount = Object.keys(forcedRoles).length;
 
   function setPlayerRole(name, role) {
     setForcedRoles(prev => {
@@ -58,11 +53,8 @@ export default function LobbyPage() {
   }
 
   function handleStart() {
-    if (rolesValid) {
-      socket.emit('start_game', { roomCode, forcedRoles });
-    } else {
-      socket.emit('start_game', { roomCode });
-    }
+    const hasForced = Object.keys(forcedRoles).length > 0;
+    socket.emit('start_game', { roomCode, ...(hasForced ? { forcedRoles } : {}) });
   }
 
   function handleAddBots() {
@@ -242,14 +234,11 @@ export default function LobbyPage() {
                   </li>
                 ))}
               </ul>
-              <p style={{ fontSize: '0.8rem', margin: '0 0 4px', color: rolesValid ? '#4caf50' : '#888' }}>
-                {!allAssigned
-                  ? `${room.players.filter(p => forcedRoles[p.name]).length}/${room.players.length} assigned — start will use random`
-                  : rolesValid
-                    ? `✓ ${assignedGood} good + ${assignedEvil} evil — forced roles will be used`
-                    : `✗ Need ${expectedCounts.good} good + ${expectedCounts.evil} evil (have ${assignedGood}G ${assignedEvil}E)`
-                }
-              </p>
+              {forcedCount > 0 && (
+                <p style={{ fontSize: '0.8rem', margin: '0 0 4px', color: '#4caf50' }}>
+                  {`${forcedCount} of ${room.players.length} players force-assigned — others will be random`}
+                </p>
+              )}
             </div>
           )}
 
@@ -260,7 +249,7 @@ export default function LobbyPage() {
             data-testid="start-game-btn"
             style={{ marginTop: 16 }}
           >
-            {rolesValid ? 'Begin the Quest (forced roles)' : 'Begin the Quest'}
+            Begin the Quest
           </button>
         </div>
       ) : (

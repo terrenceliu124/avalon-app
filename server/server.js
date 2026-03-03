@@ -4,30 +4,7 @@ const path = require('path');
 const { Server } = require('socket.io');
 const cors = require('cors');
 const { createRoom, joinRoom, getRoom, leaveRoom, makeBot, getRooms, findPlayerRoom } = require('./gameManager');
-const { assignRoles, computeNightVision, getTeamSize, requiresTwoFails, checkWin, advanceLeader, TEAM_COUNTS } = require('./gameLogic');
-
-const GOOD_ROLES_SET = new Set(['Merlin', 'Percival', 'LoyalServant']);
-const ALL_ROLE_NAMES  = new Set(['Merlin', 'Percival', 'LoyalServant', 'Assassin', 'Morgana', 'Mordred', 'Oberon', 'Minion']);
-
-function applyForcedRoles(players, forcedRoles) {
-  const counts = TEAM_COUNTS[players.length];
-  if (!counts) return { error: `Unsupported player count: ${players.length}` };
-  for (const p of players) {
-    if (!forcedRoles[p.name]) return { error: `No role assigned for ${p.name}` };
-    if (!ALL_ROLE_NAMES.has(forcedRoles[p.name])) return { error: `Invalid role: ${forcedRoles[p.name]}` };
-  }
-  const goodCount = players.filter(p => GOOD_ROLES_SET.has(forcedRoles[p.name])).length;
-  const evilCount = players.length - goodCount;
-  if (goodCount !== counts.good) return { error: `Need ${counts.good} good players, got ${goodCount}` };
-  if (evilCount !== counts.evil) return { error: `Need ${counts.evil} evil players, got ${evilCount}` };
-  return {
-    players: players.map(p => ({
-      ...p,
-      role: forcedRoles[p.name],
-      team: GOOD_ROLES_SET.has(forcedRoles[p.name]) ? 'good' : 'evil',
-    })),
-  };
-}
+const { assignRoles, assignRolesWithForced, computeNightVision, getTeamSize, requiresTwoFails, checkWin, advanceLeader } = require('./gameLogic');
 
 const DEV_PASSKEY = process.env.DEV_PASSKEY || 'avalon-dev';
 const devAuthedSockets = new Set();
@@ -111,6 +88,12 @@ io.on('connection', (socket) => {
 
     if (room.host === oldId) room.host = socket.id;
 
+    // Transfer dev auth from the old socket to the new one
+    if (devAuthedSockets.has(oldId)) {
+      devAuthedSockets.delete(oldId);
+      devAuthedSockets.add(socket.id);
+    }
+
     socket.join(code);
     socket.emit('rejoined', { room, player });
 
@@ -193,8 +176,8 @@ io.on('connection', (socket) => {
     if (room.phase !== 'lobby') return socket.emit('error', { message: 'Game already started' });
     if (room.players.length < 5) return socket.emit('error', { message: 'Need at least 5 players' });
 
-    const result = (forcedRoles && devAuthedSockets.has(socket.id))
-      ? applyForcedRoles(room.players, forcedRoles)
+    const result = (forcedRoles && Object.keys(forcedRoles).length > 0)
+      ? assignRolesWithForced(room.players, room.selectedRoles, room.players.length, forcedRoles)
       : assignRoles(room.players, room.selectedRoles, room.players.length);
     if (result.error) return socket.emit('error', { message: result.error });
 
