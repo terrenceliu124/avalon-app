@@ -66,7 +66,7 @@ export default function VotingPage() {
       </div>
 
       {voteResult && (
-        <div className={`overlay${voteResult.approved ? ' overlay--approved' : ' overlay--rejected'}`}>
+        <div className="overlay">
           <div className={`overlay-card${voteResult.approved ? ' overlay-card--approved' : ' overlay-card--rejected'}`}>
             <div className="overlay-result-glyph" style={{ color: voteResult.approved ? '#27ae60' : '#c0392b' }}>
               {voteResult.approved ? '⚔' : '✕'}

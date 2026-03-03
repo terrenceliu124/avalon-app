@@ -76,7 +76,7 @@ export default function QuestPage() {
       </div>
 
       {questResult && (
-        <div className={`overlay${!questResult.questFailed ? ' overlay--success' : ' overlay--failed'}`}>
+        <div className="overlay">
           <div className={`overlay-card${!questResult.questFailed ? ' overlay-card--success' : ' overlay-card--failed'}`}>
             <div className="overlay-result-glyph" style={{ color: questResult.questFailed ? '#c0392b' : '#27ae60' }}>
               {questResult.questFailed ? '✕' : '✓'}

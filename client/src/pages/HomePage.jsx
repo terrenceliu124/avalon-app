@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useGame } from '../context/GameContext';
-import { PAGE_BACKGROUND } from '../assets';
+import { PAGE_BACKGROUND, cardTexturedStyle } from '../assets';
 
 export default function HomePage() {
   const { socket, state, dispatch } = useGame();
@@ -58,7 +58,7 @@ export default function HomePage() {
 
   return (
     <div className="page" style={{ justifyContent: 'center', ...bgStyle }}>
-      <div className="card">
+      <div className="card" style={cardTexturedStyle}>
         <h1 style={{ textAlign: 'center', marginBottom: 4 }}>Avalon</h1>
         <div className="home-divider"><span className="home-crest">⚔</span></div>
         <p style={{ textAlign: 'center', marginBottom: 24, color: '#888' }}>The Resistance</p>
