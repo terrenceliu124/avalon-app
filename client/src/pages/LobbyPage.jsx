@@ -27,14 +27,14 @@ const ALL_ROLE_OPTIONS = [
 
 export default function LobbyPage() {
   const { socket, state } = useGame();
-  const { room, player, roomCode, devMode, devAuthed } = state;
+  const { room, player, roomCode, devMode } = state;
 
   const myPlayer = room.players.find(p => p.name === player?.name);
   const isHost = myPlayer?.isHost;
   const [shareCopied, setShareCopied] = useState(false);
   const [forcedRoles, setForcedRoles] = useState({});
 
-  const showRoleAssign = isHost && devMode && devAuthed;
+  const showRoleAssign = isHost && devMode;
   const expectedCounts = TEAM_COUNTS_MAP[room.players.length] || { good: 3, evil: 2 };
   const allAssigned = room.players.every(p => forcedRoles[p.name]);
   const assignedGood = room.players.filter(p => GOOD_ROLE_SET.has(forcedRoles[p.name])).length;

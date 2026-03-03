@@ -14,7 +14,7 @@ export default function DevPanel() {
     setPasskey('');
     setAuthError('');
     setAuthPending(false);
-    if (devAuthed && devMode) socket.emit('get_all_rooms');
+    if (devAuthed) socket.emit('get_all_rooms');
   }
 
   function handlePasskeySubmit(e) {
@@ -40,9 +40,7 @@ export default function DevPanel() {
   }
 
   function toggleDevMode() {
-    const next = !devMode;
-    dispatch({ type: 'SET_DEV_MODE', value: next });
-    if (next) socket.emit('get_all_rooms');
+    dispatch({ type: 'SET_DEV_MODE', value: !devMode });
   }
 
   const rooms = state.allRooms || [];
@@ -63,9 +61,29 @@ export default function DevPanel() {
           <div className="overlay-card" style={{ textAlign: 'left' }} onClick={e => e.stopPropagation()}>
             <button className="info-close-btn" onClick={() => setOpen(false)} aria-label="Close">✕</button>
 
-            {!devAuthed ? (
-              <>
-                <h2 style={{ marginBottom: 16 }}>Dev Panel</h2>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+              <h2 style={{ margin: 0 }}>Dev Panel</h2>
+              <button
+                onClick={toggleDevMode}
+                style={{
+                  background: 'transparent', border: '2px solid #e2b96f',
+                  color: '#e2b96f', borderRadius: 6, padding: '4px 10px',
+                  fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer',
+                  fontFamily: 'inherit',
+                }}
+              >
+                {devMode ? '◉ ON' : '○ OFF'}
+              </button>
+            </div>
+            <p style={{ color: '#888', fontSize: '0.85rem', marginBottom: 16 }}>
+              Dev mode enables bot controls and forced role assignment in the lobby.
+            </p>
+
+            <div style={{ borderTop: '1px solid #333', paddingTop: 16 }}>
+              <h3 style={{ margin: '0 0 12px', fontSize: '0.85rem', color: '#888', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                Server State
+              </h3>
+              {!devAuthed ? (
                 <form onSubmit={handlePasskeySubmit}>
                   <label style={{ display: 'block', marginBottom: 8, color: '#888', fontSize: '0.85rem' }}>
                     Passkey
@@ -76,7 +94,6 @@ export default function DevPanel() {
                     value={passkey}
                     onChange={e => setPasskey(e.target.value)}
                     placeholder="Enter passkey"
-                    autoFocus
                     autoComplete="off"
                   />
                   {authError && <div className="error-msg" style={{ marginTop: 8 }}>{authError}</div>}
@@ -89,46 +106,25 @@ export default function DevPanel() {
                     {authPending ? 'Verifying…' : 'Unlock'}
                   </button>
                 </form>
-              </>
-            ) : (
-              <>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-                  <h2 style={{ margin: 0 }}>Dev Panel</h2>
-                  <button
-                    onClick={toggleDevMode}
-                    style={{
-                      background: 'transparent', border: '2px solid #e2b96f',
-                      color: '#e2b96f', borderRadius: 6, padding: '4px 10px',
-                      fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer',
-                      fontFamily: 'inherit',
-                    }}
-                  >
-                    {devMode ? '◉ ON' : '○ OFF'}
-                  </button>
-                </div>
-
-                {devMode ? (
-                  rooms.length === 0 ? (
-                    <p className="waiting">No active rooms</p>
-                  ) : (
-                    <ul className="player-list">
-                      {rooms.map(r => (
-                        <li key={r.code} style={{ flexDirection: 'column', alignItems: 'flex-start', gap: 4 }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <strong style={{ color: '#e2b96f', fontSize: '1.1rem' }}>{r.code}</strong>
-                            <span className="badge" style={{ background: '#2a2a4a', color: '#b0b0c0' }}>{r.phase}</span>
-                            <span style={{ color: '#888', fontSize: '0.85rem' }}>{r.playerCount} players</span>
-                          </div>
-                          <div style={{ fontSize: '0.85rem', color: '#888' }}>{r.playerNames.join(', ')}</div>
-                        </li>
-                      ))}
-                    </ul>
-                  )
+              ) : (
+                rooms.length === 0 ? (
+                  <p className="waiting">No active rooms</p>
                 ) : (
-                  <p style={{ color: '#888', fontSize: '0.9rem' }}>Enable dev mode to see active rooms and unlock extra controls.</p>
-                )}
-              </>
-            )}
+                  <ul className="player-list">
+                    {rooms.map(r => (
+                      <li key={r.code} style={{ flexDirection: 'column', alignItems: 'flex-start', gap: 4 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <strong style={{ color: '#e2b96f', fontSize: '1.1rem' }}>{r.code}</strong>
+                          <span className="badge" style={{ background: '#2a2a4a', color: '#b0b0c0' }}>{r.phase}</span>
+                          <span style={{ color: '#888', fontSize: '0.85rem' }}>{r.playerCount} players</span>
+                        </div>
+                        <div style={{ fontSize: '0.85rem', color: '#888' }}>{r.playerNames.join(', ')}</div>
+                      </li>
+                    ))}
+                  </ul>
+                )
+              )}
+            </div>
           </div>
         </div>
       )}
