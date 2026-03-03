@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useGame } from '../context/GameContext';
 import MissionTrack from '../components/MissionTrack';
-import { PAGE_BACKGROUND, NIGHT_CEREMONY_CONFIG } from '../assets';
+import { PAGE_BACKGROUND, NIGHT_CEREMONY_CONFIG, cardScrollStyle, cardTexturedStyle } from '../assets';
 
 const { STEP_REPEAT_COUNT, STEP_INTERVAL_MS, FALLBACK_STEP_DURATION_MS } = NIGHT_CEREMONY_CONFIG;
 
@@ -73,7 +73,7 @@ function buildCeremonySteps(selectedRoles) {
   }
 
   steps.push({
-    text: 'Ask everyone to open their eyes. The night phase is over!',
+    text: 'Ask everyone to open their eyes. A new day has come.',
     audioSrc: '/assets/audio/night/09-wake-up.mp3',
   });
 
@@ -93,12 +93,12 @@ export default function NightPage() {
   if (!isHost) {
     return (
       <div className="page" style={bgStyle}>
-        <div className="card">
+        <div className="card" style={cardTexturedStyle}>
           <MissionTrack results={room.missionResults} current={room.currentMission} playerCount={room.players.length} />
         </div>
-        <div className="card">
+        <div className="card" style={cardTexturedStyle}>
           <h2>Night Phase</h2>
-          <p className="waiting">Eyes closed. The host is running the night ceremony.</p>
+          <p className="waiting">Keep your eyes closed. The host conducts the night ceremony.</p>
         </div>
       </div>
     );
@@ -179,11 +179,11 @@ function HostNightView({ socket, room, roomCode, bgStyle }) {
 
   return (
     <div className="page" style={bgStyle}>
-      <div className="card">
+      <div className="card" style={cardTexturedStyle}>
         <MissionTrack results={room.missionResults} current={room.currentMission} playerCount={room.players.length} />
       </div>
 
-      <div className="card">
+      <div className="card" style={cardTexturedStyle}>
         <h2>Night Ceremony</h2>
 
         {playState !== 'idle' && (
@@ -211,14 +211,14 @@ function HostNightView({ socket, room, roomCode, bgStyle }) {
 
         {playState === 'done' && (
           <p style={{ color: '#7ec87e', fontSize: '1rem', marginBottom: 16 }}>
-            Ceremony complete.
+            Dawn approaches.
           </p>
         )}
 
         <div className="btn-row">
           {playState === 'idle' && (
             <button className="btn btn-primary" onClick={startSequencer}>
-              Start Ceremony
+              Begin Ceremony
             </button>
           )}
           {playState === 'playing' && (
@@ -234,12 +234,12 @@ function HostNightView({ socket, room, roomCode, bgStyle }) {
         </div>
       </div>
 
-      <div className="card">
+      <div className="card" style={cardTexturedStyle}>
         <button
           className="btn btn-primary"
           onClick={() => socket.emit('advance_to_team_proposal', { roomCode })}
         >
-          Start Day (Team Proposal)
+          Begin the Day
         </button>
       </div>
     </div>

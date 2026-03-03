@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useGame } from '../context/GameContext';
 import MissionTrack from '../components/MissionTrack';
 import PlayerCard from '../components/PlayerCard';
-import { PAGE_BACKGROUND } from '../assets';
+import { PAGE_BACKGROUND, cardScrollStyle, cardTexturedStyle } from '../assets';
 
 export default function AssassinationPage() {
   const { socket, state } = useGame();
@@ -29,19 +29,19 @@ export default function AssassinationPage() {
 
   return (
     <div className="page" style={bgStyle}>
-      <div className="card">
+      <div className="card" style={cardTexturedStyle}>
         <MissionTrack results={room.missionResults} current={room.currentMission} playerCount={room.players.length} />
       </div>
 
-      <div className="card">
+      <div className="card" style={cardTexturedStyle}>
         <h2>Assassination</h2>
         <p style={{ marginBottom: 16 }}>
-          Good has won 3 missions. The Assassin now gets one chance to kill Merlin.
+          Three quests have fallen to the forces of good. The Assassin rises — one final chance to unmask and strike down Merlin.
         </p>
 
         {isAssassin ? (
           <>
-            <h3>Choose your target:</h3>
+            <h3>Name your target:</h3>
             <div className="player-grid" style={{ marginBottom: 12 }}>
               {candidates.map(p => (
                 <PlayerCard
@@ -57,12 +57,12 @@ export default function AssassinationPage() {
               disabled={!target || submitted}
               onClick={handleAssassinate}
             >
-              {submitted ? 'Assassinating…' : `Assassinate ${target || '...'}`}
+              {submitted ? 'Striking…' : `Assassinate ${target || '...'}`}
             </button>
           </>
         ) : (
           <p className="waiting">
-            Waiting for the Assassin ({assassinName}) to choose a target...
+            The Assassin ({assassinName}) deliberates. All fates hang in the balance…
           </p>
         )}
       </div>

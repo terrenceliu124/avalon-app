@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useGame } from '../context/GameContext';
 import MissionTrack from '../components/MissionTrack';
 import PlayerCard from '../components/PlayerCard';
-import { PAGE_BACKGROUND } from '../assets';
+import { PAGE_BACKGROUND, cardScrollStyle, cardTexturedStyle } from '../assets';
 
 const TEAM_SIZES = {
   5:  [2, 3, 2, 3, 3],
@@ -37,14 +37,14 @@ export default function TeamProposalPage() {
   }
 
   const rejectionWarning = room.rejectionCount > 0
-    ? `${room.rejectionCount}/5 rejections used`
+    ? `${room.rejectionCount} of 5 proposals rejected`
     : null;
 
   const bgStyle = PAGE_BACKGROUND ? { backgroundImage: `url(${PAGE_BACKGROUND})` } : undefined;
 
   return (
     <div className="page" style={bgStyle}>
-      <div className="card">
+      <div className="card" style={cardTexturedStyle}>
         <MissionTrack results={room.missionResults} current={room.currentMission} playerCount={room.players.length} />
         <p style={{ fontSize: '0.85rem', color: '#888' }}>
           Mission {room.currentMission} — needs {required} players
@@ -52,15 +52,15 @@ export default function TeamProposalPage() {
         </p>
       </div>
 
-      <div className="card">
-        <h2>Team Proposal</h2>
+      <div className="card" style={cardTexturedStyle}>
+        <h2>Quest Proposal</h2>
         <p style={{ marginBottom: 12 }}>
           Leader: <strong style={{ color: '#e2b96f' }}>{leader?.name}</strong>
         </p>
 
         {isLeader ? (
           <>
-            <h3>Select {required} players:</h3>
+            <h3>Choose {required} for the quest:</h3>
             <div className="player-grid">
               {room.players.map(p => (
                 <PlayerCard
@@ -78,14 +78,14 @@ export default function TeamProposalPage() {
               disabled={selected.length !== required || submitted}
               onClick={handleSubmit}
             >
-              {submitted ? 'Proposing…' : `Propose Team (${selected.length}/${required})`}
+              {submitted ? 'Sending…' : `Send Proposal (${selected.length}/${required})`}
             </button>
           </>
         ) : (
           <>
-            <p className="waiting">Waiting for {leader?.name} to propose a team...</p>
+            <p className="waiting">Awaiting {leader?.name}'s proposal…</p>
             {room.proposedTeam?.length > 0 && (
-              <p>Current proposal: <strong>{room.proposedTeam.join(', ')}</strong></p>
+              <p>Proposed party: <strong>{room.proposedTeam.join(', ')}</strong></p>
             )}
           </>
         )}

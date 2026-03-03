@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useGame } from '../context/GameContext';
 import MissionTrack from '../components/MissionTrack';
-import { PAGE_BACKGROUND, getRoleCard, ROLE_CARDS } from '../assets';
+import { PAGE_BACKGROUND, getRoleCard, ROLE_CARDS, cardScrollStyle, cardTexturedStyle } from '../assets';
 
 const ROLE_DESCRIPTIONS = {
   Merlin: 'You know all Evil players except Mordred. Guide Good to victory without revealing yourself.',
@@ -34,10 +34,10 @@ export default function RoleRevealPage() {
 
   return (
     <div className="page" style={bgStyle}>
-      <div className="card">
+      <div className="card" style={cardTexturedStyle}>
         <MissionTrack results={room.missionResults} current={room.currentMission} playerCount={room.players.length} />
       </div>
-      <div className="card role-card">
+      <div className="card role-card" style={cardTexturedStyle}>
         {revealed && <span className={`badge badge-${team}`}>{team === 'good' ? 'Good' : 'Evil'}</span>}
 
         {cardImg ? (
@@ -63,12 +63,12 @@ export default function RoleRevealPage() {
         {revealed && <p className="role-desc">{desc}</p>}
       </div>
       {isHost && (
-        <div className="card" style={{ maxWidth: 480 }}>
+        <div className="card" style={{ maxWidth: 480, ...cardTexturedStyle }}>
           <button
             className="btn btn-primary"
             onClick={() => socket.emit('advance_to_night', { roomCode })}
           >
-            Advance to Night Phase
+            Begin the Night
           </button>
         </div>
       )}

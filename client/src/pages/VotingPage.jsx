@@ -1,7 +1,7 @@
 import React from 'react';
 import { useGame } from '../context/GameContext';
 import MissionTrack from '../components/MissionTrack';
-import { PAGE_BACKGROUND } from '../assets';
+import { PAGE_BACKGROUND, cardScrollStyle, cardTexturedStyle } from '../assets';
 
 export default function VotingPage() {
   const { socket, state } = useGame();
@@ -22,13 +22,13 @@ export default function VotingPage() {
 
   return (
     <div className="page" style={bgStyle}>
-      <div className="card">
+      <div className="card" style={cardTexturedStyle}>
         <MissionTrack results={room.missionResults} current={room.currentMission} playerCount={room.players.length} />
       </div>
 
-      <div className="card">
-        <h2>Vote on Team</h2>
-        <p style={{ marginBottom: 8 }}>Proposed team:</p>
+      <div className="card" style={cardTexturedStyle}>
+        <h2>Cast Your Vote</h2>
+        <p style={{ marginBottom: 8 }}>Proposed party:</p>
         <ul className="player-list" style={{ marginBottom: 12 }}>
           {team.map(name => (
             <li key={name}>{name}</li>
@@ -39,11 +39,11 @@ export default function VotingPage() {
           <div className="progress-fill" style={{ width: `${pct}%` }} />
         </div>
         <p style={{ fontSize: '0.85rem', color: '#888', marginBottom: 12 }}>
-          {voteCount}/{totalPlayers} votes submitted
+          {voteCount} of {totalPlayers} have voted
         </p>
 
         {hasVoted ? (
-          <p className="waiting">Vote submitted. Waiting for others...</p>
+          <p className="waiting">Your vote is cast. Awaiting the others…</p>
         ) : (
           <div className="btn-row">
             <button className="btn btn-approve" onClick={() => handleVote(true)}>✓ Approve</button>
@@ -56,7 +56,7 @@ export default function VotingPage() {
         <div className="overlay">
           <div className="overlay-card">
             <div className="overlay-title" style={{ color: voteResult.approved ? '#27ae60' : '#c0392b' }}>
-              {voteResult.approved ? 'Team Approved!' : 'Team Rejected!'}
+              {voteResult.approved ? 'The Party Sets Forth!' : 'The Party Is Turned Back!'}
             </div>
             {room.showVotingHistory !== false && (
               <ul className="sees-list" style={{ textAlign: 'left', margin: '12px 0' }}>
@@ -68,7 +68,7 @@ export default function VotingPage() {
                 ))}
               </ul>
             )}
-            <p style={{ color: '#888', fontSize: '0.85rem' }}>Advancing…</p>
+            <p style={{ color: '#888', fontSize: '0.85rem' }}>Proceeding…</p>
           </div>
         </div>
       )}

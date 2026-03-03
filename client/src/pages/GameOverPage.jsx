@@ -1,7 +1,7 @@
 import React from 'react';
 import { useGame } from '../context/GameContext';
 import MissionTrack from '../components/MissionTrack';
-import { PAGE_BACKGROUND } from '../assets';
+import { PAGE_BACKGROUND, cardScrollStyle, cardTexturedStyle } from '../assets';
 import PlayerAvatar from '../components/PlayerAvatar';
 
 export default function GameOverPage() {
@@ -14,26 +14,26 @@ export default function GameOverPage() {
 
   return (
     <div className="page" style={bgStyle}>
-      <div className="card">
+      <div className="card" style={cardTexturedStyle}>
         <MissionTrack results={room.missionResults} current={room.currentMission} playerCount={room.players.length} />
       </div>
 
-      <div className="card" style={{ textAlign: 'center' }}>
+      <div className="card" style={{ textAlign: 'center', ...cardTexturedStyle }}>
         <h1 className={isGoodWin ? 'winner-good' : 'winner-evil'}>
-          {isGoodWin ? 'Good Wins!' : 'Evil Wins!'}
+          {isGoodWin ? 'The Light Prevails!' : 'Darkness Triumphs!'}
         </h1>
         {room.gameOverReason && (
           <p style={{ marginTop: 8 }}>{room.gameOverReason}</p>
         )}
         {room.assassinationTarget && (
           <p style={{ marginTop: 8, color: '#888' }}>
-            Assassin targeted: <strong>{room.assassinationTarget}</strong>
+            The Assassin struck: <strong>{room.assassinationTarget}</strong>
           </p>
         )}
       </div>
 
-      <div className="card">
-        <h3>Role Reveal</h3>
+      <div className="card" style={cardTexturedStyle}>
+        <h3>The Unmasking</h3>
         <ul className="player-list">
           {(room.revealedPlayers || room.players).map(p => (
             <li key={p.name}>
@@ -47,12 +47,12 @@ export default function GameOverPage() {
         </ul>
       </div>
 
-      <div className="card">
+      <div className="card" style={cardTexturedStyle}>
         <button
           className="btn btn-ghost"
           onClick={() => dispatch({ type: 'RESET' })}
         >
-          Play Again
+          New Game
         </button>
       </div>
     </div>

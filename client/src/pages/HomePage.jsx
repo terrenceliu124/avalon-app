@@ -32,7 +32,7 @@ export default function HomePage() {
     return (
       <div className="page" style={{ justifyContent: 'center', ...bgStyle }}>
         <div className="card reconnecting-card">
-          <p>Reconnecting…</p>
+          <p>Returning to the realm…</p>
         </div>
       </div>
     );

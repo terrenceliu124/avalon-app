@@ -102,7 +102,7 @@ function RoleTab({ player, nightVision, phase }) {
       )}
       {tip && (
         <div className="info-section">
-          <h3 style={{ fontSize: '0.85rem', marginBottom: 6 }}>Strategy Tip</h3>
+          <h3 style={{ fontSize: '0.85rem', marginBottom: 6 }}>Counsel</h3>
           <p style={{ fontSize: '0.88rem', color: '#b0b0c0', lineHeight: 1.5 }}>{tip}</p>
         </div>
       )}
@@ -112,7 +112,7 @@ function RoleTab({ player, nightVision, phase }) {
 
 function HistoryTab({ history, showVotingHistory }) {
   if (!history || history.length === 0) {
-    return <p className="waiting">No history yet.</p>;
+    return <p className="waiting">No deeds recorded yet.</p>;
   }
   return (
     <div className="info-tab-content">
@@ -193,7 +193,7 @@ function RoomTab({ room, roomCode, isCurrentUserHost, socket }) {
       </div>
 
       <button className="btn btn-ghost" onClick={handleShare} style={{ marginTop: 8 }}>
-        {shareCopied ? 'Link Copied!' : 'Share Room Link'}
+        {shareCopied ? 'Link Copied!' : 'Invite a Knight'}
       </button>
     </div>
   );

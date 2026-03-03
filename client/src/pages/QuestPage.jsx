@@ -1,7 +1,7 @@
 import React from 'react';
 import { useGame } from '../context/GameContext';
 import MissionTrack from '../components/MissionTrack';
-import { PAGE_BACKGROUND } from '../assets';
+import { PAGE_BACKGROUND, cardScrollStyle, cardTexturedStyle } from '../assets';
 
 export default function QuestPage() {
   const { socket, state } = useGame();
@@ -25,29 +25,28 @@ export default function QuestPage() {
 
   return (
     <div className="page" style={bgStyle}>
-      <div className="card">
+      <div className="card" style={cardScrollStyle}>
         <MissionTrack results={room.missionResults} current={room.currentMission} playerCount={room.players.length} />
+        <div className="progress-bar" style={{ marginTop: 12 }}>
+          <div className="progress-fill" style={{ width: `${pct}%` }} />
+        </div>
+        <p style={{ fontSize: '0.85rem', color: '#888', marginTop: 6 }}>
+          {cardCount} of {teamSize} cards played
+        </p>
       </div>
 
-      <div className="card">
+      <div className="card" style={cardTexturedStyle}>
         <h2>Quest</h2>
-        <p style={{ marginBottom: 8 }}>Quest team:</p>
+        <p style={{ marginBottom: 8 }}>Quest party:</p>
         <ul className="player-list" style={{ marginBottom: 12 }}>
           {team.map(name => (
             <li key={name}>{name}</li>
           ))}
         </ul>
 
-        <div className="progress-bar">
-          <div className="progress-fill" style={{ width: `${pct}%` }} />
-        </div>
-        <p style={{ fontSize: '0.85rem', color: '#888', marginBottom: 12 }}>
-          {cardCount}/{teamSize} cards submitted
-        </p>
-
         {isOnTeam ? (
           hasPlayed ? (
-            <p className="waiting">Card submitted. Waiting for teammates...</p>
+            <p className="waiting">Your card is played. Awaiting your companions…</p>
           ) : (
             <div className="btn-row">
               <button className="btn btn-approve" onClick={() => handleCard('success')}>✓ Success</button>
@@ -57,7 +56,7 @@ export default function QuestPage() {
             </div>
           )
         ) : (
-          <p className="waiting">You are not on this quest. Waiting for the team...</p>
+          <p className="waiting">You were not chosen for this quest. The party acts in the shadows…</p>
         )}
       </div>
 
@@ -72,10 +71,10 @@ export default function QuestPage() {
             </div>
             {questResult.fails > 0 && (
               <p style={{ color: '#e05454', margin: '8px 0' }}>
-                {questResult.fails} Fail card{questResult.fails > 1 ? 's' : ''} played
+                {questResult.fails} fail card{questResult.fails > 1 ? 's' : ''} revealed
               </p>
             )}
-            <p style={{ color: '#888', fontSize: '0.85rem', marginTop: 8 }}>Advancing…</p>
+            <p style={{ color: '#888', fontSize: '0.85rem', marginTop: 8 }}>Proceeding…</p>
           </div>
         </div>
       )}

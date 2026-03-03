@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useGame } from '../context/GameContext';
-import { PAGE_BACKGROUND } from '../assets';
+import { PAGE_BACKGROUND, cardScrollStyle, cardTexturedStyle } from '../assets';
 import PlayerAvatar from '../components/PlayerAvatar';
 
 const OPTIONAL_ROLES = ['Percival', 'Morgana', 'Mordred', 'Oberon'];
@@ -108,8 +108,8 @@ export default function LobbyPage() {
 
   return (
     <div className="page" style={bgStyle}>
-      <div className="card">
-        <h2>Lobby</h2>
+      <div className="card" style={cardTexturedStyle}>
+        <h2>The Gathering</h2>
 
         <div
           className="room-code-display"
@@ -122,10 +122,10 @@ export default function LobbyPage() {
         </div>
 
         <button className="btn btn-ghost" onClick={handleShare} style={{ marginTop: 0 }}>
-          Share Room Link
+          Invite a Knight
         </button>
 
-        <h3 style={{ marginTop: 16 }}>Players ({playerCount}/10)</h3>
+        <h3 style={{ marginTop: 16 }}>Knights ({playerCount}/10)</h3>
         <ul className="player-list" data-testid="player-list">
           {room.players.map(p => (
             <li key={p.id || p.name}>
@@ -141,8 +141,8 @@ export default function LobbyPage() {
 
         <p style={{ fontSize: '0.9rem', color: needMore > 0 ? '#888' : '#4caf50', margin: '4px 0 8px' }}>
           {needMore > 0
-            ? `Waiting for ${needMore} more player${needMore !== 1 ? 's' : ''}…`
-            : 'Ready to start'}
+            ? `Awaiting ${needMore} more knight${needMore !== 1 ? 's' : ''}…`
+            : 'All knights have gathered'}
         </p>
 
         {isHost && devMode && playerCount < 5 && (
@@ -158,7 +158,7 @@ export default function LobbyPage() {
       </div>
 
       {isHost ? (
-        <div className="card">
+        <div className="card" style={cardTexturedStyle}>
           <h3>Optional Roles</h3>
           <div className="role-toggle-list">
             {OPTIONAL_ROLES.map(role => {
@@ -192,7 +192,7 @@ export default function LobbyPage() {
               aria-checked={room.showVotingHistory !== false}
             >
               <span className="role-toggle-check">{room.showVotingHistory !== false ? '✓' : ''}</span>
-              <span className="role-toggle-label">Show voting history</span>
+              <span className="role-toggle-label">Reveal vote history to all players</span>
             </div>
           </div>
 
@@ -260,12 +260,12 @@ export default function LobbyPage() {
             data-testid="start-game-btn"
             style={{ marginTop: 16 }}
           >
-            {rolesValid ? 'Start Game (forced roles)' : 'Start Game'}
+            {rolesValid ? 'Begin the Quest (forced roles)' : 'Begin the Quest'}
           </button>
         </div>
       ) : (
-        <div className="card">
-          <h3>Game Setup</h3>
+        <div className="card" style={cardTexturedStyle}>
+          <h3>Quest Configuration</h3>
           <div className="role-toggle-list">
             {OPTIONAL_ROLES.map(role => {
               const isSelected = (room.selectedRoles || []).includes(role);
@@ -286,7 +286,7 @@ export default function LobbyPage() {
             })}
           </div>
           <p style={{ fontSize: '0.9rem', color: '#888', margin: '4px 0 0' }}>
-            Voting history: {room.showVotingHistory !== false ? 'visible' : 'hidden'}
+            Vote history: {room.showVotingHistory !== false ? 'revealed' : 'concealed'}
           </p>
         </div>
       )}
