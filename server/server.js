@@ -4,7 +4,33 @@ const path = require('path');
 const { Server } = require('socket.io');
 const cors = require('cors');
 const { createRoom, joinRoom, getRoom, leaveRoom, makeBot, getRooms, findPlayerRoom } = require('./gameManager');
-const { assignRoles, computeNightVision, getTeamSize, requiresTwoFails, checkWin, advanceLeader } = require('./gameLogic');
+const { assignRoles, computeNightVision, getTeamSize, requiresTwoFails, checkWin, advanceLeader, TEAM_COUNTS } = require('./gameLogic');
+
+const GOOD_ROLES_SET = new Set(['Merlin', 'Percival', 'LoyalServant']);
+const ALL_ROLE_NAMES  = new Set(['Merlin', 'Percival', 'LoyalServant', 'Assassin', 'Morgana', 'Mordred', 'Oberon', 'Minion']);
+
+function applyForcedRoles(players, forcedRoles) {
+  const counts = TEAM_COUNTS[players.length];
+  if (!counts) return { error: `Unsupported player count: ${players.length}` };
+  for (const p of players) {
+    if (!forcedRoles[p.name]) return { error: `No role assigned for ${p.name}` };
+    if (!ALL_ROLE_NAMES.has(forcedRoles[p.name])) return { error: `Invalid role: ${forcedRoles[p.name]}` };
+  }
+  const goodCount = players.filter(p => GOOD_ROLES_SET.has(forcedRoles[p.name])).length;
+  const evilCount = players.length - goodCount;
+  if (goodCount !== counts.good) return { error: `Need ${counts.good} good players, got ${goodCount}` };
+  if (evilCount !== counts.evil) return { error: `Need ${counts.evil} evil players, got ${evilCount}` };
+  return {
+    players: players.map(p => ({
+      ...p,
+      role: forcedRoles[p.name],
+      team: GOOD_ROLES_SET.has(forcedRoles[p.name]) ? 'good' : 'evil',
+    })),
+  };
+}
+
+const DEV_PASSKEY = process.env.DEV_PASSKEY || 'avalon-dev';
+const devAuthedSockets = new Set();
 
 const app = express();
 app.use(cors());
@@ -30,16 +56,16 @@ io.on('connection', (socket) => {
 
   // --- Room lifecycle ---
 
-  socket.on('create_room', ({ playerName, avatar }) => {
+  socket.on('create_room', ({ playerName }) => {
     if (!playerName || !playerName.trim()) {
       return socket.emit('error', { message: 'Player name is required' });
     }
-    const { code, player } = createRoom(playerName.trim(), socket.id, avatar || null);
+    const { code, player } = createRoom(playerName.trim(), socket.id);
     socket.join(code);
     socket.emit('room_created', { code, player, room: getRoom(code) });
   });
 
-  socket.on('join_room', ({ roomCode, playerName, avatar }) => {
+  socket.on('join_room', ({ roomCode, playerName }) => {
     if (!playerName || !playerName.trim()) {
       return socket.emit('error', { message: 'Player name is required' });
     }
@@ -63,7 +89,7 @@ io.on('connection', (socket) => {
       return;
     }
 
-    const result = joinRoom(code, playerName.trim(), socket.id, avatar || null);
+    const result = joinRoom(code, playerName.trim(), socket.id);
     if (result.error) {
       return socket.emit('error', { message: result.error });
     }
@@ -124,7 +150,19 @@ io.on('connection', (socket) => {
     io.to(roomCode).emit('room_updated', { room });
   });
 
+  socket.on('verify_dev_passkey', ({ passkey }) => {
+    if (passkey === DEV_PASSKEY) {
+      devAuthedSockets.add(socket.id);
+      socket.emit('dev_auth_result', { success: true });
+    } else {
+      socket.emit('dev_auth_result', { success: false });
+    }
+  });
+
   socket.on('get_all_rooms', () => {
+    if (!devAuthedSockets.has(socket.id)) {
+      return socket.emit('error', { message: 'Unauthorized' });
+    }
     const roomSummaries = [];
     for (const [code, room] of getRooms().entries()) {
       roomSummaries.push({
@@ -137,14 +175,16 @@ io.on('connection', (socket) => {
     socket.emit('all_rooms', { rooms: roomSummaries });
   });
 
-  socket.on('start_game', ({ roomCode }) => {
+  socket.on('start_game', ({ roomCode, forcedRoles }) => {
     const room = getRoom(roomCode);
     if (!room) return socket.emit('error', { message: 'Room not found' });
     if (room.host !== socket.id) return socket.emit('error', { message: 'Only host can start' });
     if (room.phase !== 'lobby') return socket.emit('error', { message: 'Game already started' });
     if (room.players.length < 5) return socket.emit('error', { message: 'Need at least 5 players' });
 
-    const result = assignRoles(room.players, room.selectedRoles, room.players.length);
+    const result = (forcedRoles && devAuthedSockets.has(socket.id))
+      ? applyForcedRoles(room.players, forcedRoles)
+      : assignRoles(room.players, room.selectedRoles, room.players.length);
     if (result.error) return socket.emit('error', { message: result.error });
 
     room.players = result.players;
@@ -272,7 +312,7 @@ io.on('connection', (socket) => {
     room.assassinationTarget = targetName;
     room.gameOverReason = merlinKilled ? 'Merlin assassinated' : 'Wrong target — Good wins';
     room.revealedPlayers = room.players.map(p => ({
-      name: p.name, role: p.role, team: p.team, isBot: p.isBot || false, avatar: p.avatar || null,
+      name: p.name, role: p.role, team: p.team, isBot: p.isBot || false,
     }));
 
     io.to(roomCode).emit('room_updated', { room });
@@ -311,6 +351,7 @@ io.on('connection', (socket) => {
   // --- Disconnect ---
 
   socket.on('disconnect', () => {
+    devAuthedSockets.delete(socket.id);
     console.log('Client disconnected:', socket.id);
     const found = findPlayerRoom(socket.id);
     if (found && found.room.phase !== 'lobby') {
@@ -365,7 +406,7 @@ function _resolveVotes(room, roomCode) {
         room.winner = 'evil';
         room.gameOverReason = '5 team rejections';
         room.revealedPlayers = room.players.map(p => ({
-          name: p.name, role: p.role, team: p.team, isBot: p.isBot || false, avatar: p.avatar || null,
+          name: p.name, role: p.role, team: p.team, isBot: p.isBot || false,
         }));
       } else {
         advanceToHumanLeader(room);
@@ -429,7 +470,7 @@ function _resolveQuest(room, roomCode) {
       room.winner = 'evil';
       room.gameOverReason = '3 mission failures';
       room.revealedPlayers = room.players.map(p => ({
-        name: p.name, role: p.role, team: p.team, isBot: p.isBot || false, avatar: p.avatar || null,
+        name: p.name, role: p.role, team: p.team, isBot: p.isBot || false,
       }));
     } else {
       advanceToHumanLeader(room);

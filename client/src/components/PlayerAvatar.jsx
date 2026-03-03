@@ -1,9 +1,6 @@
 import { getAvatar } from '../assets';
 
-export default function PlayerAvatar({ name, emoji, size = 32 }) {
-  if (emoji) {
-    return <span className="emoji-avatar">{emoji}</span>;
-  }
+export default function PlayerAvatar({ name, size = 32 }) {
   const src = getAvatar(name);
   if (!src) return null;
   return (

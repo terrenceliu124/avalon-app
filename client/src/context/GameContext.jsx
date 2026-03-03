@@ -27,6 +27,7 @@ const initialState = {
   voteResult: null,
   questResult: null,
   devMode: safeLSGet('avalon_dev_mode') === 'true',
+  devAuthed: false,
   reconnecting: hasSavedSession(),
   allRooms: null,
 };
@@ -64,11 +65,13 @@ function reducer(state, action) {
     case 'SET_DEV_MODE':
       localStorage.setItem('avalon_dev_mode', action.value ? 'true' : 'false');
       return { ...state, devMode: action.value };
+    case 'SET_DEV_AUTHED':
+      return { ...state, devAuthed: action.value };
     case 'SET_ALL_ROOMS':
       return { ...state, allRooms: action.rooms };
     case 'RESET':
       sessionStorage.removeItem('avalon_player');
-      return { ...initialState, devMode: state.devMode, reconnecting: false };
+      return { ...initialState, devMode: state.devMode, devAuthed: state.devAuthed, reconnecting: false };
     default:
       return state;
   }
@@ -148,6 +151,10 @@ export function GameProvider({ children }) {
       dispatch({ type: 'SET_ALL_ROOMS', rooms });
     });
 
+    socket.on('dev_auth_result', ({ success }) => {
+      dispatch({ type: 'SET_DEV_AUTHED', value: success });
+    });
+
     socket.on('error', ({ message }) => {
       dispatch({ type: 'SET_ERROR', message });
     });
@@ -165,6 +172,7 @@ export function GameProvider({ children }) {
       socket.off('vote_result');
       socket.off('quest_result');
       socket.off('all_rooms');
+      socket.off('dev_auth_result');
       socket.off('error');
       socket.disconnect();
     };

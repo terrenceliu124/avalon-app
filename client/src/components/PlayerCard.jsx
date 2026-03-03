@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function PlayerCard({ player, selected, onClick, disabled, hideAvatar }) {
+export default function PlayerCard({ player, selected, onClick, disabled }) {
   return (
     <button
       className={`player-card${selected ? ' selected' : ''}`}
@@ -8,7 +8,6 @@ export default function PlayerCard({ player, selected, onClick, disabled, hideAv
       disabled={disabled}
       type="button"
     >
-      {!hideAvatar && <span className="card-avatar">{player.avatar || '🎭'}</span>}
       <span className="player-card-name">{player.name}</span>
       {player.isHost && (
         <span className="badge" style={{ background: '#2a2a1a', color: '#e2b96f', fontSize: '0.7rem' }}>Host</span>

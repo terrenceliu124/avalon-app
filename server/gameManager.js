@@ -3,17 +3,14 @@ const { v4: uuidv4 } = require('uuid');
 // rooms: Map<roomCode, roomState>
 const rooms = new Map();
 
-const BOT_EMOJIS = ['🦁', '🐯', '🦊', '🐺', '🐻', '🐼', '🦄', '🐲', '🦅', '🦉', '🧙', '🧝', '🧛', '⚔️', '🛡️', '🎭'];
-
 // --- Player factories ---
 
-function makePlayer(socketId, name, isHost, avatar) {
-  return { id: socketId, name, isHost, isBot: false, avatar: avatar || null };
+function makePlayer(socketId, name, isHost) {
+  return { id: socketId, name, isHost, isBot: false };
 }
 
 function makeBot(n) {
-  const emoji = BOT_EMOJIS[(n - 1) % BOT_EMOJIS.length];
-  return { id: `bot-${n}`, name: `Bot ${n}`, isHost: false, isBot: true, avatar: emoji };
+  return { id: `bot-${n}`, name: `Bot ${n}`, isHost: false, isBot: true };
 }
 
 function generateRoomCode() {
@@ -25,9 +22,9 @@ function generateRoomCode() {
   return code;
 }
 
-function createRoom(hostName, socketId, avatar) {
+function createRoom(hostName, socketId) {
   const code = generateRoomCode();
-  const player = makePlayer(socketId, hostName, true, avatar);
+  const player = makePlayer(socketId, hostName, true);
   rooms.set(code, {
     code,
     players: [player],
@@ -46,14 +43,14 @@ function createRoom(hostName, socketId, avatar) {
   return { code, player };
 }
 
-function joinRoom(roomCode, playerName, socketId, avatar) {
+function joinRoom(roomCode, playerName, socketId) {
   const room = rooms.get(roomCode);
   if (!room) return { error: 'Room not found' };
   if (room.phase !== 'lobby') return { error: 'Game already in progress' };
   if (room.players.some(p => p.name === playerName)) return { error: 'Name already taken' };
   if (room.players.length >= 10) return { error: 'Room is full' };
 
-  const player = makePlayer(socketId, playerName, false, avatar);
+  const player = makePlayer(socketId, playerName, false);
   room.players.push(player);
   return { room, player };
 }

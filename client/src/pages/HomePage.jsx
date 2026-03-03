@@ -54,10 +54,6 @@ export default function HomePage() {
     socket.emit('join_room', { playerName: playerName.trim(), roomCode: roomCode.trim().toUpperCase() });
   }
 
-  function toggleDevMode() {
-    dispatch({ type: 'SET_DEV_MODE', value: !state.devMode });
-  }
-
   const bgStyle = PAGE_BACKGROUND ? { backgroundImage: `url(${PAGE_BACKGROUND})` } : undefined;
 
   return (
@@ -115,17 +111,6 @@ export default function HomePage() {
           </button>
         </form>
       </div>
-
-      <button
-        onClick={toggleDevMode}
-        style={{
-          marginTop: 24, background: 'transparent', border: 'none',
-          color: state.devMode ? '#e2b96f' : '#444', cursor: 'pointer',
-          fontSize: '0.75rem', letterSpacing: '0.1em', fontWeight: 700,
-        }}
-      >
-        {state.devMode ? '◉ DEV MODE ON' : '○ DEV MODE'}
-      </button>
     </div>
   );
 }

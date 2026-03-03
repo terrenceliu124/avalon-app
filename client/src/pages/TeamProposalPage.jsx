@@ -15,7 +15,7 @@ const TEAM_SIZES = {
 
 export default function TeamProposalPage() {
   const { socket, state } = useGame();
-  const { room, player, roomCode, devMode } = state;
+  const { room, player, roomCode } = state;
 
   const leader = room.players[room.leaderIndex];
   const isLeader = leader?.name === player?.name;
@@ -62,7 +62,7 @@ export default function TeamProposalPage() {
           <>
             <h3>Select {required} players:</h3>
             <div className="player-grid">
-              {(devMode ? room.players : room.players.filter(p => !p.isBot)).map(p => (
+              {room.players.map(p => (
                 <PlayerCard
                   key={p.name}
                   player={p}
