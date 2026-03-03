@@ -47,15 +47,15 @@ export const NIGHT_CEREMONY_CONFIG = {
 // back: card back image (null = use CSS-styled back)
 // Arrays indicate multiple variants; getRoleCard picks one deterministically by player name.
 export const ROLE_CARDS = {
-  back:         '/assets/role/BACK_OF_CARD.png',
-  Merlin:       '/assets/role/MERLIN.png',
-  Percival:     '/assets/role/PERCIVAL.png',
-  LoyalServant: ['/assets/role/LOYAL_SERVANT1.png', '/assets/role/LOYAL_SERVANT2.png'],
-  Assassin:     '/assets/role/ASSASSIN.png',
-  Morgana:      '/assets/role/MORGANA.png',
-  Mordred:      '/assets/role/MORDRED.png',
-  Oberon:       '/assets/role/OBERON.png',
-  Minion:       ['/assets/role/MINION1.png', '/assets/role/MINION2.png'],
+  back:         '/assets/role/BACK_OF_CARD.jpg',
+  Merlin:       '/assets/role/MERLIN.jpg',
+  Percival:     '/assets/role/PERCIVAL.jpg',
+  LoyalServant: '/assets/role/LOYAL_SERVANT.jpg',
+  Assassin:     '/assets/role/ASSASSIN.jpg',
+  Morgana:      '/assets/role/MORGANA.jpg',
+  Mordred:      '/assets/role/MORDRED.jpg',
+  Oberon:       '/assets/role/OBERON.jpg',
+  Minion:       '/assets/role/MINION.jpg',
 };
 
 // Returns the role card URL for a given role and player name.

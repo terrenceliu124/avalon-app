@@ -204,6 +204,8 @@
 
 - [x] Single background image shared across all pages (`PAGE_BACKGROUND` in `assets.js`)
 - [x] Null fallback — when `PAGE_BACKGROUND` is null, solid-color CSS background used
+- [x] Card-level scroll background (`CARD_BG_SCROLL` / `cardScrollStyle`) — parchment scroll image for mission-track cards
+- [x] Card-level textured background (`CARD_BG_TEXTURED` / `cardTexturedStyle`) — textured parchment for main content cards
 - [x] Avatar image pool (`AVATARS` array) — assigned deterministically by player name hash
 - [x] `getAvatar(name)` returns null when pool is empty (no layout change)
 - [x] Role card images per role (`ROLE_CARDS` map), with array support for variants
@@ -245,7 +247,27 @@
 
 ---
 
-## 20. Planned / Backlog
+## 20. Design & Animations
+
+- [x] Typography baseline — 16px root, 18px body, 0.75rem badges
+- [x] Card entrance animation — fade + slide-up on mount with nth-child stagger delays (1–4)
+- [x] Card depth shadow — subtle gold ring + drop shadow on all `.card` elements
+- [x] Role-reveal flip card exempt from card entrance animation (preserves 3D transform)
+- [x] Player list stagger animation — items slide in sequentially on mount (up to 10, 50ms steps)
+- [x] Mission track enlarged dots (36px → 44px) with gold pulse ring on current mission
+- [x] Mission dot glow on completed dots (green/red per result)
+- [x] Progress bar height increased (8px → 10px)
+- [x] Overlay animations — backdrop fade-in, card scale-up with spring easing
+- [x] Info panel slide-up animation on open
+- [x] Vote/quest result overlays — colored top accent bar and large result glyph (⚔/✓/✕)
+- [x] Assassination page — subtle red ambient tint via `::before` pseudo-element; red card borders
+- [x] GameOver winner reveal — scale + fade animation on h1 with spring easing; team-colored card glow
+- [x] Homepage decorative gold divider (⚔ crest with gradient rules) between title and subtitle
+- [x] Role toggle selected glow — enhanced gold box-shadow on selected state
+
+---
+
+## 21. Planned / Backlog
 
 - [ ] Actual night ceremony audio `.mp3` files recorded and committed
 - [ ] Auto-join via share URL (skip manual room code entry)
@@ -255,5 +277,4 @@
 - [ ] Player kick — host can remove a disruptive player
 - [ ] Configurable bot behavior — evil bots play fail cards on quest
 - [ ] Sound effects for vote/quest overlays
-- [ ] Animated mission track transitions
 - [ ] Mobile PWA manifest / installable app
