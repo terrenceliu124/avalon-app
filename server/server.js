@@ -3,7 +3,7 @@ const http = require('http');
 const path = require('path');
 const { Server } = require('socket.io');
 const cors = require('cors');
-const { createRoom, joinRoom, getRoom, leaveRoom, makeBot, getRooms, findPlayerRoom } = require('./gameManager');
+const { createRoom, joinRoom, getRoom, leaveRoom, makeBot, getRooms, findPlayerRoom, cleanupExpiredRooms } = require('./gameManager');
 const { assignRoles, assignRolesWithForced, computeNightVision, getTeamSize, requiresTwoFails, checkWin, advanceLeader } = require('./gameLogic');
 
 const DEV_PASSKEY = process.env.DEV_PASSKEY || 'avalon-dev';
@@ -85,6 +85,7 @@ io.on('connection', (socket) => {
 
     const oldId = player.id;
     player.id = socket.id;
+    delete room.emptyAt;
 
     if (room.host === oldId) room.host = socket.id;
 
@@ -303,6 +304,7 @@ io.on('connection', (socket) => {
     const merlinKilled = target.role === 'Merlin';
     room.winner = merlinKilled ? 'evil' : 'good';
     room.phase = 'game_over';
+    room.gameOverAt = Date.now();
     room.assassinationTarget = targetName;
     room.gameOverReason = merlinKilled ? 'Merlin assassinated' : 'Wrong target — Good wins';
     room.revealedPlayers = room.players.map(p => ({
@@ -352,6 +354,12 @@ io.on('connection', (socket) => {
       // Game in progress — keep player so they can rejoin; just notify the room
       console.log(`[disconnect] ${socket.id} in in-progress room ${found.code} — keeping player for rejoin`);
       io.to(found.code).emit('room_updated', { room: found.room });
+      const activeHumans = found.room.players.filter(
+        p => !p.isBot && p.id !== socket.id && io.sockets.sockets.get(p.id)
+      );
+      if (activeHumans.length === 0) {
+        found.room.emptyAt = Date.now();
+      }
     } else {
       const result = leaveRoom(socket.id);
       if (result && !result.deleted) {
@@ -397,6 +405,7 @@ function _resolveVotes(room, roomCode) {
       room.rejectionCount += 1;
       if (room.rejectionCount >= 5) {
         room.phase = 'game_over';
+        room.gameOverAt = Date.now();
         room.winner = 'evil';
         room.gameOverReason = '5 team rejections';
         room.revealedPlayers = room.players.map(p => ({
@@ -437,6 +446,7 @@ function _autoBotAssassinate(room) {
   const target = goodPlayers[Math.floor(Math.random() * goodPlayers.length)];
   room.winner = target.role === 'Merlin' ? 'evil' : 'good';
   room.phase = 'game_over';
+  room.gameOverAt = Date.now();
   room.assassinationTarget = target.name;
   room.gameOverReason = target.role === 'Merlin' ? 'Merlin assassinated' : 'Wrong target — Good wins';
   room.revealedPlayers = room.players.map(p => ({
@@ -477,6 +487,7 @@ function _resolveQuest(room, roomCode) {
       }
     } else if (winResult === 'evil') {
       room.phase = 'game_over';
+      room.gameOverAt = Date.now();
       room.winner = 'evil';
       room.gameOverReason = '3 mission failures';
       room.revealedPlayers = room.players.map(p => ({
@@ -506,6 +517,12 @@ if (process.env.NODE_ENV === 'production') {
   app.use(express.static(clientDist));
   app.get('*', (_req, res) => res.sendFile(path.join(clientDist, 'index.html')));
 }
+
+const ROOM_TTL_MS = 5 * 60 * 1000; // 5 minutes
+setInterval(() => {
+  const n = cleanupExpiredRooms(ROOM_TTL_MS);
+  if (n > 0) console.log(`[cleanup] Removed ${n} expired room(s)`);
+}, 60_000); // sweep every minute
 
 const PORT = process.env.PORT || 3001;
 server.listen(PORT, () => {

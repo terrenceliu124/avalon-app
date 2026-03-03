@@ -96,4 +96,21 @@ function findPlayerRoom(socketId) {
   return null;
 }
 
-module.exports = { createRoom, joinRoom, getRoom, leaveRoom, getRooms, generateRoomCode, makePlayer, makeBot, findPlayerRoom };
+function deleteRoom(roomCode) {
+  rooms.delete(roomCode);
+}
+
+function cleanupExpiredRooms(ttlMs) {
+  const now = Date.now();
+  let count = 0;
+  for (const [code, room] of rooms) {
+    if (room.gameOverAt && now - room.gameOverAt > ttlMs) {
+      rooms.delete(code); count++;
+    } else if (room.emptyAt && now - room.emptyAt > ttlMs) {
+      rooms.delete(code); count++;
+    }
+  }
+  return count;
+}
+
+module.exports = { createRoom, joinRoom, getRoom, leaveRoom, getRooms, generateRoomCode, makePlayer, makeBot, findPlayerRoom, deleteRoom, cleanupExpiredRooms };
