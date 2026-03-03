@@ -27,7 +27,7 @@ const ROLE_TIPS = {
   Minion: 'Coordinate with your known evil allies. Get onto quests to fail them.',
 };
 
-function VoteHistoryCard({ record }) {
+function VoteHistoryCard({ record, showVotingHistory }) {
   return (
     <div className="history-card">
       <div className="history-header">
@@ -37,16 +37,18 @@ function VoteHistoryCard({ record }) {
         </span>
       </div>
       <div className="history-meta">Leader: {record.leader} · Team: {record.team.join(', ')}</div>
-      <ul className="sees-list">
-        {Object.entries(record.votes).map(([name, vote]) => (
-          <li key={name}>
-            <span>{name}</span>
-            <span className={vote ? 'badge-approve' : 'badge-reject'} style={{ padding: '2px 8px', borderRadius: 999, fontSize: '0.75rem', fontWeight: 700 }}>
-              {vote ? 'Approve' : 'Reject'}
-            </span>
-          </li>
-        ))}
-      </ul>
+      {showVotingHistory && (
+        <ul className="sees-list">
+          {Object.entries(record.votes).map(([name, vote]) => (
+            <li key={name}>
+              <span>{name}</span>
+              <span className={vote ? 'badge-approve' : 'badge-reject'} style={{ padding: '2px 8px', borderRadius: 999, fontSize: '0.75rem', fontWeight: 700 }}>
+                {vote ? 'Approve' : 'Reject'}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
@@ -108,7 +110,7 @@ function RoleTab({ player, nightVision, phase }) {
   );
 }
 
-function HistoryTab({ history }) {
+function HistoryTab({ history, showVotingHistory }) {
   if (!history || history.length === 0) {
     return <p className="waiting">No history yet.</p>;
   }
@@ -116,7 +118,7 @@ function HistoryTab({ history }) {
     <div className="info-tab-content">
       {[...history].reverse().map((record, i) => (
         record.type === 'vote'
-          ? <VoteHistoryCard key={i} record={record} />
+          ? <VoteHistoryCard key={i} record={record} showVotingHistory={showVotingHistory} />
           : <QuestHistoryCard key={i} record={record} />
       ))}
     </div>
@@ -235,7 +237,7 @@ export default function InfoPanel() {
             </div>
 
             {activeTab === 'role' && <RoleTab player={player} nightVision={nightVision} phase={room.phase} />}
-            {activeTab === 'history' && <HistoryTab history={room.history} />}
+            {activeTab === 'history' && <HistoryTab history={room.history} showVotingHistory={room.showVotingHistory !== false} />}
             {activeTab === 'room' && <RoomTab room={room} roomCode={roomCode} isCurrentUserHost={isCurrentUserHost} socket={socket} />}
           </div>
         </div>

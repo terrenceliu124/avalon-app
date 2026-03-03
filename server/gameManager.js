@@ -31,6 +31,7 @@ function createRoom(hostName, socketId) {
     phase: 'lobby',
     host: socketId,
     selectedRoles: [],
+    showVotingHistory: true,
     missionResults: [],
     rejectionCount: 0,
     currentMission: 1,

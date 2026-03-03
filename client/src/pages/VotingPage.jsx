@@ -58,14 +58,16 @@ export default function VotingPage() {
             <div className="overlay-title" style={{ color: voteResult.approved ? '#27ae60' : '#c0392b' }}>
               {voteResult.approved ? 'Team Approved!' : 'Team Rejected!'}
             </div>
-            <ul className="sees-list" style={{ textAlign: 'left', margin: '12px 0' }}>
-              {Object.entries(voteResult.votes).map(([name, v]) => (
-                <li key={name}>
-                  <span>{name}</span>
-                  <span style={{ color: v ? '#27ae60' : '#c0392b' }}>{v ? 'Approve' : 'Reject'}</span>
-                </li>
-              ))}
-            </ul>
+            {room.showVotingHistory !== false && (
+              <ul className="sees-list" style={{ textAlign: 'left', margin: '12px 0' }}>
+                {Object.entries(voteResult.votes).map(([name, v]) => (
+                  <li key={name}>
+                    <span>{name}</span>
+                    <span style={{ color: v ? '#27ae60' : '#c0392b' }}>{v ? 'Approve' : 'Reject'}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
             <p style={{ color: '#888', fontSize: '0.85rem' }}>Advancing…</p>
           </div>
         </div>

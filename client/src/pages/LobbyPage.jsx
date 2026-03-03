@@ -6,8 +6,8 @@ import PlayerAvatar from '../components/PlayerAvatar';
 const OPTIONAL_ROLES = ['Percival', 'Morgana', 'Mordred', 'Oberon'];
 
 const ROLE_INFO = {
-  Percival: { team: 'good', desc: 'Sees Merlin' },
-  Morgana:  { team: 'evil', desc: 'Appears as Merlin' },
+  Percival: { team: 'good', desc: 'Sees Merlin and Morgana' },
+  Morgana:  { team: 'evil', desc: 'Seen by Percival' },
   Mordred:  { team: 'evil', desc: 'Hidden from Merlin' },
   Oberon:   { team: 'evil', desc: 'Hidden from evil team' },
 };
@@ -91,25 +91,41 @@ export default function LobbyPage() {
       .catch(() => window.prompt('Copy this link:', url));
   }
 
+  async function handleCopyCode() {
+    try {
+      await navigator.clipboard.writeText(roomCode);
+      setShareCopied(true);
+      setTimeout(() => setShareCopied(false), 2000);
+    } catch {
+      window.prompt('Room code:', roomCode);
+    }
+  }
+
   const bgStyle = PAGE_BACKGROUND ? { backgroundImage: `url(${PAGE_BACKGROUND})` } : undefined;
+
+  const playerCount = room.players.length;
+  const needMore = Math.max(0, 5 - playerCount);
 
   return (
     <div className="page" style={bgStyle}>
       <div className="card">
         <h2>Lobby</h2>
-        <p style={{ marginBottom: 4, fontSize: '0.9rem', color: '#888' }}>Room Code</p>
+
         <div
+          className="room-code-display"
           data-testid="room-code"
-          style={{ fontSize: '2rem', fontWeight: 800, letterSpacing: '0.15em', color: '#e2b96f', marginBottom: 16 }}
+          onClick={handleCopyCode}
         >
-          {roomCode}
+          <span className="room-code-label">Room Code</span>
+          <span className="room-code-value">{roomCode}</span>
+          <span className="room-code-hint">{shareCopied ? 'Copied!' : 'Tap to copy'}</span>
         </div>
 
-        <button className="btn btn-ghost" onClick={handleShare} style={{ marginTop: 8 }}>
-          {shareCopied ? 'Link Copied!' : 'Share Room Link'}
+        <button className="btn btn-ghost" onClick={handleShare} style={{ marginTop: 0 }}>
+          Share Room Link
         </button>
 
-        <h3 style={{ marginTop: 16 }}>Players ({room.players.length}/10)</h3>
+        <h3 style={{ marginTop: 16 }}>Players ({playerCount}/10)</h3>
         <ul className="player-list" data-testid="player-list">
           {room.players.map(p => (
             <li key={p.id || p.name}>
@@ -123,7 +139,13 @@ export default function LobbyPage() {
           ))}
         </ul>
 
-        {isHost && devMode && room.players.length < 5 && (
+        <p style={{ fontSize: '0.9rem', color: needMore > 0 ? '#888' : '#4caf50', margin: '4px 0 8px' }}>
+          {needMore > 0
+            ? `Waiting for ${needMore} more player${needMore !== 1 ? 's' : ''}…`
+            : 'Ready to start'}
+        </p>
+
+        {isHost && devMode && playerCount < 5 && (
           <button className="btn btn-ghost" onClick={handleAddBots} data-testid="add-bots-btn">
             Add Bots (fill to 5)
           </button>
@@ -135,7 +157,7 @@ export default function LobbyPage() {
         )}
       </div>
 
-      {isHost && (
+      {isHost ? (
         <div className="card">
           <h3>Optional Roles</h3>
           <div className="role-toggle-list">
@@ -160,8 +182,22 @@ export default function LobbyPage() {
               );
             })}
           </div>
+
+          <div style={{ borderTop: '1px solid #333', paddingTop: 14, marginBottom: 16 }}>
+            <h3 style={{ margin: '0 0 10px' }}>Game Options</h3>
+            <div
+              className={`role-toggle${room.showVotingHistory !== false ? ' selected' : ''}`}
+              onClick={() => socket.emit('update_settings', { roomCode, settings: { showVotingHistory: !room.showVotingHistory } })}
+              role="checkbox"
+              aria-checked={room.showVotingHistory !== false}
+            >
+              <span className="role-toggle-check">{room.showVotingHistory !== false ? '✓' : ''}</span>
+              <span className="role-toggle-label">Show voting history</span>
+            </div>
+          </div>
+
           {showRoleAssign && (
-            <div style={{ marginTop: 20, borderTop: '1px solid #333', paddingTop: 16 }}>
+            <div style={{ marginTop: 4, borderTop: '1px solid #333', paddingTop: 16 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
                 <h3 style={{ margin: 0 }}>
                   Assign Roles{' '}
@@ -220,12 +256,38 @@ export default function LobbyPage() {
           <button
             className="btn btn-primary"
             onClick={handleStart}
-            disabled={room.players.length < 5}
+            disabled={playerCount < 5}
             data-testid="start-game-btn"
             style={{ marginTop: 16 }}
           >
             {rolesValid ? 'Start Game (forced roles)' : 'Start Game'}
           </button>
+        </div>
+      ) : (
+        <div className="card">
+          <h3>Game Setup</h3>
+          <div className="role-toggle-list">
+            {OPTIONAL_ROLES.map(role => {
+              const isSelected = (room.selectedRoles || []).includes(role);
+              const info = ROLE_INFO[role];
+              return (
+                <div
+                  key={role}
+                  className={`role-toggle${isSelected ? ' selected' : ''}`}
+                >
+                  <span className="role-toggle-check">{isSelected ? '✓' : ''}</span>
+                  <span className="role-toggle-label">{role}</span>
+                  <span className="role-toggle-meta">{info.desc}</span>
+                  <span className={`badge ${info.team === 'good' ? 'badge-good' : 'badge-evil'}`}>
+                    {info.team === 'good' ? 'Good' : 'Evil'}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+          <p style={{ fontSize: '0.9rem', color: '#888', margin: '4px 0 0' }}>
+            Voting history: {room.showVotingHistory !== false ? 'visible' : 'hidden'}
+          </p>
         </div>
       )}
     </div>

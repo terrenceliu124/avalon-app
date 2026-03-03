@@ -74,11 +74,14 @@ describe('LobbyPage', () => {
     expect(screen.getByTestId('start-game-btn')).toBeInTheDocument();
   });
 
-  it('hides optional roles and start button for non-host', () => {
+  it('shows roles read-only and hides start button for non-host', () => {
     const room = makeRoom();
     renderLobbyPage(room, room.players[1]);
     expect(screen.queryByTestId('start-game-btn')).not.toBeInTheDocument();
-    expect(screen.queryByText('Percival')).not.toBeInTheDocument();
+    // Non-host sees roles in read-only view (no click handler)
+    expect(screen.getByText('Percival')).toBeInTheDocument();
+    const percivalToggle = screen.getByText('Percival').closest('[role="checkbox"]');
+    expect(percivalToggle).toBeNull();
   });
 
   it('disables start button when fewer than 5 players', () => {

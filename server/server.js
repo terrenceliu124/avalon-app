@@ -129,6 +129,17 @@ io.on('connection', (socket) => {
     io.to(roomCode).emit('room_updated', { room });
   });
 
+  socket.on('update_settings', ({ roomCode, settings }) => {
+    const room = getRoom(roomCode);
+    if (!room) return socket.emit('error', { message: 'Room not found' });
+    if (room.host !== socket.id) return socket.emit('error', { message: 'Only host can update settings' });
+    if (room.phase !== 'lobby') return socket.emit('error', { message: 'Cannot change settings after game has started' });
+    if (typeof settings.showVotingHistory === 'boolean') {
+      room.showVotingHistory = settings.showVotingHistory;
+    }
+    io.to(roomCode).emit('room_updated', { room });
+  });
+
   socket.on('add_bots', ({ roomCode, one }) => {
     const room = getRoom(roomCode);
     if (!room) return socket.emit('error', { message: 'Room not found' });
