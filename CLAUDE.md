@@ -107,6 +107,13 @@ Bots are fake player objects (`{ id: 'bot-N', name: 'Bot N', isBot: true }`). Th
 - **Merlin and Assassin are always present:** `assignRoles` unconditionally prepends `Merlin` to the good pool and `Assassin` to the evil pool regardless of `selectedRoles`.
 - **Player identity key is `player.name`:** `votes`, `questCards`, `proposedTeam`, and `nightVision` all key on name strings, not socket IDs.
 
+## Feature List Maintenance
+
+Whenever a feature is added, modified, or removed from the codebase, update both documents **in the same session**:
+
+1. **`plan/FEATURE_LIST.md`** — mark the feature `[x]` when implemented, add it under the relevant section (or create a new section if needed), and move any completed planned items from the Backlog to their functional section.
+2. **`README.md`** — update the Features bullet list and any other sections (roles table, socket reference, etc.) that describe the changed behaviour.
+
 ## Patterns
 
 - **Socket handler structure:** Every handler calls `getRoom()` first and returns an `error` emit immediately if the room is missing. Phase guards (`if (room.phase !== 'X') return socket.emit('error', ...)`) come next, before any mutation.

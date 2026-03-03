@@ -65,8 +65,10 @@ A real-time, in-person assistant for the **Avalon** board game. Players join fro
 - **Bot support** — fill empty seats with bots (always approve votes, always play success)
 - **Rejoin on refresh** — tab refresh or reopening the app reconnects you to your existing session
 - **Avatar picker** — choose an emoji avatar that follows you through the game
-- **Dev mode** — host tools for single-bot injection and a live room inspector overlay
-- **Optional visual assets** — plug in background images and avatars via a single config file
+- **Share room link** — Web Share API with clipboard fallback; URL param `?room=XXXX` pre-fills the join field
+- **Info panel** — slide-out panel available throughout the game with Role (role + night vision), History (vote & quest logs), and Room (player list + host transfer + share link) tabs
+- **Dev mode** — passkey-gated host tools: force any phase transition, assign specific roles, add single bots, live all-rooms inspector overlay
+- **Optional visual assets** — plug in background images, role card illustrations, and avatar pools via a single config file
 - **Night ceremony voice-over** — host-driven audio sequencer guides the night phase step-by-step; non-host players see only a waiting screen
 - **Host transfer** — host can hand off host duties to any human player mid-game
 
