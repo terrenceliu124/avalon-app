@@ -9,6 +9,13 @@ const TEAM_SIZES = {
   10: [3, 4, 4, 5, 5],
 };
 
+const FINGER_IMAGES = {
+  2: '/assets/backgrounds/FINGERS_2.png',
+  3: '/assets/backgrounds/FINGERS_3.png',
+  4: '/assets/backgrounds/FINGERS_4.png',
+  5: '/assets/backgrounds/FINGERS_5.png',
+};
+
 export default function MissionTrack({ results = [], current = 1, playerCount = 5 }) {
   const sizes = TEAM_SIZES[playerCount] || TEAM_SIZES[5];
   return (
@@ -20,9 +27,12 @@ export default function MissionTrack({ results = [], current = 1, playerCount = 
         if (result === 'success') cls += ' success';
         else if (result === 'fail') cls += ' fail';
         else if (missionNum === current) cls += ' current';
+        else cls += ' future';
         return (
           <div key={i} className={cls} title={`Mission ${missionNum}: ${size} players`}>
-            {size}
+            <img src={FINGER_IMAGES[size]} alt={`${size} players`} className="mission-finger-img" />
+            {result === 'success' && <div className="mission-overlay mission-overlay-success" style={{ maskImage: `url(${FINGER_IMAGES[size]})`, WebkitMaskImage: `url(${FINGER_IMAGES[size]})` }} />}
+            {result === 'fail'    && <div className="mission-overlay mission-overlay-fail"    style={{ maskImage: `url(${FINGER_IMAGES[size]})`, WebkitMaskImage: `url(${FINGER_IMAGES[size]})` }} />}
           </div>
         );
       })}
