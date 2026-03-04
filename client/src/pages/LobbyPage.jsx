@@ -18,11 +18,13 @@ function SortablePlayerRow({ p, isHost }) {
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
+    ...(isHost && { touchAction: 'none', cursor: 'grab' }),
     ...(isDragging && {
       boxShadow: '0 4px 16px rgba(0,0,0,0.5)',
       zIndex: 999,
       position: 'relative',
       background: '#2a2a3a',
+      cursor: 'grabbing',
     }),
   };
   return (

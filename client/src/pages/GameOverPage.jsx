@@ -51,7 +51,10 @@ export default function GameOverPage() {
       <div className="card" style={cardTexturedStyle}>
         <button
           className="btn btn-ghost"
-          onClick={() => dispatch({ type: 'RESET' })}
+          onClick={() => {
+            window.history.replaceState({}, '', window.location.pathname);
+            dispatch({ type: 'RESET' });
+          }}
         >
           New Game
         </button>
