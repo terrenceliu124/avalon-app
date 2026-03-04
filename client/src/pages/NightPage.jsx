@@ -180,6 +180,11 @@ function HostNightView({ socket, room, roomCode, bgStyle }) {
   return (
     <div className="page" style={bgStyle}>
       <div className="card" style={cardTexturedStyle}>
+        <img
+          src="/assets/backgrounds/nightCeremony.png"
+          alt="Night Ceremony"
+          style={{ width: '100%', borderRadius: 8, marginBottom: 12, display: 'block' }}
+        />
         <h2>Night Ceremony</h2>
 
         {playState !== 'idle' && (
