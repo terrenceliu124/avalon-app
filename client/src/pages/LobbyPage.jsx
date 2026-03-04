@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useGame } from '../context/GameContext';
 import { PAGE_BACKGROUND, cardScrollStyle, cardTexturedStyle } from '../assets';
 import PlayerAvatar from '../components/PlayerAvatar';
@@ -18,17 +18,32 @@ function SortablePlayerRow({ p, isHost }) {
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    ...(isHost && { touchAction: 'none', cursor: 'grab' }),
     ...(isDragging && {
       boxShadow: '0 4px 16px rgba(0,0,0,0.5)',
       zIndex: 999,
       position: 'relative',
       background: '#2a2a3a',
-      cursor: 'grabbing',
     }),
   };
   return (
-    <li ref={setNodeRef} style={style} {...(isHost ? { ...attributes, ...listeners } : {})}>
+    <li ref={setNodeRef} style={style} {...(isHost ? attributes : {})}>
+      {isHost && (
+        <span
+          {...listeners}
+          style={{
+            touchAction: 'none',
+            cursor: isDragging ? 'grabbing' : 'grab',
+            color: '#555',
+            fontSize: '1.1rem',
+            lineHeight: 1,
+            padding: '0 4px 0 0',
+            userSelect: 'none',
+            flexShrink: 0,
+          }}
+        >
+          ⠿
+        </span>
+      )}
       <PlayerAvatar name={p.name} />
       <span style={{ flex: 1 }}>{p.name}</span>
       <div style={{ display: 'flex', gap: 6 }}>
@@ -69,6 +84,8 @@ export default function LobbyPage() {
   const [shareCopied, setShareCopied] = useState(false);
   const [forcedRoles, setForcedRoles] = useState({});
   const [localOrder, setLocalOrder] = useState(() => room.players.map(p => p.id || p.name));
+  const localOrderRef = useRef(localOrder);
+  localOrderRef.current = localOrder;
 
   useEffect(() => {
     setLocalOrder(room.players.map(p => p.id || p.name));
@@ -78,6 +95,8 @@ export default function LobbyPage() {
     .map(id => room.players.find(p => (p.id || p.name) === id))
     .filter(Boolean);
 
+  const renderPlayers = isHost ? displayPlayers : room.players;
+
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
     useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 5 } })
@@ -85,16 +104,18 @@ export default function LobbyPage() {
 
   function handleDragOver({ active, over }) {
     if (!over || active.id === over.id) return;
-    const fromIndex = localOrder.indexOf(active.id);
-    const toIndex   = localOrder.indexOf(over.id);
-    if (fromIndex !== -1 && toIndex !== -1) {
-      setLocalOrder(prev => arrayMove(prev, fromIndex, toIndex));
-    }
+    setLocalOrder(prev => {
+      const fromIndex = prev.indexOf(active.id);
+      const toIndex   = prev.indexOf(over.id);
+      return (fromIndex !== -1 && toIndex !== -1)
+        ? arrayMove(prev, fromIndex, toIndex)
+        : prev;
+    });
   }
 
   function handleDragEnd({ active }) {
     const serverFromIndex = room.players.findIndex(p => (p.id || p.name) === active.id);
-    const serverToIndex   = localOrder.indexOf(active.id);
+    const serverToIndex   = localOrderRef.current.indexOf(active.id);
     if (serverFromIndex !== -1 && serverToIndex !== -1 && serverFromIndex !== serverToIndex) {
       socket.emit('reorder_players', { roomCode, fromIndex: serverFromIndex, toIndex: serverToIndex });
     }
@@ -190,11 +211,11 @@ export default function LobbyPage() {
           onDragEnd={handleDragEnd}
         >
           <SortableContext
-            items={displayPlayers.map(p => p.id || p.name)}
+            items={renderPlayers.map(p => p.id || p.name)}
             strategy={verticalListSortingStrategy}
           >
             <ul className="player-list" data-testid="player-list">
-              {displayPlayers.map(p => (
+              {renderPlayers.map(p => (
                 <SortablePlayerRow key={p.id || p.name} p={p} isHost={isHost} />
               ))}
             </ul>
