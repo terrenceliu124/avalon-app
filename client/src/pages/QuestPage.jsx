@@ -36,8 +36,11 @@ export default function QuestPage() {
         <div className="progress-bar">
           <div className="progress-fill" style={{ width: `${pct}%` }} />
         </div>
-        <p style={{ fontSize: '0.85rem', color: '#888', marginBottom: 12, textAlign: 'center' }}>
+        <p style={{ fontSize: '0.85rem', color: '#888', marginBottom: 4, textAlign: 'center' }}>
           {cardCount} of {teamSize} cards played
+        </p>
+        <p style={{ fontSize: '0.85rem', color: '#888', marginBottom: 12, textAlign: 'center' }}>
+          {room.players.length >= 7 && room.currentMission === 4 ? '2 fail cards required to fail this quest' : '1 fail card required to fail this quest'}
         </p>
         <h2>Quest</h2>
         <p style={{ marginBottom: 8 }}>Quest party:</p>
