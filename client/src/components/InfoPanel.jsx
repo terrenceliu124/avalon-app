@@ -161,6 +161,10 @@ function RoomTab({ room, roomCode, isCurrentUserHost, socket, devMode, devWinner
         <span className="room-code-value">{roomCode}</span>
         <span className="room-code-hint">{copied ? 'Copied!' : 'Tap to copy'}</span>
       </div>
+      
+      <button className="btn btn-ghost" onClick={handleShare} style={{ marginTop: 8 }}>
+        {shareCopied ? 'Link Copied!' : 'Share Room Link'}
+      </button>
 
       {leader && (
         <div className="info-section">
@@ -168,6 +172,11 @@ function RoomTab({ room, roomCode, isCurrentUserHost, socket, devMode, devWinner
           <p style={{ fontSize: '1rem', color: '#e2b96f', fontWeight: 700 }}>{leader.name}</p>
         </div>
       )}
+
+      <div className="info-section">
+        <h3 style={{ fontSize: '0.85rem', marginBottom: 6 }}>Role Composition</h3>
+        <RoleCompositionSummary playerCount={room.players.length} selectedRoles={room.selectedRoles} />
+      </div>
 
       <div className="info-section">
         <h3 style={{ fontSize: '0.85rem', marginBottom: 4 }}>Players ({room.players.length})</h3>
@@ -193,15 +202,6 @@ function RoomTab({ room, roomCode, isCurrentUserHost, socket, devMode, devWinner
           ))}
         </ul>
       </div>
-
-      <div className="info-section">
-        <h3 style={{ fontSize: '0.85rem', marginBottom: 6 }}>Role Composition</h3>
-        <RoleCompositionSummary playerCount={room.players.length} selectedRoles={room.selectedRoles} />
-      </div>
-
-      <button className="btn btn-ghost" onClick={handleShare} style={{ marginTop: 8 }}>
-        {shareCopied ? 'Link Copied!' : 'Share Room Link'}
-      </button>
 
       <div style={{ borderTop: '1px solid #333', marginTop: 16, paddingTop: 12,
                     display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
