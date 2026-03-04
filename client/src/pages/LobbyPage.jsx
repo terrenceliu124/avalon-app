@@ -1,7 +1,41 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useGame } from '../context/GameContext';
 import { PAGE_BACKGROUND, cardScrollStyle, cardTexturedStyle } from '../assets';
 import PlayerAvatar from '../components/PlayerAvatar';
+import {
+  DndContext, closestCenter, PointerSensor, TouchSensor,
+  useSensor, useSensors
+} from '@dnd-kit/core';
+import {
+  SortableContext, verticalListSortingStrategy,
+  useSortable, arrayMove
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+
+function SortablePlayerRow({ p, isHost }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
+    useSortable({ id: p.id || p.name });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    ...(isDragging && {
+      boxShadow: '0 4px 16px rgba(0,0,0,0.5)',
+      zIndex: 999,
+      position: 'relative',
+      background: '#2a2a3a',
+    }),
+  };
+  return (
+    <li ref={setNodeRef} style={style} {...(isHost ? { ...attributes, ...listeners } : {})}>
+      <PlayerAvatar name={p.name} />
+      <span style={{ flex: 1 }}>{p.name}</span>
+      <div style={{ display: 'flex', gap: 6 }}>
+        {p.isHost && <span className="badge" style={{ background: '#2a2a1a', color: '#e2b96f' }}>Host</span>}
+        {p.isBot  && <span className="badge badge-bot">Bot</span>}
+      </div>
+    </li>
+  );
+}
 
 const OPTIONAL_ROLES = ['Percival', 'Morgana', 'Mordred', 'Oberon'];
 
@@ -32,6 +66,37 @@ export default function LobbyPage() {
   const isHost = myPlayer?.isHost;
   const [shareCopied, setShareCopied] = useState(false);
   const [forcedRoles, setForcedRoles] = useState({});
+  const [localOrder, setLocalOrder] = useState(() => room.players.map(p => p.id || p.name));
+
+  useEffect(() => {
+    setLocalOrder(room.players.map(p => p.id || p.name));
+  }, [room.players]);
+
+  const displayPlayers = localOrder
+    .map(id => room.players.find(p => (p.id || p.name) === id))
+    .filter(Boolean);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 5 } })
+  );
+
+  function handleDragOver({ active, over }) {
+    if (!over || active.id === over.id) return;
+    const fromIndex = localOrder.indexOf(active.id);
+    const toIndex   = localOrder.indexOf(over.id);
+    if (fromIndex !== -1 && toIndex !== -1) {
+      setLocalOrder(prev => arrayMove(prev, fromIndex, toIndex));
+    }
+  }
+
+  function handleDragEnd({ active }) {
+    const serverFromIndex = room.players.findIndex(p => (p.id || p.name) === active.id);
+    const serverToIndex   = localOrder.indexOf(active.id);
+    if (serverFromIndex !== -1 && serverToIndex !== -1 && serverFromIndex !== serverToIndex) {
+      socket.emit('reorder_players', { roomCode, fromIndex: serverFromIndex, toIndex: serverToIndex });
+    }
+  }
 
   const showRoleAssign = isHost && devMode;
   const forcedCount = Object.keys(forcedRoles).length;
@@ -115,19 +180,24 @@ export default function LobbyPage() {
           Share Room Link
         </button>
 
-        <h3 style={{ marginTop: 16 }}>Players ({playerCount})</h3>
-        <ul className="player-list" data-testid="player-list">
-          {room.players.map(p => (
-            <li key={p.id || p.name}>
-              <PlayerAvatar name={p.name} />
-              <span>{p.name}</span>
-              <div style={{ display: 'flex', gap: 6 }}>
-                {p.isHost && <span className="badge" style={{ background: '#2a2a1a', color: '#e2b96f' }}>Host</span>}
-                {p.isBot  && <span className="badge badge-bot">Bot</span>}
-              </div>
-            </li>
-          ))}
-        </ul>
+        <h3 style={{ marginTop: 16 }}>Players ({playerCount}/10)</h3>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragOver={handleDragOver}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={displayPlayers.map(p => p.id || p.name)}
+            strategy={verticalListSortingStrategy}
+          >
+            <ul className="player-list" data-testid="player-list">
+              {displayPlayers.map(p => (
+                <SortablePlayerRow key={p.id || p.name} p={p} isHost={isHost} />
+              ))}
+            </ul>
+          </SortableContext>
+        </DndContext>
 
         <p style={{ fontSize: '0.9rem', color: needMore > 0 ? '#888' : '#4caf50', margin: '4px 0 8px' }}>
           {needMore > 0

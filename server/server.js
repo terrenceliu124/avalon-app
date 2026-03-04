@@ -145,6 +145,21 @@ io.on('connection', (socket) => {
     io.to(roomCode).emit('room_updated', { room });
   });
 
+  socket.on('reorder_players', ({ roomCode, fromIndex, toIndex }) => {
+    const room = getRoom(roomCode);
+    if (!room) return socket.emit('error', { message: 'Room not found' });
+    if (room.host !== socket.id) return socket.emit('error', { message: 'Only host can reorder players' });
+    if (room.phase !== 'lobby') return socket.emit('error', { message: 'Cannot reorder after game has started' });
+    const n = room.players.length;
+    if (!Number.isInteger(fromIndex) || !Number.isInteger(toIndex) ||
+        fromIndex < 0 || fromIndex >= n || toIndex < 0 || toIndex >= n || fromIndex === toIndex) return;
+    const leaderName = room.players[room.leaderIndex].name;
+    const [moved] = room.players.splice(fromIndex, 1);
+    room.players.splice(toIndex, 0, moved);
+    room.leaderIndex = room.players.findIndex(p => p.name === leaderName);
+    io.to(roomCode).emit('room_updated', { room });
+  });
+
   socket.on('verify_dev_passkey', ({ passkey }) => {
     if (passkey === DEV_PASSKEY) {
       devAuthedSockets.add(socket.id);

@@ -253,6 +253,17 @@ label { display: block; font-size: 1rem; color: #8a7a62; margin-bottom: 14px; }
 .player-list li:nth-child(9)  { animation-delay: 0.44s; }
 .player-list li:nth-child(10) { animation-delay: 0.49s; }
 
+/* ---- Drag handle (lobby host only) ---- */
+.drag-handle {
+  cursor: grab;
+  color: #c9a87a;
+  font-size: 1rem;
+  padding: 0 6px 0 0;
+  user-select: none;
+  touch-action: none;
+}
+.drag-handle:active { cursor: grabbing; }
+
 /* ---- Role card ---- */
 .role-card {
   text-align: center;
