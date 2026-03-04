@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useGame } from '../context/GameContext';
 import MissionTrack from './MissionTrack';
 import { getRoleCard } from '../assets';
+import RoleCompositionSummary from './RoleCompositionSummary';
 
 const NIGHT_VISION_PHASES = ['team_proposal', 'voting', 'quest', 'assassination', 'game_over'];
 
@@ -191,6 +192,11 @@ function RoomTab({ room, roomCode, isCurrentUserHost, socket, devMode, devWinner
             </li>
           ))}
         </ul>
+      </div>
+
+      <div className="info-section">
+        <h3 style={{ fontSize: '0.85rem', marginBottom: 6 }}>Role Composition</h3>
+        <RoleCompositionSummary playerCount={room.players.length} selectedRoles={room.selectedRoles} />
       </div>
 
       <button className="btn btn-ghost" onClick={handleShare} style={{ marginTop: 8 }}>

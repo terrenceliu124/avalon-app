@@ -26,7 +26,9 @@
       "Bash(curl:*)",
       "Bash(gh release:*)",
       "Bash(git checkout:*)",
-      "Bash(git:*)"
+      "Bash(git:*)",
+      "Skill(commit-commands:commit-push-pr)",
+      "Bash(flyctl deploy:*)"
     ]
   }
 }
