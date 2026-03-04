@@ -125,7 +125,7 @@ function HistoryTab({ history, showVotingHistory }) {
   );
 }
 
-function RoomTab({ room, roomCode, isCurrentUserHost, socket, devMode, dispatch }) {
+function RoomTab({ room, roomCode, isCurrentUserHost, socket, devMode, devWinner, dispatch }) {
   const [copied, setCopied] = useState(false);
   const [shareCopied, setShareCopied] = useState(false);
   const leader = room.players[room.leaderIndex];
@@ -220,6 +220,21 @@ function RoomTab({ room, roomCode, isCurrentUserHost, socket, devMode, dispatch 
         </label>
       </div>
 
+      {devMode && room.phase === 'game_over' && (
+        <div style={{ marginTop: 10 }}>
+          <button
+            className="btn btn-ghost"
+            style={{ width: '100%', fontSize: '0.78rem', padding: '5px 8px' }}
+            onClick={() => {
+              const effective = devWinner !== null ? devWinner : room.winner;
+              dispatch({ type: 'SET_DEV_WINNER', value: effective === 'good' ? 'evil' : 'good' });
+            }}
+          >
+            {`Toggle Win: → ${(devWinner !== null ? devWinner : room.winner) === 'good' ? 'Evil' : 'Good'} Wins`}
+          </button>
+        </div>
+      )}
+
       {devMode && isCurrentUserHost && (
         <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
           <button
@@ -244,7 +259,7 @@ function RoomTab({ room, roomCode, isCurrentUserHost, socket, devMode, dispatch 
 
 export default function InfoPanel() {
   const { state, socket, dispatch } = useGame();
-  const { room, roomCode, player, nightVision, devMode } = state;
+  const { room, roomCode, player, nightVision, devMode, devWinner } = state;
   const isCurrentUserHost = room?.players.find(p => p.name === player?.name)?.isHost ?? false;
   const [open, setOpen] = useState(false);
   const isLobby = room?.phase === 'lobby';
@@ -285,7 +300,7 @@ export default function InfoPanel() {
 
             {visibleTab === 'role' && <RoleTab player={player} nightVision={nightVision} phase={room.phase} />}
             {visibleTab === 'history' && <HistoryTab history={room.history} showVotingHistory={room.showVotingHistory !== false} />}
-            {visibleTab === 'room' && <RoomTab room={room} roomCode={roomCode} isCurrentUserHost={isCurrentUserHost} socket={socket} devMode={devMode} dispatch={dispatch} />}
+            {visibleTab === 'room' && <RoomTab room={room} roomCode={roomCode} isCurrentUserHost={isCurrentUserHost} socket={socket} devMode={devMode} devWinner={devWinner} dispatch={dispatch} />}
           </div>
         </div>
       )}

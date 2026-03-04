@@ -27,6 +27,7 @@ const initialState = {
   voteResult: null,
   questResult: null,
   devMode: safeLSGet('avalon_dev_mode') === 'true',
+  devWinner: null,
   devAuthed: false,
   reconnecting: hasSavedSession(),
   allRooms: null,
@@ -65,6 +66,8 @@ function reducer(state, action) {
     case 'SET_DEV_MODE':
       localStorage.setItem('avalon_dev_mode', action.value ? 'true' : 'false');
       return { ...state, devMode: action.value };
+    case 'SET_DEV_WINNER':
+      return { ...state, devWinner: action.value };
     case 'SET_DEV_AUTHED':
       return { ...state, devAuthed: action.value };
     case 'SET_ALL_ROOMS':

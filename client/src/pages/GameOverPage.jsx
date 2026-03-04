@@ -6,9 +6,9 @@ import PlayerAvatar from '../components/PlayerAvatar';
 
 export default function GameOverPage() {
   const { dispatch, state } = useGame();
-  const { room } = state;
+  const { room, devMode, devWinner } = state;
 
-  const isGoodWin = room.winner === 'good';
+  const isGoodWin = devMode && devWinner !== null ? devWinner === 'good' : room.winner === 'good';
 
   const bgStyle = PAGE_BACKGROUND ? { backgroundImage: `url(${PAGE_BACKGROUND})` } : undefined;
 
@@ -18,6 +18,11 @@ export default function GameOverPage() {
         <h1 className={`${isGoodWin ? 'winner-good' : 'winner-evil'} winner-reveal`}>
           {isGoodWin ? 'The Light Prevails!' : 'Darkness Triumphs!'}
         </h1>
+        <img
+          src={isGoodWin ? '/assets/backgrounds/goodWin.png' : '/assets/backgrounds/evilWin.png'}
+          alt={isGoodWin ? 'Good wins' : 'Evil wins'}
+          style={{ width: '100%', borderRadius: 8, marginTop: 12 }}
+        />
         {room.gameOverReason && (
           <p style={{ marginTop: 8 }}>{room.gameOverReason}</p>
         )}

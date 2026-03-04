@@ -31,6 +31,11 @@ export default function AssassinationPage() {
     <div className="page page--assassination" style={bgStyle}>
       <div className="card" style={cardTexturedStyle}>
         <h2>Assassination</h2>
+        <img
+          src="/assets/backgrounds/Assassination.png"
+          alt="Assassination"
+          style={{ width: '100%', borderRadius: 8, marginTop: 12, marginBottom: 12 }}
+        />
         <p style={{ marginBottom: 16 }}>
           Three quests have fallen to the forces of good. The Assassin rises — one final chance to unmask and strike down Merlin.
         </p>
