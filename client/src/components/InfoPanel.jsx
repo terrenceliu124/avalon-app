@@ -125,7 +125,7 @@ function HistoryTab({ history, showVotingHistory }) {
   );
 }
 
-function RoomTab({ room, roomCode, isCurrentUserHost, socket }) {
+function RoomTab({ room, roomCode, isCurrentUserHost, socket, devMode, dispatch }) {
   const [copied, setCopied] = useState(false);
   const [shareCopied, setShareCopied] = useState(false);
   const leader = room.players[room.leaderIndex];
@@ -137,15 +137,20 @@ function RoomTab({ room, roomCode, isCurrentUserHost, socket }) {
     }).catch(() => window.prompt('Room code:', roomCode));
   }
 
-  function handleShare() {
+  async function handleShare() {
     const url = `${window.location.origin}?room=${roomCode}`;
-    if (navigator.share) {
-      navigator.share({ title: 'Join my Avalon game', url });
-    } else {
-      navigator.clipboard?.writeText(url)
-        .then(() => { setShareCopied(true); setTimeout(() => setShareCopied(false), 2000); })
-        .catch(() => window.prompt('Copy this link:', url));
+    const shareData = { title: 'Join my Avalon game', url };
+    if (navigator.share && (!navigator.canShare || navigator.canShare(shareData))) {
+      try {
+        await navigator.share(shareData);
+        return;
+      } catch (err) {
+        if (err.name === 'AbortError') return;
+      }
     }
+    navigator.clipboard?.writeText(url)
+      .then(() => { setShareCopied(true); setTimeout(() => setShareCopied(false), 2000); })
+      .catch(() => window.prompt('Copy this link:', url));
   }
 
   return (
@@ -156,13 +161,9 @@ function RoomTab({ room, roomCode, isCurrentUserHost, socket }) {
         <span className="room-code-hint">{copied ? 'Copied!' : 'Tap to copy'}</span>
       </div>
 
-      <div className="info-section">
-        <MissionTrack results={room.missionResults} current={room.currentMission} playerCount={room.players.length} />
-      </div>
-
       {leader && (
         <div className="info-section">
-          <h3 style={{ fontSize: '0.85rem', marginBottom: 4 }}>Current Leader</h3>
+          <h3 style={{ fontSize: '0.85rem', marginBottom: 4 }}>Current Quest Leader</h3>
           <p style={{ fontSize: '1rem', color: '#e2b96f', fontWeight: 700 }}>{leader.name}</p>
         </div>
       )}
@@ -195,19 +196,63 @@ function RoomTab({ room, roomCode, isCurrentUserHost, socket }) {
       <button className="btn btn-ghost" onClick={handleShare} style={{ marginTop: 8 }}>
         {shareCopied ? 'Link Copied!' : 'Share Room Link'}
       </button>
+
+      <div style={{ borderTop: '1px solid #333', marginTop: 16, paddingTop: 12,
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <span style={{ fontSize: '0.85rem', color: '#888' }}>Dev Mode</span>
+        <label style={{ position: 'relative', display: 'inline-block', width: 40, height: 22, cursor: 'pointer' }}>
+          <input
+            type="checkbox"
+            checked={!!devMode}
+            onChange={() => dispatch({ type: 'SET_DEV_MODE', value: !devMode })}
+            style={{ opacity: 0, width: 0, height: 0, position: 'absolute' }}
+          />
+          <span style={{
+            position: 'absolute', inset: 0, borderRadius: 11,
+            background: devMode ? '#e2b96f' : '#444',
+            transition: 'background 0.2s',
+          }} />
+          <span style={{
+            position: 'absolute', top: 3, left: devMode ? 21 : 3, width: 16, height: 16,
+            borderRadius: '50%', background: '#fff',
+            transition: 'left 0.2s',
+          }} />
+        </label>
+      </div>
+
+      {devMode && isCurrentUserHost && (
+        <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
+          <button
+            className="btn btn-ghost"
+            style={{ flex: 1, fontSize: '0.78rem', padding: '5px 8px' }}
+            onClick={() => socket.emit('force_advance', { roomCode, targetPhase: 'assassination' })}
+          >
+            → Assassination
+          </button>
+          <button
+            className="btn btn-ghost"
+            style={{ flex: 1, fontSize: '0.78rem', padding: '5px 8px' }}
+            onClick={() => socket.emit('force_advance', { roomCode, targetPhase: 'game_over' })}
+          >
+            → Game Over
+          </button>
+        </div>
+      )}
     </div>
   );
 }
 
 export default function InfoPanel() {
-  const { state, socket } = useGame();
-  const { room, roomCode, player, nightVision } = state;
+  const { state, socket, dispatch } = useGame();
+  const { room, roomCode, player, nightVision, devMode } = state;
   const isCurrentUserHost = room?.players.find(p => p.name === player?.name)?.isHost ?? false;
   const [open, setOpen] = useState(false);
+  const isLobby = room?.phase === 'lobby';
   const [activeTab, setActiveTab] = useState('role');
+  const visibleTab = isLobby ? 'room' : activeTab;
 
   // Only show during active game phases (not on HomePage or LobbyPage)
-  if (!room || room.phase === 'lobby') return null;
+  if (!room) return null;
 
   return (
     <>
@@ -224,21 +269,23 @@ export default function InfoPanel() {
           <div className="overlay-card info-overlay-card" onClick={e => e.stopPropagation()}>
             <button className="info-close-btn" onClick={() => setOpen(false)} aria-label="Close">✕</button>
 
-            <div className="tab-row">
-              {['role', 'history', 'room'].map(tab => (
-                <button
-                  key={tab}
-                  className={`tab-btn${activeTab === tab ? ' active' : ''}`}
-                  onClick={() => setActiveTab(tab)}
-                >
-                  {tab.charAt(0).toUpperCase() + tab.slice(1)}
-                </button>
-              ))}
-            </div>
+            {!isLobby && (
+              <div className="tab-row">
+                {['role', 'history', 'room'].map(tab => (
+                  <button
+                    key={tab}
+                    className={`tab-btn${activeTab === tab ? ' active' : ''}`}
+                    onClick={() => setActiveTab(tab)}
+                  >
+                    {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                  </button>
+                ))}
+              </div>
+            )}
 
-            {activeTab === 'role' && <RoleTab player={player} nightVision={nightVision} phase={room.phase} />}
-            {activeTab === 'history' && <HistoryTab history={room.history} showVotingHistory={room.showVotingHistory !== false} />}
-            {activeTab === 'room' && <RoomTab room={room} roomCode={roomCode} isCurrentUserHost={isCurrentUserHost} socket={socket} />}
+            {visibleTab === 'role' && <RoleTab player={player} nightVision={nightVision} phase={room.phase} />}
+            {visibleTab === 'history' && <HistoryTab history={room.history} showVotingHistory={room.showVotingHistory !== false} />}
+            {visibleTab === 'room' && <RoomTab room={room} roomCode={roomCode} isCurrentUserHost={isCurrentUserHost} socket={socket} devMode={devMode} dispatch={dispatch} />}
           </div>
         </div>
       )}

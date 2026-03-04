@@ -68,10 +68,10 @@ export default function VotingPage() {
       {voteResult && (
         <div className="overlay">
           <div className={`overlay-card${voteResult.approved ? ' overlay-card--approved' : ' overlay-card--rejected'}`}>
-            <div className="overlay-result-glyph" style={{ color: voteResult.approved ? '#27ae60' : '#c0392b' }}>
+            <div className="overlay-result-glyph" style={{ color: voteResult.approved ? '#4a8ecf' : '#d04848' }}>
               {voteResult.approved ? '⚔' : '✕'}
             </div>
-            <div className="overlay-title" style={{ color: voteResult.approved ? '#27ae60' : '#c0392b' }}>
+            <div className="overlay-title" style={{ color: voteResult.approved ? '#4a8ecf' : '#d04848' }}>
               {voteResult.approved ? 'The Party Sets Forth!' : 'The Party Is Turned Back!'}
             </div>
             {room.showVotingHistory !== false && (
@@ -79,7 +79,7 @@ export default function VotingPage() {
                 {Object.entries(voteResult.votes).map(([name, v]) => (
                   <li key={name}>
                     <span>{name}</span>
-                    <span style={{ color: v ? '#27ae60' : '#c0392b' }}>{v ? 'Approve' : 'Reject'}</span>
+                    <span style={{ color: v ? '#4a8ecf' : '#d04848' }}>{v ? 'Approve' : 'Reject'}</span>
                   </li>
                 ))}
               </ul>

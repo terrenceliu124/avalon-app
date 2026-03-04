@@ -14,10 +14,6 @@ export default function GameOverPage() {
 
   return (
     <div className="page" style={bgStyle}>
-      <div className="card" style={cardTexturedStyle}>
-        <MissionTrack results={room.missionResults} current={room.currentMission} playerCount={room.players.length} />
-      </div>
-
       <div className={`card ${isGoodWin ? 'game-over-glow-good' : 'game-over-glow-evil'}`} style={{ textAlign: 'center', ...cardTexturedStyle }}>
         <h1 className={`${isGoodWin ? 'winner-good' : 'winner-evil'} winner-reveal`}>
           {isGoodWin ? 'The Light Prevails!' : 'Darkness Triumphs!'}

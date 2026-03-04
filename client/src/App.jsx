@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useGame } from './context/GameContext';
 import HomePage from './pages/HomePage';
 import LobbyPage from './pages/LobbyPage';
@@ -15,6 +15,9 @@ import AdminPage from './pages/AdminPage';
 export default function App() {
   const { state } = useGame();
   const { room } = state;
+
+  const pageKey = room ? room.phase : 'home';
+  useEffect(() => { window.scrollTo(0, 0); }, [pageKey]);
 
   if (window.location.pathname === '/admin') {
     return <AdminPage />;

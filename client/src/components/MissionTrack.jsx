@@ -19,7 +19,7 @@ const FINGER_IMAGES = {
 export default function MissionTrack({ results = [], current = 1, playerCount = 5 }) {
   const sizes = TEAM_SIZES[playerCount] || TEAM_SIZES[5];
   return (
-    <div className="mission-track" style={{ alignSelf: 'center' }}>
+    <div className="mission-track">
       {sizes.map((size, i) => {
         const missionNum = i + 1;
         const result = results[i];

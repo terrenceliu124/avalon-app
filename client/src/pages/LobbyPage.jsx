@@ -68,14 +68,12 @@ export default function LobbyPage() {
   async function handleShare() {
     const url = `${window.location.origin}?room=${roomCode}`;
     const shareData = { title: 'Join my Avalon game', url };
-
     if (navigator.share && (!navigator.canShare || navigator.canShare(shareData))) {
       try {
         await navigator.share(shareData);
         return;
       } catch (err) {
-        if (err.name === 'AbortError') return; // user cancelled
-        // otherwise fall through to clipboard
+        if (err.name === 'AbortError') return;
       }
     }
     navigator.clipboard?.writeText(url)
@@ -117,7 +115,7 @@ export default function LobbyPage() {
           Share Room Link
         </button>
 
-        <h3 style={{ marginTop: 16 }}>Players ({playerCount}/10)</h3>
+        <h3 style={{ marginTop: 16 }}>Players ({playerCount})</h3>
         <ul className="player-list" data-testid="player-list">
           {room.players.map(p => (
             <li key={p.id || p.name}>
@@ -217,7 +215,7 @@ export default function LobbyPage() {
                       onChange={e => setPlayerRole(p.name, e.target.value)}
                       style={{
                         background: '#1a1a2e', color: '#e0e0e0',
-                        border: `1px solid ${forcedRoles[p.name] ? (GOOD_ROLE_SET.has(forcedRoles[p.name]) ? '#5b8dd9' : '#c05454') : '#444'}`,
+                        border: `1px solid ${forcedRoles[p.name] ? (GOOD_ROLE_SET.has(forcedRoles[p.name]) ? '#4a8ecf' : '#d04848') : '#444'}`,
                         borderRadius: 4, padding: '3px 6px', fontSize: '0.8rem', cursor: 'pointer',
                       }}
                     >

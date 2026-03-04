@@ -30,10 +30,6 @@ export default function AssassinationPage() {
   return (
     <div className="page page--assassination" style={bgStyle}>
       <div className="card" style={cardTexturedStyle}>
-        <MissionTrack results={room.missionResults} current={room.currentMission} playerCount={room.players.length} />
-      </div>
-
-      <div className="card" style={cardTexturedStyle}>
         <h2>Assassination</h2>
         <p style={{ marginBottom: 16 }}>
           Three quests have fallen to the forces of good. The Assassin rises — one final chance to unmask and strike down Merlin.

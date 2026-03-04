@@ -28,17 +28,17 @@ export default function QuestPage() {
 
   return (
     <div className="page" style={bgStyle}>
-      <div className="card" style={cardScrollStyle}>
+      <div className="card" style={{ ...cardScrollStyle, alignItems: 'center', textAlign: 'center' }}>
         <MissionTrack results={room.missionResults} current={room.currentMission} playerCount={room.players.length} />
-        <div className="progress-bar" style={{ marginTop: 12 }}>
-          <div className="progress-fill" style={{ width: `${pct}%` }} />
-        </div>
-        <p style={{ fontSize: '0.85rem', color: '#888', marginTop: 6 }}>
-          {cardCount} of {teamSize} cards played
-        </p>
       </div>
 
       <div className="card" style={cardTexturedStyle}>
+        <div className="progress-bar">
+          <div className="progress-fill" style={{ width: `${pct}%` }} />
+        </div>
+        <p style={{ fontSize: '0.85rem', color: '#888', marginBottom: 12, textAlign: 'center' }}>
+          {cardCount} of {teamSize} cards played
+        </p>
         <h2>Quest</h2>
         <p style={{ marginBottom: 8 }}>Quest party:</p>
         <ul className="player-list" style={{ marginBottom: 12 }}>
@@ -78,17 +78,17 @@ export default function QuestPage() {
       {questResult && (
         <div className="overlay">
           <div className={`overlay-card${!questResult.questFailed ? ' overlay-card--success' : ' overlay-card--failed'}`}>
-            <div className="overlay-result-glyph" style={{ color: questResult.questFailed ? '#c0392b' : '#27ae60' }}>
+            <div className="overlay-result-glyph" style={{ color: questResult.questFailed ? '#d04848' : '#4a8ecf' }}>
               {questResult.questFailed ? '✕' : '✓'}
             </div>
             <div
               className="overlay-title"
-              style={{ color: questResult.questFailed ? '#c0392b' : '#27ae60' }}
+              style={{ color: questResult.questFailed ? '#d04848' : '#4a8ecf' }}
             >
               Quest {questResult.questFailed ? 'Failed!' : 'Succeeded!'}
             </div>
             {questResult.fails > 0 && (
-              <p style={{ color: '#e05454', margin: '8px 0' }}>
+              <p style={{ color: '#d04848', margin: '8px 0' }}>
                 {questResult.fails} fail card{questResult.fails > 1 ? 's' : ''} revealed
               </p>
             )}

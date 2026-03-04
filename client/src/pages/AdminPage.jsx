@@ -10,7 +10,7 @@ export default function AdminPage() {
   const [authPending, setAuthPending] = useState(false);
 
   useEffect(() => {
-    function onRooms(r) { setRooms(r); }
+    function onRooms({ rooms }) { setRooms(rooms); }
     socket.on('all_rooms', onRooms);
     return () => socket.off('all_rooms', onRooms);
   }, [socket]);
