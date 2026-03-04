@@ -93,9 +93,6 @@ export default function NightPage() {
   if (!isHost) {
     return (
       <div className="page" style={bgStyle}>
-        <div className="card" style={cardScrollStyle}>
-          <MissionTrack results={room.missionResults} current={room.currentMission} playerCount={room.players.length} />
-        </div>
         <div className="card" style={cardTexturedStyle}>
           <img
             src="/assets/backgrounds/nightCeremony.png"
