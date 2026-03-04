@@ -97,6 +97,11 @@ export default function NightPage() {
           <MissionTrack results={room.missionResults} current={room.currentMission} playerCount={room.players.length} />
         </div>
         <div className="card" style={cardTexturedStyle}>
+          <img
+            src="/assets/backgrounds/nightCeremony.png"
+            alt="Night Ceremony"
+            style={{ width: '100%', borderRadius: 8, marginBottom: 12, display: 'block' }}
+          />
           <h2>Night Phase</h2>
           <p className="waiting">Keep your eyes closed. The host conducts the night ceremony.</p>
         </div>
