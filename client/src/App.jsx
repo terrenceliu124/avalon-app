@@ -10,11 +10,15 @@ import QuestPage from './pages/QuestPage';
 import AssassinationPage from './pages/AssassinationPage';
 import GameOverPage from './pages/GameOverPage';
 import InfoPanel from './components/InfoPanel';
-import DevPanel from './components/DevPanel';
+import AdminPage from './pages/AdminPage';
 
 export default function App() {
   const { state } = useGame();
   const { room } = state;
+
+  if (window.location.pathname === '/admin') {
+    return <AdminPage />;
+  }
 
   let page;
   if (!room) {
@@ -37,7 +41,6 @@ export default function App() {
     <>
       {page}
       <InfoPanel />
-      <DevPanel />
     </>
   );
 }

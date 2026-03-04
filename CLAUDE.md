@@ -141,7 +141,7 @@ Drop image files into `client/public/assets/` — Vite serves them at `/assets/f
 
 When all values are `null`/empty the app looks identical to no-asset state.
 
-Role card images must be displayed with `object-fit: contain` so the full image is visible without cropping. The flip card container uses `padding-bottom: 150%` (2:3 ratio) to match the standard 1024×1536 role card asset dimensions. Do not change these to `cover` or add a scale transform.
+Role card images must be displayed with `object-fit: contain` so the full image is visible without cropping. The flip card container uses `padding-bottom: 154.36%` to match the actual 964×1488 role card asset dimensions. Do not change these to `cover` or add a scale transform.
 
 **`PlayerAvatar` component** (`client/src/components/PlayerAvatar.jsx`) returns `null` when `AVATARS` is empty — no layout change until avatars are added. Player lists in `LobbyPage`, `TeamProposalPage`, `AssassinationPage`, and `GameOverPage` already include `<PlayerAvatar name={p.name} />`.
 

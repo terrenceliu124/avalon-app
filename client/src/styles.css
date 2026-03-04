@@ -158,10 +158,10 @@ label { display: block; font-size: 1rem; color: #8a7a62; margin-bottom: 14px; }
 /* ---- Mission track ---- */
 .mission-track {
   display: flex;
-  gap: 8px;
+  gap: clamp(4px, 1.5vw, 8px);
   align-items: center;
   justify-content: center;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 @keyframes missionPulse {
   0%, 100% { box-shadow: 0 0 0 0 rgba(201,168,122,0.5); }
@@ -171,8 +171,9 @@ label { display: block; font-size: 1rem; color: #8a7a62; margin-bottom: 14px; }
 .mission-dot {
   position: relative;
   overflow: hidden;
-  width: 44px;
-  height: 68px;
+  flex: 0 1 44px;
+  min-width: 0;
+  aspect-ratio: 44 / 68;
   border-radius: 6px;
   background: transparent;
 }
@@ -295,7 +296,7 @@ label { display: block; font-size: 1rem; color: #8a7a62; margin-bottom: 14px; }
 .flip-card-inner {
   position: relative;
   width: 100%;
-  padding-bottom: 150%; /* exact 2:3 portrait to match 1024×1536 assets */
+  padding-bottom: 154.36%; /* exact ratio of 964×1488 assets */
   transform-style: preserve-3d;
   transition: transform 0.55s ease;
 }
@@ -308,6 +309,10 @@ label { display: block; font-size: 1rem; color: #8a7a62; margin-bottom: 14px; }
   backface-visibility: hidden;
   border-radius: 8px;
   overflow: hidden;
+  box-shadow:
+    0 4px 8px rgba(0, 0, 0, 0.5),
+    0 12px 32px rgba(0, 0, 0, 0.45),
+    0 2px 4px rgba(0, 0, 0, 0.3);
 }
 .flip-card-face img {
   width: 100%;
@@ -462,8 +467,9 @@ label { display: block; font-size: 1rem; color: #8a7a62; margin-bottom: 14px; }
 .role-toggle.selected .role-toggle-check {
   border-color: #c9a87a; background: #c9a87a; color: #131d30;
 }
-.role-toggle-label { flex: 1; font-size: 1rem; font-weight: 600; color: #e8e0d2; }
-.role-toggle-meta { font-size: 1rem; color: #7a6a58; }
+.role-toggle-text  { flex: 1; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
+.role-toggle-label { font-size: 1rem; font-weight: 600; color: #e8e0d2; }
+.role-toggle-meta  { font-size: 0.8rem; color: #7a6a58; }
 
 /* ---- Waiting text ---- */
 .waiting { color: #7a6a58; font-style: italic; text-align: center; padding: 16px 0; }

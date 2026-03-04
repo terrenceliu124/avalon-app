@@ -17,7 +17,7 @@ export default function AssassinationPage() {
   const [submitted, setSubmitted] = useState(false);
 
   // Assassin picks from non-evil players (excluding themselves)
-  const candidates = room.players.filter(p => !p.isBot && p.name !== player?.name);
+  const candidates = room.players.filter(p => p.name !== player?.name);
 
   function handleAssassinate() {
     if (!target || submitted) return;

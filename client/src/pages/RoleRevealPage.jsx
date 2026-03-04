@@ -5,7 +5,7 @@ import { PAGE_BACKGROUND, getRoleCard, ROLE_CARDS, cardScrollStyle, cardTextured
 
 const ROLE_DESCRIPTIONS = {
   Merlin: 'You know all Evil players except Mordred. Guide Good to victory without revealing yourself.',
-  Percival: 'You see two players — one is Merlin, one may be Morgana. Protect the true Merlin.',
+  Percival: 'You see two players — one is Merlin, one is Morgana. Protect the true Merlin.',
   LoyalServant: 'You are a loyal servant of Arthur. Work with your teammates to succeed on quests.',
   Assassin: 'You are Evil. If Good wins 3 missions, you get one chance to assassinate Merlin.',
   Morgana: 'You are Evil. You appear as a possible Merlin to Percival — use this to deceive.',
@@ -43,7 +43,7 @@ export default function RoleRevealPage() {
         {revealed && <span className={`badge badge-${team}`}>{team === 'good' ? 'Good' : 'Evil'}</span>}
 
         {cardImg ? (
-          <div className="flip-card-wrap" onClick={() => setRevealed(true)}>
+          <div className="flip-card-wrap" onClick={() => setRevealed(r => !r)}>
             <div className={`flip-card-inner${revealed ? ' revealed' : ''}`}>
               <div className="flip-card-face flip-card-face--back">
                 {backImg

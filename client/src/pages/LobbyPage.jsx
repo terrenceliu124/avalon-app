@@ -165,8 +165,10 @@ export default function LobbyPage() {
                   aria-checked={isSelected}
                 >
                   <span className="role-toggle-check">{isSelected ? '✓' : ''}</span>
-                  <span className="role-toggle-label">{role}</span>
-                  <span className="role-toggle-meta">{info.desc}</span>
+                  <div className="role-toggle-text">
+                    <span className="role-toggle-label">{role}</span>
+                    <span className="role-toggle-meta">{info.desc}</span>
+                  </div>
                   <span className={`badge ${info.team === 'good' ? 'badge-good' : 'badge-evil'}`}>
                     {info.team === 'good' ? 'Good' : 'Evil'}
                   </span>
@@ -265,8 +267,10 @@ export default function LobbyPage() {
                   className={`role-toggle${isSelected ? ' selected' : ''}`}
                 >
                   <span className="role-toggle-check">{isSelected ? '✓' : ''}</span>
-                  <span className="role-toggle-label">{role}</span>
-                  <span className="role-toggle-meta">{info.desc}</span>
+                  <div className="role-toggle-text">
+                    <span className="role-toggle-label">{role}</span>
+                    <span className="role-toggle-meta">{info.desc}</span>
+                  </div>
                   <span className={`badge ${info.team === 'good' ? 'badge-good' : 'badge-evil'}`}>
                     {info.team === 'good' ? 'Good' : 'Evil'}
                   </span>
