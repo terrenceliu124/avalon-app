@@ -54,18 +54,40 @@ export default function QuestPage() {
           hasPlayed ? (
             <p className="waiting">Your card is played. Awaiting your companions…</p>
           ) : pendingCard !== null ? (
-            <div className="btn-row">
-              <button className="btn btn-approve" disabled style={{ opacity: pendingCard === 'success' ? 1 : 0.3, boxShadow: pendingCard === 'success' ? '0 0 0 3px #fff' : 'none' }}>✓ Success</button>
+            <div className="btn-row" style={{ justifyContent: 'center', gap: 24 }}>
+              <img
+                src="/assets/backgrounds/vote_Approve.png"
+                alt="Success"
+                style={{ width: 90, opacity: pendingCard === 'success' ? 1 : 0.3, boxShadow: pendingCard === 'success' ? '0 0 0 3px #fff' : 'none', borderRadius: 8, cursor: 'default' }}
+              />
               {isEvil && (
-                <button className="btn btn-reject" disabled style={{ opacity: pendingCard === 'fail' ? 1 : 0.3, boxShadow: pendingCard === 'fail' ? '0 0 0 3px #fff' : 'none' }}>✕ Fail</button>
+                <img
+                  src="/assets/backgrounds/vote_Reject.png"
+                  alt="Fail"
+                  style={{ width: 90, opacity: pendingCard === 'fail' ? 1 : 0.3, boxShadow: pendingCard === 'fail' ? '0 0 0 3px #fff' : 'none', borderRadius: 8, cursor: 'default' }}
+                />
               )}
             </div>
           ) : (
             <>
-              <div className="btn-row">
-                <button className="btn btn-approve" onClick={() => handleCard('success')}>✓ Success</button>
+              <div className="btn-row" style={{ justifyContent: 'center', gap: 24 }}>
+                <img
+                  src="/assets/backgrounds/vote_Approve.png"
+                  alt="Success"
+                  onClick={() => handleCard('success')}
+                  style={{ width: 90, cursor: 'pointer', borderRadius: 8, transition: 'transform 0.1s' }}
+                  onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.08)'}
+                  onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+                />
                 {isEvil && (
-                  <button className="btn btn-reject" onClick={() => handleCard('fail')}>✕ Fail</button>
+                  <img
+                    src="/assets/backgrounds/vote_Reject.png"
+                    alt="Fail"
+                    onClick={() => handleCard('fail')}
+                    style={{ width: 90, cursor: 'pointer', borderRadius: 8, transition: 'transform 0.1s' }}
+                    onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.08)'}
+                    onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+                  />
                 )}
               </div>
               <p style={{ fontSize: '0.8rem', color: '#888', marginTop: 10, textAlign: 'center' }}>

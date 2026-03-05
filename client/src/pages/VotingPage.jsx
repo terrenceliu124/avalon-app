@@ -48,15 +48,37 @@ export default function VotingPage() {
         {hasVoted ? (
           <p className="waiting">Your vote is cast. Awaiting the others…</p>
         ) : pendingVote !== null ? (
-          <div className="btn-row">
-            <button className="btn btn-approve" disabled style={{ opacity: pendingVote === true  ? 1 : 0.3, boxShadow: pendingVote === true  ? '0 0 0 3px #fff' : 'none' }}>✓ Approve</button>
-            <button className="btn btn-reject"  disabled style={{ opacity: pendingVote === false ? 1 : 0.3, boxShadow: pendingVote === false ? '0 0 0 3px #fff' : 'none' }}>✕ Reject</button>
+          <div className="btn-row" style={{ justifyContent: 'center', gap: 24 }}>
+            <img
+              src="/assets/backgrounds/vote_Approve.png"
+              alt="Approve"
+              style={{ width: 90, opacity: pendingVote === true ? 1 : 0.3, boxShadow: pendingVote === true ? '0 0 0 3px #fff' : 'none', borderRadius: 8, cursor: 'default' }}
+            />
+            <img
+              src="/assets/backgrounds/vote_Reject.png"
+              alt="Reject"
+              style={{ width: 90, opacity: pendingVote === false ? 1 : 0.3, boxShadow: pendingVote === false ? '0 0 0 3px #fff' : 'none', borderRadius: 8, cursor: 'default' }}
+            />
           </div>
         ) : (
           <>
-            <div className="btn-row">
-              <button className="btn btn-approve" onClick={() => handleVote(true)}>✓ Approve</button>
-              <button className="btn btn-reject"  onClick={() => handleVote(false)}>✕ Reject</button>
+            <div className="btn-row" style={{ justifyContent: 'center', gap: 24 }}>
+              <img
+                src="/assets/backgrounds/vote_Approve.png"
+                alt="Approve"
+                onClick={() => handleVote(true)}
+                style={{ width: 90, cursor: 'pointer', borderRadius: 8, transition: 'transform 0.1s' }}
+                onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.08)'}
+                onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+              />
+              <img
+                src="/assets/backgrounds/vote_Reject.png"
+                alt="Reject"
+                onClick={() => handleVote(false)}
+                style={{ width: 90, cursor: 'pointer', borderRadius: 8, transition: 'transform 0.1s' }}
+                onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.08)'}
+                onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+              />
             </div>
             <p style={{ fontSize: '0.8rem', color: '#888', marginTop: 10, textAlign: 'center' }}>
               Your vote is final once cast
