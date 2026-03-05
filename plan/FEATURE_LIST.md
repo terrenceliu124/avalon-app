@@ -278,3 +278,4 @@
 - [ ] Configurable bot behavior — evil bots play fail cards on quest
 - [ ] Sound effects for vote/quest overlays
 - [ ] Mobile PWA manifest / installable app
+- [ ] Random select the starting player on game start
