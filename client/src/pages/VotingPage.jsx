@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { useGame } from '../context/GameContext';
-import MissionTrack from '../components/MissionTrack';
-import { PAGE_BACKGROUND, cardScrollStyle, cardTexturedStyle } from '../assets';
+import MissionHeader from '../components/MissionHeader';
+import TokenButton from '../components/TokenButton';
+import { PAGE_BACKGROUND, cardTexturedStyle } from '../assets';
+import { getRequiredPlayers } from '../gameUtils';
 
 export default function VotingPage() {
   const { socket, state } = useGame();
@@ -25,9 +27,7 @@ export default function VotingPage() {
 
   return (
     <div className="page" style={bgStyle}>
-      <div className="card" style={cardScrollStyle}>
-        <MissionTrack results={room.missionResults} current={room.currentMission} playerCount={room.players.length} />
-      </div>
+      <MissionHeader room={room} />
 
       <div className="card" style={cardTexturedStyle}>
         <h2>Cast Your Vote</h2>
@@ -41,48 +41,38 @@ export default function VotingPage() {
         <div className="progress-bar">
           <div className="progress-fill" style={{ width: `${pct}%` }} />
         </div>
-        <p style={{ fontSize: '0.85rem', color: '#888', marginBottom: 12 }}>
+        <p style={{ fontSize: '0.85rem', color: '#888', marginBottom: 4 }}>
           {voteCount} of {totalPlayers} have voted
         </p>
+        {room.players.length >= 7 && room.currentMission === 4 && (
+          <p style={{ fontSize: '0.8rem', color: '#888', marginBottom: 12 }}>2 fail cards required to fail this quest</p>
+        )}
 
         {hasVoted ? (
           <p className="waiting">Your vote is cast. Awaiting the others…</p>
-        ) : pendingVote !== null ? (
-          <div className="btn-row" style={{ justifyContent: 'center', gap: 24 }}>
-            <img
-              src="/assets/backgrounds/vote_Approve.png"
-              alt="Approve"
-              style={{ width: 90, opacity: pendingVote === true ? 1 : 0.3, boxShadow: pendingVote === true ? '0 0 0 3px #fff' : 'none', borderRadius: 8, cursor: 'default' }}
-            />
-            <img
-              src="/assets/backgrounds/vote_Reject.png"
-              alt="Reject"
-              style={{ width: 90, opacity: pendingVote === false ? 1 : 0.3, boxShadow: pendingVote === false ? '0 0 0 3px #fff' : 'none', borderRadius: 8, cursor: 'default' }}
-            />
-          </div>
         ) : (
           <>
             <div className="btn-row" style={{ justifyContent: 'center', gap: 24 }}>
-              <img
+              <TokenButton
                 src="/assets/backgrounds/vote_Approve.png"
                 alt="Approve"
-                onClick={() => handleVote(true)}
-                style={{ width: 90, cursor: 'pointer', borderRadius: 8, transition: 'transform 0.1s' }}
-                onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.08)'}
-                onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+                onClick={pendingVote === null ? () => handleVote(true) : undefined}
+                selected={pendingVote === true}
+                isPending={pendingVote !== null}
               />
-              <img
+              <TokenButton
                 src="/assets/backgrounds/vote_Reject.png"
                 alt="Reject"
-                onClick={() => handleVote(false)}
-                style={{ width: 90, cursor: 'pointer', borderRadius: 8, transition: 'transform 0.1s' }}
-                onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.08)'}
-                onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+                onClick={pendingVote === null ? () => handleVote(false) : undefined}
+                selected={pendingVote === false}
+                isPending={pendingVote !== null}
               />
             </div>
-            <p style={{ fontSize: '0.8rem', color: '#888', marginTop: 10, textAlign: 'center' }}>
-              Your vote is final once cast
-            </p>
+            {pendingVote === null && (
+              <p style={{ fontSize: '0.8rem', color: '#888', marginTop: 10, textAlign: 'center' }}>
+                Your vote is final once cast
+              </p>
+            )}
           </>
         )}
       </div>

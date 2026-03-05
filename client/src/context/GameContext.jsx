@@ -87,24 +87,41 @@ export function GameProvider({ children }) {
 
   useEffect(() => {
     function handleConnect() {
+      console.log('[socket] connected, id=', socket.id);
       const saved = sessionStorage.getItem('avalon_player');
       if (saved) {
         try {
           const { playerName, roomCode } = JSON.parse(saved);
           if (playerName && roomCode) {
+            console.log(`[rejoin] attempting rejoin: player="${playerName}" room="${roomCode}"`);
             dispatch({ type: 'SET_RECONNECTING', value: true });
             socket.emit('rejoin_room', { roomCode, playerName });
           }
         } catch {
+          console.log('[rejoin] bad session data, clearing');
           sessionStorage.removeItem('avalon_player');
           dispatch({ type: 'SET_RECONNECTING', value: false });
         }
+      } else {
+        console.log('[socket] connected, no saved session');
       }
     }
 
     socket.connect();
 
     socket.on('connect', handleConnect);
+    socket.on('disconnect', (reason) => {
+      console.log('[socket] disconnected:', reason);
+    });
+    socket.on('connect_error', (err) => {
+      console.log('[socket] connect_error:', err.message);
+    });
+    socket.on('reconnect_attempt', (n) => {
+      console.log('[socket] reconnect_attempt #', n);
+    });
+    socket.on('reconnect', (n) => {
+      console.log('[socket] reconnected after', n, 'attempt(s)');
+    });
 
     socket.on('room_created', ({ code, player, room }) => {
       sessionStorage.setItem('avalon_player', JSON.stringify({ playerName: player.name, roomCode: code, avatar: player.avatar }));
@@ -117,11 +134,13 @@ export function GameProvider({ children }) {
     });
 
     socket.on('rejoined', ({ room, player }) => {
+      console.log(`[rejoin] SUCCESS: back in room ${room.code} as "${player.name}" (phase: ${room.phase})`);
       sessionStorage.setItem('avalon_player', JSON.stringify({ playerName: player.name, roomCode: room.code, avatar: player.avatar }));
       dispatch({ type: 'ROOM_JOINED', code: room.code, player, room });
     });
 
-    socket.on('rejoin_failed', () => {
+    socket.on('rejoin_failed', ({ reason } = {}) => {
+      console.log('[rejoin] FAILED:', reason);
       sessionStorage.removeItem('avalon_player');
       dispatch({ type: 'SET_RECONNECTING', value: false });
     });
@@ -164,6 +183,10 @@ export function GameProvider({ children }) {
 
     return () => {
       socket.off('connect', handleConnect);
+      socket.off('disconnect');
+      socket.off('connect_error');
+      socket.off('reconnect_attempt');
+      socket.off('reconnect');
       socket.off('room_created');
       socket.off('room_joined');
       socket.off('rejoined');

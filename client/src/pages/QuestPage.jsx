@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useGame } from '../context/GameContext';
-import MissionTrack from '../components/MissionTrack';
-import { PAGE_BACKGROUND, cardScrollStyle, cardTexturedStyle } from '../assets';
+import MissionHeader from '../components/MissionHeader';
+import TokenButton from '../components/TokenButton';
+import { PAGE_BACKGROUND, cardTexturedStyle } from '../assets';
 
 export default function QuestPage() {
   const { socket, state } = useGame();
@@ -28,9 +29,7 @@ export default function QuestPage() {
 
   return (
     <div className="page" style={bgStyle}>
-      <div className="card" style={{ ...cardScrollStyle, alignItems: 'center', textAlign: 'center' }}>
-        <MissionTrack results={room.missionResults} current={room.currentMission} playerCount={room.players.length} />
-      </div>
+      <MissionHeader room={room} />
 
       <div className="card" style={cardTexturedStyle}>
         <div className="progress-bar">
@@ -53,46 +52,31 @@ export default function QuestPage() {
         {isOnTeam ? (
           hasPlayed ? (
             <p className="waiting">Your card is played. Awaiting your companions…</p>
-          ) : pendingCard !== null ? (
-            <div className="btn-row" style={{ justifyContent: 'center', gap: 24 }}>
-              <img
-                src="/assets/backgrounds/vote_Approve.png"
-                alt="Success"
-                style={{ width: 90, opacity: pendingCard === 'success' ? 1 : 0.3, boxShadow: pendingCard === 'success' ? '0 0 0 3px #fff' : 'none', borderRadius: 8, cursor: 'default' }}
-              />
-              {isEvil && (
-                <img
-                  src="/assets/backgrounds/vote_Reject.png"
-                  alt="Fail"
-                  style={{ width: 90, opacity: pendingCard === 'fail' ? 1 : 0.3, boxShadow: pendingCard === 'fail' ? '0 0 0 3px #fff' : 'none', borderRadius: 8, cursor: 'default' }}
-                />
-              )}
-            </div>
           ) : (
             <>
               <div className="btn-row" style={{ justifyContent: 'center', gap: 24 }}>
-                <img
+                <TokenButton
                   src="/assets/backgrounds/vote_Approve.png"
                   alt="Success"
-                  onClick={() => handleCard('success')}
-                  style={{ width: 90, cursor: 'pointer', borderRadius: 8, transition: 'transform 0.1s' }}
-                  onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.08)'}
-                  onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+                  onClick={pendingCard === null ? () => handleCard('success') : undefined}
+                  selected={pendingCard === 'success'}
+                  isPending={pendingCard !== null}
                 />
                 {isEvil && (
-                  <img
+                  <TokenButton
                     src="/assets/backgrounds/vote_Reject.png"
                     alt="Fail"
-                    onClick={() => handleCard('fail')}
-                    style={{ width: 90, cursor: 'pointer', borderRadius: 8, transition: 'transform 0.1s' }}
-                    onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.08)'}
-                    onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+                    onClick={pendingCard === null ? () => handleCard('fail') : undefined}
+                    selected={pendingCard === 'fail'}
+                    isPending={pendingCard !== null}
                   />
                 )}
               </div>
-              <p style={{ fontSize: '0.8rem', color: '#888', marginTop: 10, textAlign: 'center' }}>
-                Your card is final once played
-              </p>
+              {pendingCard === null && (
+                <p style={{ fontSize: '0.8rem', color: '#888', marginTop: 10, textAlign: 'center' }}>
+                  Your card is final once played
+                </p>
+              )}
             </>
           )
         ) : (

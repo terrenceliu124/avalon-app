@@ -186,6 +186,9 @@ function RoomTab({ room, roomCode, isCurrentUserHost, socket, devMode, devWinner
               {p.avatar && <span className="emoji-avatar">{p.avatar}</span>}
               <span style={{ flex: 1 }}>{p.name}</span>
               <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                {!p.isBot && p.connected === false && (
+                  <span className="badge badge-offline">Offline</span>
+                )}
                 {p.isHost && <span className="badge" style={{ background: '#2a2a1a', color: '#e2b96f' }}>Host</span>}
                 {p.isBot && <span className="badge badge-bot">Bot</span>}
                 {isCurrentUserHost && !p.isBot && !p.isHost && (

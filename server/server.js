@@ -76,15 +76,23 @@ io.on('connection', (socket) => {
   });
 
   socket.on('rejoin_room', ({ roomCode, playerName }) => {
+    console.log(`[rejoin_room] attempt: player="${playerName}" room="${roomCode}"`);
     const code = (roomCode || '').toUpperCase().trim();
     const room = getRoom(code);
-    if (!room) return socket.emit('rejoin_failed', { reason: 'Room not found' });
+    if (!room) {
+      console.log(`[rejoin_room] FAILED — room "${code}" not found`);
+      return socket.emit('rejoin_failed', { reason: 'Room not found' });
+    }
 
     const player = room.players.find(p => p.name === playerName);
-    if (!player) return socket.emit('rejoin_failed', { reason: 'Player not found' });
+    if (!player) {
+      console.log(`[rejoin_room] FAILED — player "${playerName}" not in room "${code}"`);
+      return socket.emit('rejoin_failed', { reason: 'Player not found' });
+    }
 
     const oldId = player.id;
     player.id = socket.id;
+    player.connected = true;
     delete room.emptyAt;
 
     if (room.host === oldId) room.host = socket.id;
@@ -95,8 +103,10 @@ io.on('connection', (socket) => {
       devAuthedSockets.add(socket.id);
     }
 
+    console.log(`[rejoin_room] SUCCESS: "${playerName}" rejoined room "${code}" (${oldId} → ${socket.id})`);
     socket.join(code);
     socket.emit('rejoined', { room, player });
+    io.to(code).emit('room_updated', { room });
 
     if (player.role) {
       const nightVision = computeNightVision(player, room.players);
@@ -363,11 +373,15 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', () => {
     devAuthedSockets.delete(socket.id);
-    console.log('Client disconnected:', socket.id);
     const found = findPlayerRoom(socket.id);
+    console.log(`[disconnect] socket=${socket.id} — ${found ? `in room ${found.code} (${found.room.phase})` : 'not in any room'}`);
     if (found && found.room.phase !== 'lobby') {
-      // Game in progress — keep player so they can rejoin; just notify the room
-      console.log(`[disconnect] ${socket.id} in in-progress room ${found.code} — keeping player for rejoin`);
+      // Game in progress — keep player so they can rejoin; mark offline and notify
+      const player = found.room.players.find(p => p.id === socket.id);
+      if (player) {
+        player.connected = false;
+        console.log(`[disconnect] marked ${player.name} as offline in room ${found.code}`);
+      }
       io.to(found.code).emit('room_updated', { room: found.room });
       const activeHumans = found.room.players.filter(
         p => !p.isBot && p.id !== socket.id && io.sockets.sockets.get(p.id)

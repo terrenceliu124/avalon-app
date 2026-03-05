@@ -6,11 +6,11 @@ const rooms = new Map();
 // --- Player factories ---
 
 function makePlayer(socketId, name, isHost) {
-  return { id: socketId, name, isHost, isBot: false };
+  return { id: socketId, name, isHost, isBot: false, connected: true };
 }
 
 function makeBot(n) {
-  return { id: `bot-${n}`, name: `Bot ${n}`, isHost: false, isBot: true };
+  return { id: `bot-${n}`, name: `Bot ${n}`, isHost: false, isBot: true, connected: true };
 }
 
 function generateRoomCode() {

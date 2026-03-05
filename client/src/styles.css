@@ -10,7 +10,7 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 button, input, select, textarea { font-family: inherit; }
 
-html { font-size: 16px; }
+html { font-size: 18px; letter-spacing: -0.03rem;}
 
 body {
   background: #131d30;
@@ -59,7 +59,7 @@ body {
 .card + .card { margin-top: 16px; }
 
 /* ---- Typography ---- */
-h1 { font-size: 2rem; font-weight: 800; letter-spacing: 0.04em; color: #c9a87a; margin-bottom: 8px; }
+h1 { font-size: 2rem; font-weight: 800; letter-spacing: 0.01em; color: #c9a87a; margin-bottom: 8px; }
 h2 { font-size: 1.4rem; font-weight: 700; color: #c9a87a; margin-bottom: 12px; }
 h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 8px; color: #b8a890; }
 p  { line-height: 1.5; color: #a89878; }
@@ -148,12 +148,13 @@ label { display: block; font-size: 1rem; color: #8a7a62; margin-bottom: 14px; }
   border-radius: 999px;
   font-size: 0.75rem;
   font-weight: 700;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
 }
-.badge-good  { background: #1a3452; color: #4a8ecf; }
-.badge-evil  { background: #451818; color: #d04848; }
-.badge-bot   { background: #1e2e42; color: #7a6a58; }
+.badge-good    { background: #1a3452; color: #4a8ecf; }
+.badge-evil    { background: #451818; color: #d04848; }
+.badge-bot     { background: #1e2e42; color: #7a6a58; }
+.badge-offline { background: #3a2a2a; color: #e07070; }
 
 /* ---- Mission track ---- */
 .mission-track {
@@ -360,7 +361,7 @@ label { display: block; font-size: 1rem; color: #8a7a62; margin-bottom: 14px; }
 .flip-card-tap-hint {
   font-size: 1rem;
   color: #7a6042;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.03em;
   text-transform: uppercase;
   margin-top: 8px;
 }
@@ -584,7 +585,8 @@ label { display: block; font-size: 1rem; color: #8a7a62; margin-bottom: 14px; }
   background: transparent; border: 2px solid #c9a87a;
   color: #c9a87a; font-size: 1rem; font-weight: 800;
   cursor: pointer; z-index: 49;
-  letter-spacing: 0.1em; opacity: 0.6;
+  letter-spacing: 0.04em;
+  opacity: 0.6;
   font-family: inherit;
 }
 .dev-fab:hover { opacity: 1; }
@@ -646,5 +648,5 @@ label { display: block; font-size: 1rem; color: #8a7a62; margin-bottom: 14px; }
 }
 .room-code-display:hover { border-color: #c9a87a; }
 .room-code-label { display: block; font-size: 1rem; color: #7a6a58; margin-bottom: 4px; }
-.room-code-value { display: block; font-size: 2rem; font-weight: 800; letter-spacing: 0.15em; color: #c9a87a; }
+.room-code-value { display: block; font-size: 2rem; font-weight: 800; letter-spacing: 0.08em; color: #c9a87a; }
 .room-code-hint  { display: block; font-size: 1rem; color: #4e4030; margin-top: 4px; }

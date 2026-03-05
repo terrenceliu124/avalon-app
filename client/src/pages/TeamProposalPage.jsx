@@ -1,17 +1,9 @@
 import React, { useState } from 'react';
 import { useGame } from '../context/GameContext';
-import MissionTrack from '../components/MissionTrack';
 import PlayerCard from '../components/PlayerCard';
-import { PAGE_BACKGROUND, cardScrollStyle, cardTexturedStyle } from '../assets';
-
-const TEAM_SIZES = {
-  5:  [2, 3, 2, 3, 3],
-  6:  [2, 3, 4, 3, 4],
-  7:  [2, 3, 3, 4, 4],
-  8:  [3, 4, 4, 5, 5],
-  9:  [3, 4, 4, 5, 5],
-  10: [3, 4, 4, 5, 5],
-};
+import MissionHeader from '../components/MissionHeader';
+import { PAGE_BACKGROUND, cardTexturedStyle } from '../assets';
+import { getRequiredPlayers } from '../gameUtils';
 
 export default function TeamProposalPage() {
   const { socket, state } = useGame();
@@ -19,7 +11,7 @@ export default function TeamProposalPage() {
 
   const leader = room.players[room.leaderIndex];
   const isLeader = leader?.name === player?.name;
-  const required = (TEAM_SIZES[room.players.length] || TEAM_SIZES[5])[room.currentMission - 1] || 2;
+  const required = getRequiredPlayers(room.players.length, room.currentMission);
 
   const [selected, setSelected] = useState([]);
   const [submitted, setSubmitted] = useState(false);
@@ -36,21 +28,11 @@ export default function TeamProposalPage() {
     socket.emit('propose_team', { roomCode, team: selected });
   }
 
-  const rejectionWarning = room.rejectionCount > 0
-    ? `${room.rejectionCount} of 5 proposals rejected`
-    : null;
-
   const bgStyle = PAGE_BACKGROUND ? { backgroundImage: `url(${PAGE_BACKGROUND})` } : undefined;
 
   return (
     <div className="page" style={bgStyle}>
-      <div className="card" style={{ ...cardScrollStyle, alignItems: 'center', textAlign: 'center' }}>
-        <MissionTrack results={room.missionResults} current={room.currentMission} playerCount={room.players.length} />
-        <p style={{ fontSize: '0.85rem', color: '#3a2a0a' }}>
-          Mission {room.currentMission} — needs {required} players
-          {rejectionWarning && <span style={{ color: '#8b1a1a', marginLeft: 8 }}>{rejectionWarning}</span>}
-        </p>
-      </div>
+      <MissionHeader room={room} />
 
       <div className="card" style={cardTexturedStyle}>
         <h2>Quest Proposal</h2>
