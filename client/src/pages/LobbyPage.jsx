@@ -48,6 +48,9 @@ function SortablePlayerRow({ p, isHost }) {
       <PlayerAvatar name={p.name} />
       <span style={{ flex: 1 }}>{p.name}</span>
       <div style={{ display: 'flex', gap: 6 }}>
+        {!p.isBot && p.connected === false && (
+          <span className="badge badge-offline">Offline</span>
+        )}
         {p.isHost && <span className="badge" style={{ background: '#2a2a1a', color: '#e2b96f' }}>Host</span>}
         {p.isBot  && <span className="badge badge-bot">Bot</span>}
       </div>

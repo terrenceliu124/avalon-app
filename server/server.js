@@ -9,6 +9,20 @@ const { assignRoles, assignRolesWithForced, computeNightVision, getTeamSize, req
 const DEV_PASSKEY = process.env.DEV_PASSKEY || 'avalon-dev';
 const devAuthedSockets = new Set();
 
+const LOG_BUFFER_MAX = 200;
+const logBuffer = [];
+
+function serverLog(category, message) {
+  const entry = { ts: Date.now(), category, message };
+  logBuffer.push(entry);
+  if (logBuffer.length > LOG_BUFFER_MAX) logBuffer.shift();
+  console.log(`[${category}] ${message}`);
+  for (const sid of devAuthedSockets) {
+    const s = io.sockets.sockets.get(sid);
+    if (s) s.emit('server_log', entry);
+  }
+}
+
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -29,7 +43,7 @@ function advanceToHumanLeader(room) {
 }
 
 io.on('connection', (socket) => {
-  console.log('Client connected:', socket.id);
+  serverLog('connect', `socket=${socket.id}`);
 
   // --- Room lifecycle ---
 
@@ -39,6 +53,7 @@ io.on('connection', (socket) => {
     }
     const { code, player } = createRoom(playerName.trim(), socket.id);
     socket.join(code);
+    serverLog('create', `"${playerName.trim()}" created room ${code}`);
     socket.emit('room_created', { code, player, room: getRoom(code) });
   });
 
@@ -71,22 +86,23 @@ io.on('connection', (socket) => {
       return socket.emit('error', { message: result.error });
     }
     socket.join(code);
+    serverLog('join', `"${playerName.trim()}" joined room ${code} (${result.room.players.length} players)`);
     socket.emit('room_joined', { code, player: result.player, room: result.room });
     io.to(code).emit('room_updated', { room: result.room });
   });
 
   socket.on('rejoin_room', ({ roomCode, playerName }) => {
-    console.log(`[rejoin_room] attempt: player="${playerName}" room="${roomCode}"`);
+    serverLog('rejoin', `attempt: player="${playerName}" room="${roomCode}"`);
     const code = (roomCode || '').toUpperCase().trim();
     const room = getRoom(code);
     if (!room) {
-      console.log(`[rejoin_room] FAILED — room "${code}" not found`);
+      serverLog('rejoin', `FAILED — room "${code}" not found`);
       return socket.emit('rejoin_failed', { reason: 'Room not found' });
     }
 
     const player = room.players.find(p => p.name === playerName);
     if (!player) {
-      console.log(`[rejoin_room] FAILED — player "${playerName}" not in room "${code}"`);
+      serverLog('rejoin', `FAILED — player "${playerName}" not in room "${code}"`);
       return socket.emit('rejoin_failed', { reason: 'Player not found' });
     }
 
@@ -103,7 +119,7 @@ io.on('connection', (socket) => {
       devAuthedSockets.add(socket.id);
     }
 
-    console.log(`[rejoin_room] SUCCESS: "${playerName}" rejoined room "${code}" (${oldId} → ${socket.id})`);
+    serverLog('rejoin', `SUCCESS: "${playerName}" rejoined room "${code}" (${oldId} → ${socket.id})`);
     socket.join(code);
     socket.emit('rejoined', { room, player });
     io.to(code).emit('room_updated', { room });
@@ -120,6 +136,7 @@ io.on('connection', (socket) => {
     if (room.host !== socket.id) return socket.emit('error', { message: 'Only host can update roles' });
     if (room.phase !== 'lobby') return socket.emit('error', { message: 'Cannot change roles after game has started' });
     room.selectedRoles = selectedRoles || [];
+    serverLog('lobby', `room ${roomCode} roles updated: [${(selectedRoles || []).join(', ')}]`);
     io.to(roomCode).emit('room_updated', { room });
   });
 
@@ -152,6 +169,7 @@ io.on('connection', (socket) => {
       }
     }
 
+    serverLog('lobby', `room ${roomCode} bots added — total players: ${room.players.length}`);
     io.to(roomCode).emit('room_updated', { room });
   });
 
@@ -173,8 +191,11 @@ io.on('connection', (socket) => {
   socket.on('verify_dev_passkey', ({ passkey }) => {
     if (passkey === DEV_PASSKEY) {
       devAuthedSockets.add(socket.id);
+      serverLog('admin', `passkey auth success socket=${socket.id}`);
       socket.emit('dev_auth_result', { success: true });
+      socket.emit('server_logs', { logs: [...logBuffer] });
     } else {
+      serverLog('admin', `passkey auth FAILED socket=${socket.id}`);
       socket.emit('dev_auth_result', { success: false });
     }
   });
@@ -183,6 +204,7 @@ io.on('connection', (socket) => {
     if (!devAuthedSockets.has(socket.id)) {
       return socket.emit('error', { message: 'Unauthorized' });
     }
+    serverLog('admin', `get_all_rooms requested socket=${socket.id}`);
     const roomSummaries = [];
     for (const [code, room] of getRooms().entries()) {
       roomSummaries.push({
@@ -209,6 +231,8 @@ io.on('connection', (socket) => {
 
     room.players = result.players;
     room.phase = 'role_reveal';
+    const assignments = room.players.map(p => `${p.name}=${p.role}`).join(', ');
+    serverLog('start', `room ${roomCode} started (${room.players.length} players) — ${assignments}`);
     io.to(roomCode).emit('room_updated', { room });
 
     // Send each non-bot player their private role info
@@ -228,6 +252,7 @@ io.on('connection', (socket) => {
     if (room.host !== socket.id) return socket.emit('error', { message: 'Only host can advance' });
     if (room.phase !== 'role_reveal') return;
     room.phase = 'night';
+    serverLog('phase', `room ${roomCode} → night`);
     io.to(roomCode).emit('room_updated', { room });
   });
 
@@ -241,6 +266,8 @@ io.on('connection', (socket) => {
       advanceToHumanLeader(room);
     }
     room.phase = 'team_proposal';
+    const leader = room.players[room.leaderIndex];
+    serverLog('phase', `room ${roomCode} → team_proposal, leader=${leader ? leader.name : '?'}`);
     io.to(roomCode).emit('room_updated', { room });
   });
 
@@ -263,6 +290,7 @@ io.on('connection', (socket) => {
     room.proposedTeam = team;
     room.phase = 'voting';
     room.votes = {};
+    serverLog('team', `room ${roomCode} mission ${room.currentMission} — ${leader.name} proposed [${team.join(', ')}]`);
     io.to(roomCode).emit('room_updated', { room });
 
     // Auto-vote for bots (always approve)
@@ -284,6 +312,7 @@ io.on('connection', (socket) => {
     if (room.votes[player.name] !== undefined) return socket.emit('error', { message: 'Already voted' });
 
     room.votes[player.name] = vote;
+    serverLog('vote', `room ${roomCode} — ${player.name} voted ${vote ? 'approve' : 'reject'}`);
 
     _resolveVotes(room, roomCode);
   });
@@ -309,6 +338,7 @@ io.on('connection', (socket) => {
     }
 
     room.questCards[player.name] = card;
+    serverLog('quest', `room ${roomCode} — ${player.name} played ${card}`);
 
     _resolveQuest(room, roomCode);
   });
@@ -332,6 +362,7 @@ io.on('connection', (socket) => {
     room.gameOverAt = Date.now();
     room.assassinationTarget = targetName;
     room.gameOverReason = merlinKilled ? 'Merlin assassinated' : 'Wrong target — Good wins';
+    serverLog('assassinate', `room ${roomCode} — ${assassin.name} targeted ${targetName} (${merlinKilled ? 'Merlin killed — evil wins' : 'wrong target — good wins'}`);
     room.revealedPlayers = room.players.map(p => ({
       name: p.name, role: p.role, team: p.team, isBot: p.isBot || false,
     }));
@@ -346,6 +377,7 @@ io.on('connection', (socket) => {
     if (!room) return socket.emit('error', { message: 'Room not found' });
     if (room.host !== socket.id) return socket.emit('error', { message: 'Only host can force advance' });
     room.phase = targetPhase;
+    serverLog('admin', `room ${roomCode} force_advance → ${targetPhase}`);
     io.to(roomCode).emit('room_updated', { room });
   });
 
@@ -361,10 +393,12 @@ io.on('connection', (socket) => {
     if (target.isBot) return socket.emit('error', { message: 'Cannot transfer host to a bot' });
     if (target.id === socket.id) return socket.emit('error', { message: 'You are already the host' });
 
+    const currentHost = room.players.find(p => p.isHost);
     for (const p of room.players) {
       p.isHost = (p.name === targetPlayerName);
     }
     room.host = target.id;
+    serverLog('host', `room ${roomCode} — host transferred from ${currentHost ? currentHost.name : '?'} to ${targetPlayerName}`);
 
     io.to(roomCode).emit('room_updated', { room });
   });
@@ -374,27 +408,37 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     devAuthedSockets.delete(socket.id);
     const found = findPlayerRoom(socket.id);
-    console.log(`[disconnect] socket=${socket.id} — ${found ? `in room ${found.code} (${found.room.phase})` : 'not in any room'}`);
-    if (found && found.room.phase !== 'lobby') {
-      // Game in progress — keep player so they can rejoin; mark offline and notify
+    serverLog('disconnect', `socket=${socket.id} — ${found ? `in room ${found.code} (${found.room.phase})` : 'not in any room'}`);
+    if (found) {
       const player = found.room.players.find(p => p.id === socket.id);
       if (player) {
         player.connected = false;
-        console.log(`[disconnect] marked ${player.name} as offline in room ${found.code}`);
+        serverLog('disconnect', `"${player.name}" marked offline in room ${found.code}`);
+
+        // In lobby: if host went offline, auto-promote next connected human
+        if (found.room.phase === 'lobby' && player.isHost) {
+          const nextHost = found.room.players.find(
+            p => !p.isBot && p.name !== player.name && p.connected !== false
+          );
+          if (nextHost) {
+            player.isHost = false;
+            nextHost.isHost = true;
+            found.room.host = nextHost.id;
+            serverLog('disconnect', `host auto-transferred from "${player.name}" to "${nextHost.name}" in room ${found.code}`);
+          }
+        }
       }
+
       io.to(found.code).emit('room_updated', { room: found.room });
+
       const activeHumans = found.room.players.filter(
         p => !p.isBot && p.id !== socket.id && io.sockets.sockets.get(p.id)
       );
       if (activeHumans.length === 0) {
         found.room.emptyAt = Date.now();
       }
-    } else {
-      const result = leaveRoom(socket.id);
-      if (result && !result.deleted) {
-        io.to(result.code).emit('room_updated', { room: result.room });
-      }
     }
+    // leaveRoom is no longer called — player stays in room regardless of phase
   });
 });
 
@@ -420,6 +464,7 @@ function _resolveVotes(room, roomCode) {
   if (voteCount === totalPlayers) {
     const approvals = Object.values(room.votes).filter(v => v).length;
     const rejected = approvals <= totalPlayers / 2;
+    serverLog('vote', `room ${roomCode} vote resolved — ${approvals}/${totalPlayers} approve — ${rejected ? 'REJECTED' : 'APPROVED'}`);
 
     room.history.push({
       type: 'vote',
@@ -494,6 +539,7 @@ function _resolveQuest(room, roomCode) {
     const fails = Object.values(room.questCards).filter(c => c === 'fail').length;
     const twoFails = requiresTwoFails(room.players.length, room.currentMission);
     const questFailed = twoFails ? fails >= 2 : fails >= 1;
+    serverLog('quest', `room ${roomCode} mission ${room.currentMission} resolved — ${fails} fail(s) — ${questFailed ? 'FAILED' : 'PASSED'}`);
 
     room.history.push({
       type: 'quest',
@@ -550,12 +596,13 @@ if (process.env.NODE_ENV === 'production') {
 const ROOM_TTL_MS = 5 * 60 * 1000; // 5 minutes
 setInterval(() => {
   const n = cleanupExpiredRooms(ROOM_TTL_MS);
-  if (n > 0) console.log(`[cleanup] Removed ${n} expired room(s)`);
+  if (n > 0) serverLog('cleanup', `Removed ${n} expired room(s)`);
 }, 60_000); // sweep every minute
 
 const PORT = process.env.PORT || 3001;
 server.listen(PORT, () => {
   console.log(`Avalon server running on port ${PORT}`);
+  // startup log goes to console only (io not ready for broadcast yet)
 });
 
 module.exports = { app, server, io };

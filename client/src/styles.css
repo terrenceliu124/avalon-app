@@ -650,3 +650,46 @@ label { display: block; font-size: 1rem; color: #8a7a62; margin-bottom: 14px; }
 .room-code-label { display: block; font-size: 1rem; color: #7a6a58; margin-bottom: 4px; }
 .room-code-value { display: block; font-size: 2rem; font-weight: 800; letter-spacing: 0.08em; color: #c9a87a; }
 .room-code-hint  { display: block; font-size: 1rem; color: #4e4030; margin-top: 4px; }
+
+/* ---- Admin log panel ---- */
+.log-panel {
+  max-height: 420px;
+  overflow-y: auto;
+  background: #0a0f1a;
+  border: 1px solid #1e2d40;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-family: 'Menlo', 'Monaco', 'Consolas', monospace;
+  font-size: 0.75rem;
+}
+.log-entry {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 3px 0;
+  border-bottom: 1px solid #111820;
+  line-height: 1.4;
+}
+.log-entry:last-child { border-bottom: none; }
+.log-ts {
+  color: #4a6070;
+  flex-shrink: 0;
+  font-size: 0.72rem;
+}
+.log-category-badge {
+  flex-shrink: 0;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #fff;
+  opacity: 0.9;
+  min-width: 64px;
+  text-align: center;
+}
+.log-message {
+  color: #c8d8e8;
+  word-break: break-all;
+}
