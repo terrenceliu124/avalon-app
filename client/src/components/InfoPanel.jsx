@@ -17,6 +17,14 @@ const ROLE_DESCRIPTIONS = {
   Minion: 'You are a Minion of Mordred. Work secretly with your Evil teammates to fail quests.',
 };
 
+const NIGHT_VISION_TIPS = {
+  Merlin: 'These players are Evil and visible to you. Guide the good team away from them — without making it obvious you know.',
+  Assassin: 'These are your Evil teammates. Coordinate to get on quests and fail them.',
+  Morgana: 'These are your Evil teammates. Coordinate to get on quests and fail them.',
+  Mordred: 'These are your Evil teammates. Coordinate to get on quests and fail them.',
+  Minion: 'These are your Evil teammates. Coordinate to get on quests and fail them.',
+};
+
 const ROLE_TIPS = {
   Merlin: 'Guide good players subtly. Vote to reject suspicious teams but vary your pattern — consistency identifies you.',
   Percival: 'Watch both Merlin/Morgana candidates closely. Protect the real Merlin from the Assassin.',
@@ -70,12 +78,22 @@ function QuestHistoryCard({ record }) {
   );
 }
 
-function RoleTab({ player, nightVision, phase }) {
+function RoleTab({ player, nightVision, phase, selectedRoles }) {
   const role = player?.role || '?';
   const team = player?.team || 'unknown';
   const desc = ROLE_DESCRIPTIONS[role] || '';
   const tip = ROLE_TIPS[role] || '';
   const sees = nightVision?.sees || [];
+  const mordredInGame = selectedRoles.includes('Mordred');
+  const nightVisionTip = role === 'Percival'
+    ? (sees.length >= 2
+        ? 'One of these players is Merlin, the other is Morgana. You cannot tell which is which.'
+        : 'This player is Merlin. Protect them from the Assassin at game end.')
+    : role === 'Merlin'
+      ? (mordredInGame
+          ? 'These players are Evil and visible to you. Mordred is hidden from your sight — there may be more Evil players you cannot see.'
+          : 'These players are Evil and visible to you. Guide the good team away from them without revealing yourself.')
+      : (NIGHT_VISION_TIPS[role] || '');
   const cardImg = getRoleCard(role, player?.name);
 
   return (
@@ -95,10 +113,13 @@ function RoleTab({ player, nightVision, phase }) {
             {sees.map(entry => (
               <li key={entry.name}>
                 <span>{entry.name}</span>
-                <span className="sees-label">{entry.as}</span>
+                <span className="sees-label">{entry.label}</span>
               </li>
             ))}
           </ul>
+          {nightVisionTip && (
+            <p style={{ fontSize: '0.82rem', color: '#8888aa', lineHeight: 1.5, marginTop: 8 }}>{nightVisionTip}</p>
+          )}
         </div>
       )}
       {tip && (
@@ -344,7 +365,7 @@ export default function InfoPanel() {
                 <RoomTab room={room} roomCode={roomCode} isCurrentUserHost={isCurrentUserHost} socket={socket} devMode={devMode} devWinner={devWinner} dispatch={dispatch} />
               ) : (
                 <>
-                  {activeTab === 'role' && <RoleTab player={player} nightVision={nightVision} phase={room.phase} />}
+                  {activeTab === 'role' && <RoleTab player={player} nightVision={nightVision} phase={room.phase} selectedRoles={room.selectedRoles || []} />}
                   {activeTab === 'history' && <HistoryTab history={room.history} showVotingHistory={room.showVotingHistory !== false} />}
                   {activeTab === 'room' && <RoomTab room={room} roomCode={roomCode} isCurrentUserHost={isCurrentUserHost} socket={socket} devMode={devMode} devWinner={devWinner} dispatch={dispatch} />}
                 </>

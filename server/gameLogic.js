@@ -88,14 +88,17 @@ function computeNightVision(player, allPlayers) {
       }
       break;
 
-    case 'Percival':
+    case 'Percival': {
       // Percival sees Merlin and Morgana (but doesn't know which is which)
+      // If Morgana is not in the game, Percival clearly identifies Merlin
+      const morganaInGame = allPlayers.some(p => p.role === 'Morgana');
       for (const p of allPlayers) {
         if (p.role === 'Merlin' || p.role === 'Morgana') {
-          sees.push({ name: p.name, label: 'Merlin or Morgana' });
+          sees.push({ name: p.name, label: morganaInGame ? 'Merlin or Morgana' : 'Merlin' });
         }
       }
       break;
+    }
 
     case 'Assassin':
     case 'Morgana':
