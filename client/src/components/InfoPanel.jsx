@@ -304,6 +304,16 @@ export default function InfoPanel() {
     if (newTab && newTab !== activeTab) setActiveTab(newTab);
   }
 
+  // Lock body scroll while panel is open (prevents background scroll on iOS)
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => { document.body.style.overflow = ''; };
+  }, [open]);
+
   // Sync scroll position when panel opens
   useEffect(() => {
     if (!open || !tabScrollRef.current) return;
@@ -330,10 +340,7 @@ export default function InfoPanel() {
             <div className="info-panel-header">
               <div className="info-panel-drag-pill" />
               <div className="info-panel-title-row">
-                <svg className="info-panel-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                  <path d="M12 2L3 6v6c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V6L12 2z" fill="currentColor"/>
-                </svg>
-                <span style={{ flex: 1 }} />
+                <span className="info-panel-title">Game Info</span>
                 <button className="info-panel-close" onClick={closePanel} aria-label="Close">✕</button>
               </div>
               {!isLobby && (

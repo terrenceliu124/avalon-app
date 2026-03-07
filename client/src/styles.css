@@ -404,6 +404,7 @@ label { display: block; font-size: 1rem; color: #8a7a62; margin-bottom: 14px; }
   align-items: center;
   justify-content: center;
   z-index: 50;
+  overscroll-behavior: contain;
   padding: 24px;
   animation: overlayFadeIn 0.2s ease both;
 }
@@ -554,10 +555,11 @@ label { display: block; font-size: 1rem; color: #8a7a62; margin-bottom: 14px; }
   align-items: center;
   padding: 14px 0 14px;
 }
-.info-panel-title { flex: 1; }
-.info-panel-icon {
-  width: 22px; height: 22px;
-  color: #c9a87a;
+.info-panel-title {
+  flex: 1;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #e8e0d2;
 }
 .info-panel-close {
   background: none; border: none;
@@ -597,6 +599,7 @@ label { display: block; font-size: 1rem; color: #8a7a62; margin-bottom: 14px; }
 .tab-scroll-container {
   display: flex;
   overflow-x: scroll;
+  overflow-y: hidden;
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
@@ -606,9 +609,12 @@ label { display: block; font-size: 1rem; color: #8a7a62; margin-bottom: 14px; }
 .tab-scroll-container::-webkit-scrollbar { display: none; }
 .tab-pane {
   flex: 0 0 100%;
+  height: 100%;
   overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 12px 20px max(32px, env(safe-area-inset-bottom));
   scroll-snap-align: start;
+  box-sizing: border-box;
 }
 .tab-pane::-webkit-scrollbar { width: 4px; }
 .tab-pane::-webkit-scrollbar-track { background: transparent; }
