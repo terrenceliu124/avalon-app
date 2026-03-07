@@ -17,6 +17,11 @@ export default function VotingPage() {
   const voteCount = voteProgress?.voteCount ?? Object.keys(room.votes || {}).length;
   const pct = totalPlayers > 0 ? Math.round((voteCount / totalPlayers) * 100) : 0;
 
+  const notVoted = voteProgress?.notVoted
+    ?? room.players
+        .filter(p => !p.isBot && (!room.votes || room.votes[p.name] === undefined))
+        .map(p => ({ name: p.name, connected: p.connected !== false }));
+
   function handleVote(approve) {
     if (pendingVote !== null) return;
     setPendingVote(approve);
@@ -44,6 +49,19 @@ export default function VotingPage() {
         <p style={{ fontSize: '0.85rem', color: '#888', marginBottom: 4 }}>
           {voteCount} of {totalPlayers} have voted
         </p>
+        {notVoted.length > 0 && (
+          <p style={{ fontSize: '0.8rem', color: '#888', marginBottom: 8 }}>
+            Waiting for:{' '}
+            {notVoted.map((p, i) => (
+              <span key={p.name}>
+                {i > 0 && ', '}
+                <span style={{ color: p.connected ? '#c8d8e8' : '#d04848', fontWeight: p.connected ? 'normal' : '600' }}>
+                  {p.name}{!p.connected && ' (offline)'}
+                </span>
+              </span>
+            ))}
+          </p>
+        )}
         {room.players.length >= 7 && room.currentMission === 4 && (
           <p style={{ fontSize: '0.8rem', color: '#888', marginBottom: 12 }}>2 fail cards required to fail this quest</p>
         )}

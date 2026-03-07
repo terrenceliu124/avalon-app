@@ -16,6 +16,14 @@ export default function QuestPage() {
   const cardCount = questProgress?.cardCount ?? Object.keys(room.questCards || {}).length;
   const pct = teamSize > 0 ? Math.round((cardCount / teamSize) * 100) : 0;
 
+  const notPlayed = questProgress?.notPlayed
+    ?? team
+        .filter(name => !room.questCards || room.questCards[name] === undefined)
+        .map(name => {
+          const p = room.players.find(pl => pl.name === name);
+          return { name, connected: p ? p.connected !== false : true };
+        });
+
   const isEvil = player?.team === 'evil';
   const [pendingCard, setPendingCard] = useState(null);
 
@@ -38,6 +46,19 @@ export default function QuestPage() {
         <p style={{ fontSize: '0.85rem', color: '#888', marginBottom: 4, textAlign: 'center' }}>
           {cardCount} of {teamSize} cards played
         </p>
+        {notPlayed.length > 0 && (
+          <p style={{ fontSize: '0.8rem', color: '#888', marginBottom: 4, textAlign: 'center' }}>
+            Waiting for:{' '}
+            {notPlayed.map((p, i) => (
+              <span key={p.name}>
+                {i > 0 && ', '}
+                <span style={{ color: p.connected ? '#c8d8e8' : '#d04848', fontWeight: p.connected ? 'normal' : '600' }}>
+                  {p.name}{!p.connected && ' (offline)'}
+                </span>
+              </span>
+            ))}
+          </p>
+        )}
         <p style={{ fontSize: '0.85rem', color: '#888', marginBottom: 12, textAlign: 'center' }}>
           {room.players.length >= 7 && room.currentMission === 4 ? '2 fail cards required to fail this quest' : '1 fail card required to fail this quest'}
         </p>

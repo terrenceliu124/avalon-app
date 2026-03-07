@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useGame } from '../context/GameContext';
 import MissionTrack from './MissionTrack';
 import { getRoleCard } from '../assets';
@@ -266,50 +266,104 @@ function RoomTab({ room, roomCode, isCurrentUserHost, socket, devMode, devWinner
   );
 }
 
+const TAB_ORDER = ['role', 'history', 'room'];
+const TAB_LABELS = { role: 'Role', history: 'History', room: 'Room' };
+
 export default function InfoPanel() {
   const { state, socket, dispatch } = useGame();
   const { room, roomCode, player, nightVision, devMode, devWinner } = state;
   const isCurrentUserHost = room?.players.find(p => p.name === player?.name)?.isHost ?? false;
   const [open, setOpen] = useState(false);
+  const [closing, setClosing] = useState(false);
   const isLobby = room?.phase === 'lobby';
   const [activeTab, setActiveTab] = useState('role');
-  const visibleTab = isLobby ? 'room' : activeTab;
 
-  // Only show during active game phases (not on HomePage or LobbyPage)
+  function closePanel() {
+    setClosing(true);
+    setTimeout(() => {
+      setOpen(false);
+      setClosing(false);
+    }, 300);
+  }
+
+  const cardRef = useRef(null);
+  const tabScrollRef = useRef(null);
+
+  function switchTab(tab) {
+    setActiveTab(tab);
+    if (tabScrollRef.current) {
+      const idx = TAB_ORDER.indexOf(tab);
+      tabScrollRef.current.scrollTo({ left: idx * tabScrollRef.current.clientWidth, behavior: 'smooth' });
+    }
+  }
+
+  function handleTabScroll(e) {
+    const el = e.currentTarget;
+    const idx = Math.round(el.scrollLeft / el.clientWidth);
+    const newTab = TAB_ORDER[idx];
+    if (newTab && newTab !== activeTab) setActiveTab(newTab);
+  }
+
+  // Sync scroll position when panel opens
+  useEffect(() => {
+    if (!open || !tabScrollRef.current) return;
+    const idx = TAB_ORDER.indexOf(activeTab);
+    tabScrollRef.current.scrollLeft = idx * tabScrollRef.current.clientWidth;
+  }, [open]);
+
+
   if (!room) return null;
 
   return (
     <>
-      <button
-        className="info-fab"
-        onClick={() => setOpen(true)}
-        aria-label="Game info"
-      >
+      <button className="info-fab" onClick={() => setOpen(true)} aria-label="Game info">
         i
       </button>
 
       {open && (
-        <div className="overlay info-overlay" onClick={() => setOpen(false)}>
-          <div className="overlay-card info-overlay-card" onClick={e => e.stopPropagation()}>
-            <button className="info-close-btn" onClick={() => setOpen(false)} aria-label="Close">✕</button>
-
-            {!isLobby && (
-              <div className="tab-row">
-                {['role', 'history', 'room'].map(tab => (
-                  <button
-                    key={tab}
-                    className={`tab-btn${activeTab === tab ? ' active' : ''}`}
-                    onClick={() => setActiveTab(tab)}
-                  >
-                    {tab.charAt(0).toUpperCase() + tab.slice(1)}
-                  </button>
-                ))}
+        <div className={`overlay info-overlay${closing ? ' is-closing' : ''}`} onClick={closePanel}>
+          <div
+            className={`overlay-card info-overlay-card${closing ? ' is-closing' : ''}`}
+            onClick={e => e.stopPropagation()}
+            ref={cardRef}
+          >
+            <div className="info-panel-header">
+              <div className="info-panel-drag-pill" />
+              <div className="info-panel-title-row">
+                <svg className="info-panel-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <path d="M12 2L3 6v6c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V6L12 2z" fill="currentColor"/>
+                </svg>
+                <span style={{ flex: 1 }} />
+                <button className="info-panel-close" onClick={closePanel} aria-label="Close">✕</button>
               </div>
-            )}
+              {!isLobby && (
+                <div className="tab-row tab-row-pill">
+                  {TAB_ORDER.map(tab => (
+                    <button
+                      key={tab}
+                      className={`tab-btn${activeTab === tab ? ' active' : ''}`}
+                      onClick={() => switchTab(tab)}
+                    >
+                      {TAB_LABELS[tab]}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
 
-            {visibleTab === 'role' && <RoleTab player={player} nightVision={nightVision} phase={room.phase} />}
-            {visibleTab === 'history' && <HistoryTab history={room.history} showVotingHistory={room.showVotingHistory !== false} />}
-            {visibleTab === 'room' && <RoomTab room={room} roomCode={roomCode} isCurrentUserHost={isCurrentUserHost} socket={socket} devMode={devMode} devWinner={devWinner} dispatch={dispatch} />}
+            <div className="info-panel-body">
+              {isLobby ? (
+                <div className="tab-pane">
+                  <RoomTab room={room} roomCode={roomCode} isCurrentUserHost={isCurrentUserHost} socket={socket} devMode={devMode} devWinner={devWinner} dispatch={dispatch} />
+                </div>
+              ) : (
+                <div className="tab-scroll-container" ref={tabScrollRef} onScroll={handleTabScroll}>
+                  <div className="tab-pane"><RoleTab player={player} nightVision={nightVision} phase={room.phase} /></div>
+                  <div className="tab-pane"><HistoryTab history={room.history} showVotingHistory={room.showVotingHistory !== false} /></div>
+                  <div className="tab-pane"><RoomTab room={room} roomCode={roomCode} isCurrentUserHost={isCurrentUserHost} socket={socket} devMode={devMode} devWinner={devWinner} dispatch={dispatch} /></div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}

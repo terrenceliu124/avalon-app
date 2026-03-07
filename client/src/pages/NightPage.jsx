@@ -3,8 +3,6 @@ import { useGame } from '../context/GameContext';
 import MissionTrack from '../components/MissionTrack';
 import { PAGE_BACKGROUND, NIGHT_CEREMONY_CONFIG, cardScrollStyle, cardTexturedStyle } from '../assets';
 
-const { STEP_REPEAT_COUNT, STEP_INTERVAL_MS, FALLBACK_STEP_DURATION_MS } = NIGHT_CEREMONY_CONFIG;
-
 function buildCeremonySteps(selectedRoles) {
   const hasOberon = selectedRoles.includes('Oberon');
   const hasPercival = selectedRoles.includes('Percival');
@@ -110,12 +108,18 @@ export default function NightPage() {
   return <HostNightView socket={socket} room={room} roomCode={roomCode} bgStyle={bgStyle} />;
 }
 
+const INTERVAL_OPTIONS = [3000, 5000, 8000, 10000]; // ms
+const REPEAT_OPTIONS   = [1, 2, 3];
+
 function HostNightView({ socket, room, roomCode, bgStyle }) {
   const steps = buildCeremonySteps(room.selectedRoles || []);
   const total = steps.length;
 
   const [playState, setPlayState] = useState('idle'); // 'idle' | 'playing' | 'done'
   const [stepIndex, setStepIndex] = useState(0);
+  const [intervalIdx, setIntervalIdx] = useState(0); // default 3s
+  const [repeatIdx,   setRepeatIdx]   = useState(0); // default 1×
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const seqRef = useRef({ timeout: null, cancelled: false });
   const audioRef = useRef(null);
 
@@ -134,6 +138,10 @@ function HostNightView({ socket, room, roomCode, bgStyle }) {
     setPlayState('playing');
     setStepIndex(0);
 
+    const intervalMs  = INTERVAL_OPTIONS[intervalIdx];
+    const repeatCount = REPEAT_OPTIONS[repeatIdx];
+    const fallbackMs  = intervalMs + 500;
+
     function advance(idx) {
       if (seqRef.current.cancelled) return;
       if (idx >= steps.length) { setPlayState('done'); return; }
@@ -151,21 +159,21 @@ function HostNightView({ socket, room, roomCode, bgStyle }) {
         const onDone = () => {
           if (seqRef.current.cancelled || handled) return;
           handled = true;
-          if (r < STEP_REPEAT_COUNT - 1) {
+          if (r < repeatCount - 1) {
             seqRef.current.timeout = setTimeout(() => playRepeat(r + 1), 500);
           } else {
-            seqRef.current.timeout = setTimeout(() => advance(idx + 1), STEP_INTERVAL_MS);
+            seqRef.current.timeout = setTimeout(() => advance(idx + 1), intervalMs);
           }
         };
 
         audio.onended = onDone;
         audio.onerror = () => {
-          seqRef.current.timeout = setTimeout(onDone, FALLBACK_STEP_DURATION_MS);
+          seqRef.current.timeout = setTimeout(onDone, fallbackMs);
         };
         // Reuse the single Audio element by swapping src — keeps iOS autoplay unlock intact.
         audio.src = step.audioSrc;
         audio.play().catch(() => {
-          seqRef.current.timeout = setTimeout(onDone, FALLBACK_STEP_DURATION_MS);
+          seqRef.current.timeout = setTimeout(onDone, fallbackMs);
         });
       };
 
@@ -201,9 +209,81 @@ function HostNightView({ socket, room, roomCode, bgStyle }) {
         )}
 
         {playState === 'idle' && (
-          <p style={{ color: '#b0b0c0', marginBottom: 16, fontSize: '0.95rem' }}>
-            {steps[0].text}
-          </p>
+          <>
+            <p style={{ color: '#b0b0c0', marginBottom: 12, fontSize: '0.95rem' }}>
+              {steps[0].text}
+            </p>
+
+            <button
+              className="btn btn-ghost"
+              style={{ fontSize: '0.82rem', minHeight: 34, padding: '5px 12px', marginBottom: 8 }}
+              onClick={() => setSettingsOpen(o => !o)}
+            >
+              {settingsOpen ? 'Hide Timing Settings ▲' : 'Timing Settings ▼'}
+            </button>
+
+            {settingsOpen && (
+              <div style={{ marginBottom: 12, padding: '10px 4px' }}>
+
+                {/* Interval slider */}
+                <div style={{ marginBottom: 16 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                    <span style={{ fontSize: '0.8rem', color: '#a89878' }}>Wait between clips</span>
+                    <span style={{ fontSize: '0.8rem', color: '#c9a87a', fontWeight: 600 }}>
+                      {INTERVAL_OPTIONS[intervalIdx] / 1000}s
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    min={0} max={INTERVAL_OPTIONS.length - 1} step={1}
+                    value={intervalIdx}
+                    onChange={e => setIntervalIdx(Number(e.target.value))}
+                    style={{ width: '100%', accentColor: '#c9a87a' }}
+                  />
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4 }}>
+                    {INTERVAL_OPTIONS.map((ms, i) => (
+                      <span key={i} style={{
+                        fontSize: '0.72rem',
+                        color: i === intervalIdx ? '#c9a87a' : '#7a6a58',
+                        fontWeight: i === intervalIdx ? 600 : 400,
+                      }}>
+                        {ms / 1000}s
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Repeat slider */}
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                    <span style={{ fontSize: '0.8rem', color: '#a89878' }}>Repeat each clip</span>
+                    <span style={{ fontSize: '0.8rem', color: '#c9a87a', fontWeight: 600 }}>
+                      {REPEAT_OPTIONS[repeatIdx]}×
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    min={0} max={REPEAT_OPTIONS.length - 1} step={1}
+                    value={repeatIdx}
+                    onChange={e => setRepeatIdx(Number(e.target.value))}
+                    style={{ width: '100%', accentColor: '#c9a87a' }}
+                  />
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4 }}>
+                    {REPEAT_OPTIONS.map((n, i) => (
+                      <span key={i} style={{
+                        fontSize: '0.72rem',
+                        color: i === repeatIdx ? '#c9a87a' : '#7a6a58',
+                        fontWeight: i === repeatIdx ? 600 : 400,
+                      }}>
+                        {n}×
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+              </div>
+            )}
+          </>
         )}
 
         {playState === 'playing' && (

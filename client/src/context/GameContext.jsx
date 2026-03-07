@@ -54,9 +54,9 @@ function reducer(state, action) {
     case 'CLEAR_ERROR':
       return { ...state, error: null };
     case 'VOTE_UPDATE':
-      return { ...state, voteProgress: { voteCount: action.voteCount, totalPlayers: action.totalPlayers } };
+      return { ...state, voteProgress: { voteCount: action.voteCount, totalPlayers: action.totalPlayers, notVoted: action.notVoted } };
     case 'QUEST_UPDATE':
-      return { ...state, questProgress: { cardCount: action.cardCount, teamSize: action.teamSize } };
+      return { ...state, questProgress: { cardCount: action.cardCount, teamSize: action.teamSize, notPlayed: action.notPlayed } };
     case 'VOTE_RESULT':
       return { ...state, voteResult: { votes: action.votes, approved: action.approved, room: action.room } };
     case 'QUEST_RESULT':
@@ -153,12 +153,12 @@ export function GameProvider({ children }) {
       dispatch({ type: 'ROLE_ASSIGNED', player, nightVision });
     });
 
-    socket.on('vote_update', ({ voteCount, totalPlayers }) => {
-      dispatch({ type: 'VOTE_UPDATE', voteCount, totalPlayers });
+    socket.on('vote_update', ({ voteCount, totalPlayers, notVoted }) => {
+      dispatch({ type: 'VOTE_UPDATE', voteCount, totalPlayers, notVoted });
     });
 
-    socket.on('quest_update', ({ cardCount, teamSize }) => {
-      dispatch({ type: 'QUEST_UPDATE', cardCount, teamSize });
+    socket.on('quest_update', ({ cardCount, teamSize, notPlayed }) => {
+      dispatch({ type: 'QUEST_UPDATE', cardCount, teamSize, notPlayed });
     });
 
     socket.on('vote_result', ({ votes, approved, room }) => {

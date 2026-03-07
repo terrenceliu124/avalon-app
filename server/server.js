@@ -459,7 +459,11 @@ function _resolveVotes(room, roomCode) {
   const totalPlayers = room.players.length;
   const voteCount = Object.keys(room.votes).length;
 
-  io.to(roomCode).emit('vote_update', { voteCount, totalPlayers });
+  const votedNames = new Set(Object.keys(room.votes));
+  const notVoted = room.players
+    .filter(p => !p.isBot && !votedNames.has(p.name))
+    .map(p => ({ name: p.name, connected: p.connected !== false }));
+  io.to(roomCode).emit('vote_update', { voteCount, totalPlayers, notVoted });
 
   if (voteCount === totalPlayers) {
     const approvals = Object.values(room.votes).filter(v => v).length;
@@ -533,7 +537,14 @@ function _resolveQuest(room, roomCode) {
 
   const cardCount = Object.keys(room.questCards).length;
 
-  io.to(roomCode).emit('quest_update', { cardCount, teamSize: room.proposedTeam.length });
+  const playedNames = new Set(Object.keys(room.questCards));
+  const notPlayed = room.proposedTeam
+    .filter(name => !playedNames.has(name))
+    .map(name => {
+      const p = room.players.find(pl => pl.name === name);
+      return { name, connected: p ? p.connected !== false : true };
+    });
+  io.to(roomCode).emit('quest_update', { cardCount, teamSize: room.proposedTeam.length, notPlayed });
 
   if (cardCount === room.proposedTeam.length) {
     const fails = Object.values(room.questCards).filter(c => c === 'fail').length;
