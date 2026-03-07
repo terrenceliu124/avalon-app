@@ -217,6 +217,40 @@ io.on('connection', (socket) => {
     socket.emit('all_rooms', { rooms: roomSummaries });
   });
 
+  socket.on('get_room_detail', ({ roomCode }) => {
+    if (!devAuthedSockets.has(socket.id)) {
+      return socket.emit('error', { message: 'Unauthorized' });
+    }
+    const code = (roomCode || '').toUpperCase().trim();
+    const room = getRoom(code);
+    if (!room) return socket.emit('room_detail', { error: 'Room not found' });
+
+    const leader = room.players[room.leaderIndex];
+    socket.emit('room_detail', {
+      code,
+      phase: room.phase,
+      currentMission: room.currentMission,
+      rejectionCount: room.rejectionCount,
+      selectedRoles: room.selectedRoles || [],
+      proposedTeam: room.proposedTeam || [],
+      winner: room.winner || null,
+      leader: leader ? leader.name : null,
+      players: room.players.map(p => ({
+        name: p.name,
+        socketId: p.id,
+        isBot: !!p.isBot,
+        isHost: !!p.isHost,
+        connected: p.connected !== false,
+        role: p.role || null,
+        team: p.team || null,
+        hasVoted: room.votes ? p.name in room.votes : false,
+        vote: room.votes ? room.votes[p.name] ?? null : null,
+        hasPlayedQuestCard: room.questCards ? p.name in room.questCards : false,
+        onProposedTeam: (room.proposedTeam || []).includes(p.name),
+      })),
+    });
+  });
+
   socket.on('start_game', ({ roomCode, forcedRoles }) => {
     const room = getRoom(roomCode);
     if (!room) return socket.emit('error', { message: 'Room not found' });
