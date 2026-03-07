@@ -77,7 +77,7 @@ export default function QuestPage() {
             <>
               <div className="btn-row" style={{ justifyContent: 'center', gap: 24 }}>
                 <TokenButton
-                  src="/assets/backgrounds/vote_Approve.png"
+                  src="/assets/backgrounds/success.png"
                   alt="Success"
                   onClick={pendingCard === null ? () => handleCard('success') : undefined}
                   selected={pendingCard === 'success'}
@@ -85,7 +85,7 @@ export default function QuestPage() {
                 />
                 {isEvil && (
                   <TokenButton
-                    src="/assets/backgrounds/vote_Reject.png"
+                    src="/assets/backgrounds/fail.png"
                     alt="Fail"
                     onClick={pendingCard === null ? () => handleCard('fail') : undefined}
                     selected={pendingCard === 'fail'}
