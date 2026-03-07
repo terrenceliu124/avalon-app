@@ -594,31 +594,10 @@ label { display: block; font-size: 1rem; color: #8a7a62; margin-bottom: 14px; }
   box-shadow: 0 1px 4px rgba(0,0,0,0.5);
 }
 .info-panel-body {
-  flex: 1; overflow: hidden; min-height: 0;
-}
-.tab-scroll-container {
-  display: flex;
-  overflow-x: scroll;
-  overflow-y: hidden;
-  scroll-snap-type: x mandatory;
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior-x: contain;
-  height: 100%;
-}
-.tab-scroll-container::-webkit-scrollbar { display: none; }
-.tab-pane {
-  flex: 0 0 100%;
-  height: 100%;
-  overflow-y: auto;
-  overscroll-behavior: contain;
+  flex: 1; overflow-y: auto; min-height: 0;
   padding: 12px 20px max(32px, env(safe-area-inset-bottom));
-  scroll-snap-align: start;
   box-sizing: border-box;
 }
-.tab-pane::-webkit-scrollbar { width: 4px; }
-.tab-pane::-webkit-scrollbar-track { background: transparent; }
-.tab-pane::-webkit-scrollbar-thumb { background: #2a3a50; border-radius: 2px; }
 .info-tab-content { margin-top: 8px; }
 .info-section { margin-top: 20px; }
 

@@ -287,21 +287,9 @@ export default function InfoPanel() {
   }
 
   const cardRef = useRef(null);
-  const tabScrollRef = useRef(null);
 
   function switchTab(tab) {
     setActiveTab(tab);
-    if (tabScrollRef.current) {
-      const idx = TAB_ORDER.indexOf(tab);
-      tabScrollRef.current.scrollTo({ left: idx * tabScrollRef.current.clientWidth, behavior: 'smooth' });
-    }
-  }
-
-  function handleTabScroll(e) {
-    const el = e.currentTarget;
-    const idx = Math.round(el.scrollLeft / el.clientWidth);
-    const newTab = TAB_ORDER[idx];
-    if (newTab && newTab !== activeTab) setActiveTab(newTab);
   }
 
   // Lock body scroll while panel is open (prevents background scroll on iOS)
@@ -312,13 +300,6 @@ export default function InfoPanel() {
       document.body.style.overflow = '';
     }
     return () => { document.body.style.overflow = ''; };
-  }, [open]);
-
-  // Sync scroll position when panel opens
-  useEffect(() => {
-    if (!open || !tabScrollRef.current) return;
-    const idx = TAB_ORDER.indexOf(activeTab);
-    tabScrollRef.current.scrollLeft = idx * tabScrollRef.current.clientWidth;
   }, [open]);
 
 
@@ -360,15 +341,13 @@ export default function InfoPanel() {
 
             <div className="info-panel-body">
               {isLobby ? (
-                <div className="tab-pane">
-                  <RoomTab room={room} roomCode={roomCode} isCurrentUserHost={isCurrentUserHost} socket={socket} devMode={devMode} devWinner={devWinner} dispatch={dispatch} />
-                </div>
+                <RoomTab room={room} roomCode={roomCode} isCurrentUserHost={isCurrentUserHost} socket={socket} devMode={devMode} devWinner={devWinner} dispatch={dispatch} />
               ) : (
-                <div className="tab-scroll-container" ref={tabScrollRef} onScroll={handleTabScroll}>
-                  <div className="tab-pane"><RoleTab player={player} nightVision={nightVision} phase={room.phase} /></div>
-                  <div className="tab-pane"><HistoryTab history={room.history} showVotingHistory={room.showVotingHistory !== false} /></div>
-                  <div className="tab-pane"><RoomTab room={room} roomCode={roomCode} isCurrentUserHost={isCurrentUserHost} socket={socket} devMode={devMode} devWinner={devWinner} dispatch={dispatch} /></div>
-                </div>
+                <>
+                  {activeTab === 'role' && <RoleTab player={player} nightVision={nightVision} phase={room.phase} />}
+                  {activeTab === 'history' && <HistoryTab history={room.history} showVotingHistory={room.showVotingHistory !== false} />}
+                  {activeTab === 'room' && <RoomTab room={room} roomCode={roomCode} isCurrentUserHost={isCurrentUserHost} socket={socket} devMode={devMode} devWinner={devWinner} dispatch={dispatch} />}
+                </>
               )}
             </div>
           </div>
